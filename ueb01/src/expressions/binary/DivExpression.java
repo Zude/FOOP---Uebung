@@ -11,6 +11,7 @@ import values.Value;
  * Ein Ausdruck für Division.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
 public class DivExpression<V extends Value<V> & DividableValue<V>> extends BinaryExpression<V> {
 
@@ -24,35 +25,32 @@ public class DivExpression<V extends Value<V> & DividableValue<V>> extends Binar
         super(left, right);
     }
 
-	@Override
-	public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-		//V test = right.evaluate(c);
-		
-		//TODO Wann auf Null testen und exception werfen?
-		
-		
-		//throw new DivByZeroException();
-		
-		return null;
-	}
+    @Override
+    public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
+        // V test = right.evaluate(c);
 
+        // TODO Wann auf Null testen und exception werfen?
 
+        // throw new DivByZeroException();
 
-	@Override
-	public boolean hasCycles() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+        return null;
+    }
 
-	@Override
-	public StringBuilder toString(StringBuilder builder) {
-		assert(builder != null);
-		builder.append("(");
-		builder.append(left.toString());
-		builder.append(" / ");
-		builder.append(right.toString());
-		builder.append(")");
-		return builder;
-	}
+    @Override
+    public boolean hasCycles() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder builder) {
+        assert (builder != null);
+        builder.append("(");
+        builder.append(left.toString());
+        builder.append(" / ");
+        builder.append(right.toString());
+        builder.append(")");
+        return builder;
+    }
 
 }

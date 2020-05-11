@@ -9,6 +9,7 @@ import values.Value;
  * Ein konstanter Ausdruck (ein Literal).
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
 public class ConstExpression<V extends Value<V>> extends AbstractExpression<V> {
 
@@ -26,28 +27,24 @@ public class ConstExpression<V extends Value<V>> extends AbstractExpression<V> {
         this.value = value;
     }
 
-
     @Override
     public StringBuilder toString(StringBuilder builder) {
         return builder.append(this.value);
     }
 
+    @Override
+    public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
+        return value;
+    }
 
-	@Override
-	public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-		return value;
-	}
+    @Override
+    public boolean isConst() {
+        return true;
+    }
 
-
-	@Override
-	public boolean isConst() {
-		return true;
-	}
-
-
-	@Override
-	public boolean hasCycles() {
-		return false;
-	}
+    @Override
+    public boolean hasCycles() {
+        return false;
+    }
 
 }

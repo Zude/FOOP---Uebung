@@ -7,7 +7,7 @@ import expressions.exceptions.DivByZeroException;
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public class IntValue extends Value<IntValue> implements DividableValue<IntValue>{
+public class IntValue extends Value<IntValue> implements DividableValue<IntValue> {
 
     /**
      * Wert der Ganzzahl.
@@ -32,41 +32,34 @@ public class IntValue extends Value<IntValue> implements DividableValue<IntValue
         return value;
     }
 
-
     @Override
     public StringBuilder toString(StringBuilder builder) {
         return builder.append(this.value);
     }
 
+    @Override
+    public IntValue add(IntValue other) {
+        assert (other != null);
 
-	@Override
-	public IntValue add(IntValue other) {
-		assert(other != null);
-		
-		return new IntValue(this.value + other.getValue());
-	}
+        return new IntValue(this.value + other.getValue());
+    }
 
-	@Override
-	public IntValue mul(IntValue other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public IntValue mul(IntValue other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public IntValue sub(IntValue other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public IntValue sub(IntValue other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public IntValue div(IntValue other) throws DivByZeroException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public IntValue div(IntValue other) throws DivByZeroException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-
-
-
-
-    
 }

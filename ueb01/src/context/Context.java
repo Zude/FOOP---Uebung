@@ -10,14 +10,15 @@ import values.Value;
  * Eine Variablenbelegung setzt sich zusammen aus einem Namen und einem mathematischen Wert.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
 public class Context<V extends Value<V>> {
-	
-	private HashMap<String, V> contextMap;
-	
-	public Context () { 
-		contextMap = new HashMap<String, V>(); 
-	}
+
+    private HashMap<String, V> contextMap;
+
+    public Context() {
+        contextMap = new HashMap<String, V>();
+    }
 
     /**
      * Setzt ein neues Name-Wert-Paar im Kontext. Ein Name-Wert Paar, dessen Name bereits vorhanden
@@ -28,11 +29,11 @@ public class Context<V extends Value<V>> {
      * @return this
      */
     public Context<V> setValue(String name, V value) {
-    	assert (value != null && name != null);
-    	       
+        assert (value != null && name != null);
+
         contextMap.put(name, value);
-    	
-    	return this;
+
+        return this;
     }
 
     /**
@@ -44,13 +45,13 @@ public class Context<V extends Value<V>> {
      * @throws ElementNotFoundException Der Name ist nicht im Kontext vorhanden
      */
     public V getValue(String name) throws ElementNotFoundException {
-    	assert (name != null);
-    	
-    	if (!has(name)) {
-    		throw new ElementNotFoundException(name);
-    	}
-    
-    	return contextMap.get(name);
+        assert (name != null);
+
+        if (!has(name)) {
+            throw new ElementNotFoundException(name);
+        }
+
+        return contextMap.get(name);
     }
 
     /**
@@ -60,7 +61,7 @@ public class Context<V extends Value<V>> {
      * @return true, wenn der Name vorhanden ist, sonst false
      */
     public boolean has(String name) {
-    	return contextMap.containsKey(name);
+        return contextMap.containsKey(name);
     }
 
 }

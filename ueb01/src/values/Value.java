@@ -7,13 +7,14 @@ import java.util.List;
  * Multiplikation zur Verfügung.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
 
-public abstract class Value <V extends Value<V>> {
+public abstract class Value<V extends Value<V>> {
 
     /**
-     * Gibt einen neuen Wert zurück, der durch die Addition des übergebenen Wertes zu dem aktuellen
-     * Wert entsteht.
+     * Gibt einen neuen Wert zurück, der durch die Addition des übergebenen Wertes zu dem
+     * aktuellen Wert entsteht.
      * 
      * @param other Der Wert, der zu dem aktuellen Wert addiert werden soll
      * @return Das Ergebnis der Addition
@@ -30,8 +31,8 @@ public abstract class Value <V extends Value<V>> {
     public abstract V mul(V other);
 
     /**
-     * Gibt einen neuen Wert zurück, der durch die Subtraktion des übergebenen Wertes vom aktuellen
-     * Wert entsteht.
+     * Gibt einen neuen Wert zurück, der durch die Subtraktion des übergebenen Wertes vom
+     * aktuellen Wert entsteht.
      * 
      * @param other Der Wert, der von dem aktuellen Wert subtrahiert werden soll
      * @return Das Ergebnis der Subtraktion

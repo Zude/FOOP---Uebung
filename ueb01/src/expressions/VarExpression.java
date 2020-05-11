@@ -10,6 +10,7 @@ import values.Value;
  * Ein variabler Ausdruck.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
 public class VarExpression<V extends Value<V>> extends AbstractExpression<V> {
     /**
@@ -31,28 +32,27 @@ public class VarExpression<V extends Value<V>> extends AbstractExpression<V> {
         return builder.append(this.varName);
     }
 
-	@Override
-	public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-		assert(c != null);
-		
-		try {
-			return c.getValue(varName);
-		} 
-		catch (ElementNotFoundException e) {
-			throw new ContextIncompleteException("varName");
-		}
+    @Override
+    public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
+        assert (c != null);
 
-	}
+        try {
+            return c.getValue(varName);
+        } catch (ElementNotFoundException e) {
+            throw new ContextIncompleteException("varName");
+        }
 
-	@Override
-	public boolean isConst() {
-		return false;
-	}
+    }
 
-	@Override
-	public boolean hasCycles() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isConst() {
+        return false;
+    }
+
+    @Override
+    public boolean hasCycles() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }

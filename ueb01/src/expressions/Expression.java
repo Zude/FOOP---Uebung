@@ -9,32 +9,29 @@ import values.Value;
  * Ein mathematischer Ausdruck.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
-public interface Expression <V extends Value<V>> {
+public interface Expression<V extends Value<V>> {
 
     /**
-     * Wertet den Ausdruck mit den Variablen aus dem übergebenen Kontext aus.
-     * Kann eine Auswertung nicht vollständig erfolgen, so wird eine Exception
-     * ausgelöst.
+     * Wertet den Ausdruck mit den Variablen aus dem übergebenen Kontext aus. Kann eine Auswertung
+     * nicht vollständig erfolgen, so wird eine Exception ausgelöst.
      * 
-     * @param c Kontext. Falls der Kontext nicht benötigt wird, darf c leer oder
-     *            null sein.
+     * @param c Kontext. Falls der Kontext nicht benötigt wird, darf c leer oder null sein.
      * @return Ergebnis des Ausdrucks (ein mathematischer Wert).
-     * @throws ContextIncompleteException Falls zur Auswertung benötigte
-     *             Variablen nicht im Kontext enthalten sind
-     * @throws DivByZeroException Falls im Rahmen der Auswertung eine Division
-     *             durch Null erfolgen sollte
+     * @throws ContextIncompleteException Falls zur Auswertung benötigte Variablen nicht im Kontext
+     *             enthalten sind
+     * @throws DivByZeroException Falls im Rahmen der Auswertung eine Division durch Null erfolgen
+     *             sollte
      */
-    V evaluate(Context<V> c) throws ContextIncompleteException,
-            DivByZeroException;
+    V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException;
 
     /**
-     * Testet ob der Ausdruck konstant ist, also ohne Variablenbelegung
-     * ausgewertet werden kann.
+     * Testet ob der Ausdruck konstant ist, also ohne Variablenbelegung ausgewertet werden kann.
      * 
      * 
-     * @return true, wenn diese Expression ohne Variablenbelegung ausgewertet
-     *         werden kann, sonst false.
+     * @return true, wenn diese Expression ohne Variablenbelegung ausgewertet werden kann, sonst
+     *         false.
      */
     boolean isConst();
 
@@ -50,8 +47,8 @@ public interface Expression <V extends Value<V>> {
      * 
      * Operationen werden grundsätzlich geklammert dargestellt.
      * 
-     * Bei binären Operationen ist zwischen den Operanden und dem
-     * Operationssymbol jeweils ein einzelnes Leerzeichen.
+     * Bei binären Operationen ist zwischen den Operanden und dem Operationssymbol jeweils ein
+     * einzelnes Leerzeichen.
      * 
      * Operationsymbole für die Operationen:
      * <ul>
@@ -75,9 +72,8 @@ public interface Expression <V extends Value<V>> {
     StringBuilder toString(StringBuilder builder);
 
     /**
-     * Gibt die Repräsentation des Ausdrucks als String zurück. Hier wird aus
-     * Effizienzgründen die eigene toString-Methode mit dem StringBuilder
-     * verwendet.
+     * Gibt die Repräsentation des Ausdrucks als String zurück. Hier wird aus Effizienzgründen
+     * die eigene toString-Methode mit dem StringBuilder verwendet.
      * 
      * @return Stringrepräsentation
      */

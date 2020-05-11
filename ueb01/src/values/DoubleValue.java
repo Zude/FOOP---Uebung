@@ -36,28 +36,28 @@ public class DoubleValue extends Value<DoubleValue> implements DividableValue<Do
         return builder.append(this.value);
     }
 
-	@Override
-	public DoubleValue div(DoubleValue other) throws DivByZeroException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public DoubleValue div(DoubleValue other) throws DivByZeroException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public DoubleValue add(DoubleValue other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public DoubleValue add(DoubleValue other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public DoubleValue mul(DoubleValue other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public DoubleValue mul(DoubleValue other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public DoubleValue sub(DoubleValue other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public DoubleValue sub(DoubleValue other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

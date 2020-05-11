@@ -6,6 +6,7 @@ import values.Value;
  * Abstrakte Oberklasse zur Vermeidung von Codeverdoppelung.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
 public abstract class AbstractExpression<V extends Value<V>> implements Expression<V> {
 
@@ -13,11 +14,10 @@ public abstract class AbstractExpression<V extends Value<V>> implements Expressi
     public String toString() {
         return toString(new StringBuilder()).toString();
     }
-    
-    
+
     // Folgende Methoden nutzen toString(), sind daher ineffizient und dürfen somit nur in Tests
     // verwendet werden:
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

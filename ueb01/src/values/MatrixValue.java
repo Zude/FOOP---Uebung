@@ -8,6 +8,7 @@ package values;
 public class MatrixValue extends Value<MatrixValue> {
     /**
      * Anzahl der Zeilen der Matrix.
+     * 
      */
     private final int rows;
 
@@ -17,8 +18,8 @@ public class MatrixValue extends Value<MatrixValue> {
     private final int cols;
 
     /**
-     * Die Matrix-Werte. Die erste Dimension des Arrays enthält die Matrix-Zeilen und die zweite die
-     * Werte einer Zeile.
+     * Die Matrix-Werte. Die erste Dimension des Arrays enthält die Matrix-Zeilen und die zweite
+     * die Werte einer Zeile.
      */
     private final double[][] values;
 
@@ -102,21 +103,21 @@ public class MatrixValue extends Value<MatrixValue> {
         return builder;
     }
 
-	@Override
-	public MatrixValue add(MatrixValue other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public MatrixValue add(MatrixValue other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public MatrixValue mul(MatrixValue other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public MatrixValue mul(MatrixValue other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public MatrixValue sub(MatrixValue other) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public MatrixValue sub(MatrixValue other) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

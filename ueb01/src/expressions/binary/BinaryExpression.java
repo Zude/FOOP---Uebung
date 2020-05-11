@@ -8,6 +8,7 @@ import values.Value;
  * Abstrakte Klasse für mathematische Ausdrücke mit zwei Teilausdrücken.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
 public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpression<V> {
 
@@ -68,10 +69,9 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
         this.right = right;
     }
 
-    
     @Override
-	public boolean isConst() {
-		return left.isConst() && right.isConst();
-	}
+    public boolean isConst() {
+        return left.isConst() && right.isConst();
+    }
 
 }

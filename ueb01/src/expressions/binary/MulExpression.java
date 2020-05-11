@@ -10,6 +10,7 @@ import values.Value;
  * Ein Ausdruck für Multiplikation.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
+ * @param <V> Value
  */
 public class MulExpression<V extends Value<V>> extends BinaryExpression<V> {
 
@@ -23,29 +24,27 @@ public class MulExpression<V extends Value<V>> extends BinaryExpression<V> {
         super(left, right);
     }
 
-	@Override
-	public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+    @Override
+    public boolean hasCycles() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-
-	@Override
-	public boolean hasCycles() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public StringBuilder toString(StringBuilder builder) {
-		assert(builder != null);
-		builder.append("(");
-		builder.append(left.toString());
-		builder.append(" * ");
-		builder.append(right.toString());
-		builder.append(")");
-		return builder;
-	}
+    @Override
+    public StringBuilder toString(StringBuilder builder) {
+        assert (builder != null);
+        builder.append("(");
+        builder.append(left.toString());
+        builder.append(" * ");
+        builder.append(right.toString());
+        builder.append(")");
+        return builder;
+    }
 
 }
