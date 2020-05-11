@@ -41,8 +41,9 @@ public class IntValue extends Value<IntValue> implements DividableValue<IntValue
 
 	@Override
 	public IntValue add(IntValue other) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(other != null);
+		
+		return new IntValue(this.value + other.getValue());
 	}
 
 	@Override

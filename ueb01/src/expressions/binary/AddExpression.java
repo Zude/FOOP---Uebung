@@ -25,15 +25,11 @@ public class AddExpression<V extends Value<V>> extends BinaryExpression<V> {
 
 	@Override
 	public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return left.evaluate(c).add(right.evaluate(c));
 	}
 
-	@Override
-	public boolean isConst() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public boolean hasCycles() {
@@ -43,8 +39,13 @@ public class AddExpression<V extends Value<V>> extends BinaryExpression<V> {
 
 	@Override
 	public StringBuilder toString(StringBuilder builder) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(builder != null);
+		builder.append("(");
+		builder.append(left.toString());
+		builder.append(" + ");
+		builder.append(right.toString());
+		builder.append(")");
+		return builder;
 	}
 
     

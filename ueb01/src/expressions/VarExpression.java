@@ -1,6 +1,7 @@
 package expressions;
 
 import context.Context;
+import context.ElementNotFoundException;
 import expressions.exceptions.ContextIncompleteException;
 import expressions.exceptions.DivByZeroException;
 import values.Value;
@@ -32,17 +33,19 @@ public class VarExpression<V extends Value<V>> extends AbstractExpression<V> {
 
 	@Override
 	public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
+		assert(c != null);
 		
-	//TODO
-	return null;
-		
-		
-		
+		try {
+			return c.getValue(varName);
+		} 
+		catch (ElementNotFoundException e) {
+			throw new ContextIncompleteException("varName");
+		}
+
 	}
 
 	@Override
 	public boolean isConst() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

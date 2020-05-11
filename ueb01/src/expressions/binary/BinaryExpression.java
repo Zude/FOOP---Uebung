@@ -68,5 +68,10 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
         this.right = right;
     }
 
+    
+    @Override
+	public boolean isConst() {
+		return left.isConst() && right.isConst();
+	}
 
 }

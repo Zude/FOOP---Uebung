@@ -4,6 +4,7 @@ import context.Context;
 import expressions.Expression;
 import expressions.exceptions.ContextIncompleteException;
 import expressions.exceptions.DivByZeroException;
+import values.DividableValue;
 import values.Value;
 
 /**
@@ -11,7 +12,7 @@ import values.Value;
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public class DivExpression<V extends Value<V>> extends BinaryExpression<V> {
+public class DivExpression<V extends Value<V> & DividableValue<V>> extends BinaryExpression<V> {
 
     /**
      * Konstruktor.
@@ -25,15 +26,17 @@ public class DivExpression<V extends Value<V>> extends BinaryExpression<V> {
 
 	@Override
 	public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-		// TODO Auto-generated method stub
+		//V test = right.evaluate(c);
+		
+		//TODO Wann auf Null testen und exception werfen?
+		
+		
+		//throw new DivByZeroException();
+		
 		return null;
 	}
 
-	@Override
-	public boolean isConst() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 
 	@Override
 	public boolean hasCycles() {
@@ -43,8 +46,13 @@ public class DivExpression<V extends Value<V>> extends BinaryExpression<V> {
 
 	@Override
 	public StringBuilder toString(StringBuilder builder) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(builder != null);
+		builder.append("(");
+		builder.append(left.toString());
+		builder.append(" / ");
+		builder.append(right.toString());
+		builder.append(")");
+		return builder;
 	}
 
 }

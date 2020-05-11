@@ -29,11 +29,7 @@ public class SubExpression<V extends Value<V>> extends BinaryExpression<V> {
 		return null;
 	}
 
-	@Override
-	public boolean isConst() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 
 	@Override
 	public boolean hasCycles() {
@@ -43,8 +39,13 @@ public class SubExpression<V extends Value<V>> extends BinaryExpression<V> {
 
 	@Override
 	public StringBuilder toString(StringBuilder builder) {
-		// TODO Auto-generated method stub
-		return null;
+		assert(builder != null);
+		builder.append("(");
+		builder.append(left.toString());
+		builder.append(" - ");
+		builder.append(right.toString());
+		builder.append(")");
+		return builder;
 	}
 
 

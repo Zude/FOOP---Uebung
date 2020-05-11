@@ -1,3 +1,4 @@
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -14,20 +15,9 @@ import expressions.exceptions.DivByZeroException;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    /* hier Testklassen ergÃ¤nzen... */
+  TestJunit1.class
 })
 
-
-/* Ideen für verschiedene Tests:
- * 
- * B: C  == ExpectedResult01
- * B: C + C
- * B: C - C
- * B: C * C
- * B: C : C
- * 
- *
- */
 
 
 
