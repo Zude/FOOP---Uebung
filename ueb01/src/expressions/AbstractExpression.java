@@ -1,11 +1,13 @@
 package expressions;
 
+import values.Value;
+
 /**
  * Abstrakte Oberklasse zur Vermeidung von Codeverdoppelung.
  * 
- * @author kar, mhe, ...
+ * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public abstract class AbstractExpression implements Expression {
+public abstract class AbstractExpression<V extends Value<V>> implements Expression<V> {
 
     @Override
     public String toString() {

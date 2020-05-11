@@ -2,23 +2,24 @@ package expressions.binary;
 
 import expressions.AbstractExpression;
 import expressions.Expression;
+import values.Value;
 
 /**
  * Abstrakte Klasse für mathematische Ausdrücke mit zwei Teilausdrücken.
  * 
- * @author kar, mhe, ...
+ * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public abstract class BinaryExpression extends AbstractExpression {
+public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpression<V> {
 
     /**
      * Linker Teilausdruck.
      */
-    protected Expression left;
+    protected Expression<V> left;
 
     /**
      * Rechter Teilausdruck.
      */
-    protected Expression right;
+    protected Expression<V> right;
 
     /**
      * Konstruktor.
@@ -26,7 +27,7 @@ public abstract class BinaryExpression extends AbstractExpression {
      * @param left linker Teilausdruck
      * @param right rechter Teilausdruck
      */
-    public BinaryExpression(Expression left, Expression right) {
+    public BinaryExpression(Expression<V> left, Expression<V> right) {
         this.left = left;
         this.right = right;
     }
@@ -36,7 +37,7 @@ public abstract class BinaryExpression extends AbstractExpression {
      * 
      * @return left Der linke Teilausdruck
      */
-    public Expression getLeftExpression() {
+    public Expression<V> getLeftExpression() {
         return this.left;
     }
 
@@ -45,7 +46,7 @@ public abstract class BinaryExpression extends AbstractExpression {
      * 
      * @return left Der rechte Teilausdruck
      */
-    public Expression getRightExpression() {
+    public Expression<V> getRightExpression() {
         return this.right;
     }
 
@@ -54,7 +55,7 @@ public abstract class BinaryExpression extends AbstractExpression {
      * 
      * @param left Der zu setzene linke Teilausdruck.
      */
-    public void setLeftExpression(Expression left) {
+    public void setLeftExpression(Expression<V> left) {
         this.left = left;
     }
 
@@ -63,7 +64,7 @@ public abstract class BinaryExpression extends AbstractExpression {
      * 
      * @param right Der zu setzene rechte Teilausdruck.
      */
-    public void setRightExpression(Expression right) {
+    public void setRightExpression(Expression<V> right) {
         this.right = right;
     }
 

@@ -3,9 +3,9 @@ package values;
 /**
  * Eine Matrix.
  * 
- * @author kar, mhe, ...
+ * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public class MatrixValue extends Value {
+public class MatrixValue extends Value<MatrixValue> {
     /**
      * Anzahl der Zeilen der Matrix.
      */
@@ -101,4 +101,22 @@ public class MatrixValue extends Value {
         builder.append("]");
         return builder;
     }
+
+	@Override
+	public MatrixValue add(MatrixValue other) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MatrixValue mul(MatrixValue other) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MatrixValue sub(MatrixValue other) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

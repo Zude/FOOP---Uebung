@@ -1,11 +1,16 @@
 package expressions;
 
+import context.Context;
+import expressions.exceptions.ContextIncompleteException;
+import expressions.exceptions.DivByZeroException;
+import values.Value;
+
 /**
  * Ein variabler Ausdruck.
  * 
- * @author kar, mhe, ...
+ * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public class VarExpression extends AbstractExpression {
+public class VarExpression<V extends Value<V>> extends AbstractExpression<V> {
     /**
      * Name der Variablen.
      */
@@ -24,5 +29,27 @@ public class VarExpression extends AbstractExpression {
     public StringBuilder toString(StringBuilder builder) {
         return builder.append(this.varName);
     }
+
+	@Override
+	public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
+		
+	//TODO
+	return null;
+		
+		
+		
+	}
+
+	@Override
+	public boolean isConst() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasCycles() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

@@ -6,9 +6,10 @@ import java.util.List;
  * Abstrakte Klasse für mathematische Werte. Stellt Methoden zur Addition, Subtraktion und
  * Multiplikation zur Verfügung.
  * 
- * @author kar, mhe, ...
+ * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public abstract class Value {
+
+public abstract class Value <V extends Value<V>> {
 
     /**
      * Gibt einen neuen Wert zurück, der durch die Addition des übergebenen Wertes zu dem aktuellen
@@ -17,7 +18,7 @@ public abstract class Value {
      * @param other Der Wert, der zu dem aktuellen Wert addiert werden soll
      * @return Das Ergebnis der Addition
      */
-    public abstract ... add(... other);
+    public abstract V add(V other);
 
     /**
      * Gibt einen neuen Wert zurück, der durch die Multiplikation des aktuellen Wertes mit dem
@@ -26,7 +27,7 @@ public abstract class Value {
      * @param other Der Wert, mit dem der aktuelle Wert multipliziert werden soll
      * @return Das Ergebnis der Multiplikation
      */
-    public abstract ... mul(... other);
+    public abstract V mul(V other);
 
     /**
      * Gibt einen neuen Wert zurück, der durch die Subtraktion des übergebenen Wertes vom aktuellen
@@ -35,7 +36,7 @@ public abstract class Value {
      * @param other Der Wert, der von dem aktuellen Wert subtrahiert werden soll
      * @return Das Ergebnis der Subtraktion
      */
-    public abstract ... sub(... other);
+    public abstract V sub(V other);
 
     /**
      * Hängt diesen Wert hinten an die übergebene Liste an.
@@ -44,8 +45,8 @@ public abstract class Value {
      * 
      * @param l Die zu nutzende Liste
      */
-    public void appendToList(List l) {
-        /* ... */
+    public void appendToList(List<Value<V>> l) {
+        l.add(this);
     }
 
     /**

@@ -5,9 +5,9 @@ import expressions.exceptions.DivByZeroException;
 /**
  * Schnittstelle für teilbare Werte.
  * 
- * @author kar, mhe, ...
+ * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public interface DividableValue {
+public interface DividableValue <V extends DividableValue<V>> {
     /**
      * Gibt einen neuen Wert zurück, der durch die Division des aktuellen Wertes durch den
      * übergebenen Wert entsteht.
@@ -16,5 +16,5 @@ public interface DividableValue {
      * @return Das Ergebnis der Division
      * @throws DivByZeroException wenn durch null geteilt werden soll
      */
-    ... div(... other) throws DivByZeroException;
+    V div(V other) throws DivByZeroException;
 }

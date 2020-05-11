@@ -3,13 +3,14 @@ package expressions;
 import context.Context;
 import expressions.exceptions.ContextIncompleteException;
 import expressions.exceptions.DivByZeroException;
+import values.Value;
 
 /**
  * Ein mathematischer Ausdruck.
  * 
- * @author kar, mhe, ...
+ * @author kar, mhe, Lars Sander, Alexander Loeffler
  */
-public interface Expression {
+public interface Expression <V extends Value<V>> {
 
     /**
      * Wertet den Ausdruck mit den Variablen aus dem übergebenen Kontext aus.
@@ -24,7 +25,7 @@ public interface Expression {
      * @throws DivByZeroException Falls im Rahmen der Auswertung eine Division
      *             durch Null erfolgen sollte
      */
-    ... evaluate(Context c) throws ContextIncompleteException,
+    V evaluate(Context<V> c) throws ContextIncompleteException,
             DivByZeroException;
 
     /**

@@ -1,6 +1,12 @@
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import context.Context;
+import expressions.AbstractExpression;
+import expressions.Expression;
+import expressions.exceptions.ContextIncompleteException;
+import expressions.exceptions.DivByZeroException;
+
 /**
  * Klasse für JUnit 4.x, mit der alle grundlegenden Tests durchgeführt werden.
  * 
@@ -10,6 +16,20 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
     /* hier Testklassen ergänzen... */
 })
+
+
+/* Ideen f�r verschiedene Tests:
+ * 
+ * B: C  == ExpectedResult01
+ * B: C + C
+ * B: C - C
+ * B: C * C
+ * B: C : C
+ * 
+ *
+ */
+
+
 
 public class TestSuite {
     /**
@@ -21,3 +41,5 @@ public class TestSuite {
         org.junit.runner.JUnitCore.main(TestSuite.class.getName());
     }
 }
+
+
