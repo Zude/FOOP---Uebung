@@ -234,8 +234,8 @@ public class TestJunit1 {
     }
 
     @Test
-    public void complexMulExpressionToStringWithInt() {
-        String strRes = "((10.0 * 10.0) * (5.0 * 5.0))";
+    public void complexMulExpressionToStringWithDouble() {
+        String strRes = "((10.0 * 10.0) * (5.0 * 5.001))";
 
         double val1 = 10.0;
         double val2 = 10.0;
@@ -585,6 +585,40 @@ public class TestJunit1 {
         myExp3.setLeftExpression(myExp3);
 
         assertTrue(myExp3.hasCycles());
+
+    }
+
+    @Test(expected = ContextIncompleteException.class)
+    public void ContextIsMissingValue() {
+        int val1 = 20;
+        int val2 = 3;
+        int val3 = 10;
+        int val4 = 2;
+
+        ConstExpression<IntValue> const1 = new ConstExpression<IntValue>(new IntValue(val1));
+        ConstExpression<IntValue> const2 = new ConstExpression<IntValue>(new IntValue(val2));
+
+        Context<IntValue> c = new Context<IntValue>();
+        VarExpression<IntValue> var1 = new VarExpression<IntValue>("a");
+        VarExpression<IntValue> var2 = new VarExpression<IntValue>("c");
+
+        c.setValue("a", new IntValue(val3));
+        c.setValue("b", new IntValue(val4));
+
+        SubExpression<IntValue> myExp1 = new SubExpression<IntValue>(const1, var2);
+        SubExpression<IntValue> myExp2 = new SubExpression<IntValue>(const2, var1);
+
+        SubExpression<IntValue> myExp3 = new SubExpression<IntValue>(myExp1, myExp2);
+
+        try {
+            int res = myExp3.evaluate(c).getValue();
+        } catch (ContextIncompleteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (DivByZeroException e) {
+            // TODO Auto-generated catch block
+            // e.printStackTrace();
+        }
 
     }
 
