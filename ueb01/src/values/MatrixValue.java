@@ -107,7 +107,6 @@ public class MatrixValue extends Value<MatrixValue> {
     public MatrixValue add(MatrixValue other) {
         assert (other != null);
 
-        // TODO: pruefen ob matritzen gleich groﬂ
         MatrixValue result = new MatrixValue(this.rows, this.cols);
 
         for (int i = 0; i < this.rows; i++) {
@@ -123,7 +122,6 @@ public class MatrixValue extends Value<MatrixValue> {
     @Override
     public MatrixValue sub(MatrixValue other) {
         assert (other != null);
-        // TODO: pruefen ob matritzen gleich groﬂ
 
         MatrixValue result = new MatrixValue(this.rows, this.cols);
 
