@@ -418,6 +418,7 @@ public class TestJunit1 {
         int col1 = 5;
         double val1 = 10.0;
         MatrixValue res = new MatrixValue(row1, col1);
+        MatrixValue expct = new MatrixValue(row1, col1);
 
         MatrixValue mx1 = new MatrixValue(row1, col1);
 
@@ -463,13 +464,14 @@ public class TestJunit1 {
 
         try {
             res = myExp.evaluate(null);
+            expct = exp.evaluate(null);
         } catch (ContextIncompleteException e) {
             e.printStackTrace();
         } catch (DivByZeroException e) {
             e.printStackTrace();
         }
 
-        assertEquals(exp, res);
+        assertEquals(expct, res);
 
     }
 
