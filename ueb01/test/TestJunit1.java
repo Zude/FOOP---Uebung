@@ -290,7 +290,6 @@ public class TestJunit1 {
     public void simpleDivExpressionWithZeroWihtInt() {
 
         Exception exception = new Exception();
-        int res = 0;
 
         int val1 = 10;
         int val2 = 0;
@@ -301,7 +300,7 @@ public class TestJunit1 {
         DivExpression<IntValue> myExp1 = new DivExpression<IntValue>(const1, const2);
 
         try {
-            res = myExp1.evaluate(null).getValue();
+            int res = myExp1.evaluate(null).getValue();
         } catch (ContextIncompleteException e) {
             e.printStackTrace();
         } catch (DivByZeroException e) {
@@ -319,22 +318,15 @@ public class TestJunit1 {
     public void complexMixExpressionWithIntAndContext() {
         int res = 0;
         int expected = 1044;
-        int val1 = 7;
         int val2 = 2;
-        int val3 = 3;
-        int val4 = 4;
 
         Context<IntValue> c = new Context<IntValue>();
 
-        ConstExpression<IntValue> const1 = new ConstExpression<IntValue>(new IntValue(val1));
         ConstExpression<IntValue> const2 = new ConstExpression<IntValue>(new IntValue(val2));
-        ConstExpression<IntValue> const3 = new ConstExpression<IntValue>(new IntValue(val3));
-        ConstExpression<IntValue> const4 = new ConstExpression<IntValue>(new IntValue(val4));
 
         VarExpression<IntValue> var1 = new VarExpression<IntValue>("a");
         VarExpression<IntValue> var2 = new VarExpression<IntValue>("b");
         VarExpression<IntValue> var3 = new VarExpression<IntValue>("c");
-        VarExpression<IntValue> var4 = new VarExpression<IntValue>("dood");
 
         c.setValue("a", new IntValue(10));
         c.setValue("b", new IntValue(100));
@@ -369,26 +361,16 @@ public class TestJunit1 {
         double expected = 1104.343;
         double epsilon = 0.01;
 
-        double val1 = 7;
         double val2 = 2;
-        double val3 = 3;
-        double val4 = 4;
 
         Context<DoubleValue> c = new Context<DoubleValue>();
 
-        ConstExpression<DoubleValue> const1 =
-                new ConstExpression<DoubleValue>(new DoubleValue(val1));
         ConstExpression<DoubleValue> const2 =
                 new ConstExpression<DoubleValue>(new DoubleValue(val2));
-        ConstExpression<DoubleValue> const3 =
-                new ConstExpression<DoubleValue>(new DoubleValue(val3));
-        ConstExpression<DoubleValue> const4 =
-                new ConstExpression<DoubleValue>(new DoubleValue(val4));
 
         VarExpression<DoubleValue> var1 = new VarExpression<DoubleValue>("a");
         VarExpression<DoubleValue> var2 = new VarExpression<DoubleValue>("b");
         VarExpression<DoubleValue> var3 = new VarExpression<DoubleValue>("c");
-        VarExpression<DoubleValue> var4 = new VarExpression<DoubleValue>("dood");
 
         c.setValue("a", new DoubleValue(10.7));
         c.setValue("b", new DoubleValue(100.1232));
@@ -476,7 +458,7 @@ public class TestJunit1 {
             e.printStackTrace();
         }
 
-        // assertEquals(expct, res);
+        assertEquals(expct.toString(), res.toString());
 
     }
 
