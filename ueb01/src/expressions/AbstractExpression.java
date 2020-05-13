@@ -26,7 +26,7 @@ public abstract class AbstractExpression<V extends Value<V>> implements Expressi
         if (!(obj instanceof AbstractExpression)) {
             return false;
         }
-        AbstractExpression other = (AbstractExpression) obj;
+        AbstractExpression<?> other = (AbstractExpression<?>) obj;
         return this.toString().equals(other.toString());
     }
 
