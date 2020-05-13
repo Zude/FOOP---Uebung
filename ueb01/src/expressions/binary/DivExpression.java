@@ -27,12 +27,6 @@ public class DivExpression<V extends Value<V> & DividableValue<V>> extends Binar
 
     @Override
     public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-        // V test = right.evaluate(c);
-
-        // TODO Wann auf Null testen und exception werfen?
-
-        // throw new DivByZeroException();
-
         return left.evaluate(c).div(right.evaluate(c));
     }
 

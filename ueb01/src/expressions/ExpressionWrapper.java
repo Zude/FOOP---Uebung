@@ -36,7 +36,7 @@ public class ExpressionWrapper<V extends Value<V>> extends AbstractExpression<V>
     @Override
     public boolean equals(Object other) {
         if (other instanceof ExpressionWrapper) {
-            return this.subExpression == ((ExpressionWrapper) other).subExpression;
+            return this.subExpression == ((ExpressionWrapper<?>) other).subExpression;
         }
         return false;
     }
@@ -48,20 +48,17 @@ public class ExpressionWrapper<V extends Value<V>> extends AbstractExpression<V>
 
     @Override
     public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-        // TODO Auto-generated method stub
-        return null;
+        return subExpression.evaluate(c);
     }
 
     @Override
     public boolean isConst() {
-        // TODO Auto-generated method stub
-        return false;
+        return subExpression.isConst();
     }
 
     @Override
     public boolean hasCycles() {
-        // TODO Auto-generated method stub
-        return false;
+        return subExpression.hasCycles();
     }
 
 }
