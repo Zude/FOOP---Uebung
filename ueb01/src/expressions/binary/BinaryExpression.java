@@ -110,7 +110,7 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
 
         if (right instanceof BinaryExpression<?> && left instanceof BinaryExpression<?>) {
             return ((BinaryExpression<?>) right).checkCycle(checks)
-                    && ((BinaryExpression<?>) left).checkCycle(checks);
+                    || ((BinaryExpression<?>) left).checkCycle(checks);
         }
 
         return false;

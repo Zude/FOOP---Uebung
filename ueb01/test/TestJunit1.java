@@ -1,4 +1,5 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -536,6 +537,50 @@ public class TestJunit1 {
         }
 
         assertEquals(expct.toString(), res.toString());
+
+    }
+
+    @Test
+    public void hasCyclesTestNoCycle() {
+        int val1 = 20;
+        int val2 = 3;
+        int val3 = 10;
+        int val4 = 2;
+
+        ConstExpression<IntValue> const1 = new ConstExpression<IntValue>(new IntValue(val1));
+        ConstExpression<IntValue> const2 = new ConstExpression<IntValue>(new IntValue(val2));
+        ConstExpression<IntValue> const3 = new ConstExpression<IntValue>(new IntValue(val3));
+        ConstExpression<IntValue> const4 = new ConstExpression<IntValue>(new IntValue(val4));
+
+        SubExpression<IntValue> myExp1 = new SubExpression<IntValue>(const1, const2);
+        SubExpression<IntValue> myExp2 = new SubExpression<IntValue>(const3, const4);
+
+        SubExpression<IntValue> myExp3 = new SubExpression<IntValue>(myExp1, myExp2);
+
+        assertFalse(myExp3.hasCycles());
+
+    }
+
+    @Test
+    public void hasCyclesTestHasCycle() {
+        int val1 = 20;
+        int val2 = 3;
+        int val3 = 10;
+        int val4 = 2;
+
+        ConstExpression<IntValue> const1 = new ConstExpression<IntValue>(new IntValue(val1));
+        ConstExpression<IntValue> const2 = new ConstExpression<IntValue>(new IntValue(val2));
+        ConstExpression<IntValue> const3 = new ConstExpression<IntValue>(new IntValue(val3));
+        ConstExpression<IntValue> const4 = new ConstExpression<IntValue>(new IntValue(val4));
+
+        SubExpression<IntValue> myExp1 = new SubExpression<IntValue>(const1, const2);
+        SubExpression<IntValue> myExp2 = new SubExpression<IntValue>(const3, const4);
+
+        SubExpression<IntValue> myExp3 = new SubExpression<IntValue>(myExp1, myExp2);
+
+        myExp3.setLeftExpression(myExp3);
+
+        assertTrue(myExp3.hasCycles());
 
     }
 
