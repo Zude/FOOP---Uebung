@@ -147,7 +147,6 @@ public class MatrixValue extends Value<MatrixValue> {
         int i, j, k;
         for (i = 0; i < this.rows; i++) {
             for (j = 0; j < other.cols; j++) {
-                // result.setValue(0.0, i, j);
                 for (k = 0; k < this.cols; k++) {
                     result.setValue(
                             result.getValue(i, j) + this.getValue(i, k) * other.getValue(k, j), i,
