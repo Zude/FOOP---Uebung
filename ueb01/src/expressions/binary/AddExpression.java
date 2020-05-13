@@ -33,6 +33,7 @@ public class AddExpression<V extends Value<V>> extends BinaryExpression<V> {
     @Override
     public StringBuilder toString(StringBuilder builder) {
         assert (builder != null);
+
         builder.append("(");
         builder.append(left.toString());
         builder.append(" + ");

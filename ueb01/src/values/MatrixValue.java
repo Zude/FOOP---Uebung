@@ -110,6 +110,7 @@ public class MatrixValue extends Value<MatrixValue> {
 
         MatrixValue result = new MatrixValue(this.rows, this.cols);
 
+        // Laueft die Matrix durch und Addiert die Werte an gleicher Stelle
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.cols; j++) {
 
@@ -127,6 +128,7 @@ public class MatrixValue extends Value<MatrixValue> {
 
         MatrixValue result = new MatrixValue(this.rows, this.cols);
 
+        // Laueft die Matrix durch und Subtrahiert die Werte an gleicher Stelle
         for (int i = 0; i < this.rows; i++) {
             for (int j = 0; j < this.cols; j++) {
 
@@ -145,6 +147,8 @@ public class MatrixValue extends Value<MatrixValue> {
         MatrixValue result = new MatrixValue(this.rows, other.cols);
 
         int i, j, k;
+
+        // Laueft die Matrix durch und Multipliziert die Werte nach dem Matrix mult schema
         for (i = 0; i < this.rows; i++) {
             for (j = 0; j < other.cols; j++) {
                 for (k = 0; k < this.cols; k++) {

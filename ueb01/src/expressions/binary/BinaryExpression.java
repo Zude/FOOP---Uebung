@@ -83,6 +83,12 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
         return checkCycle(null);
     }
 
+    /**
+     * Ueberprueft ob wir im Baum Circles haben
+     * 
+     * @param checks Das Set wo wir die Werte zwischenspeichern
+     * @return Die Antwort ob wir cycles im Baum haben
+     */
     protected boolean checkCycle(Set<ExpressionWrapper<?>> checks) {
 
         // Eigene Instanz in Wrapper packen

@@ -36,6 +36,7 @@ public class VarExpression<V extends Value<V>> extends AbstractExpression<V> {
     public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
         assert (c != null);
 
+        // Ueberprueft of das Element zum Namen vorhanden ist
         try {
             return c.getValue(varName);
         } catch (ElementNotFoundException e) {
@@ -51,7 +52,6 @@ public class VarExpression<V extends Value<V>> extends AbstractExpression<V> {
 
     @Override
     public boolean hasCycles() {
-        // TODO Auto-generated method stub
         return false;
     }
 
