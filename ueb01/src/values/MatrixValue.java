@@ -105,19 +105,47 @@ public class MatrixValue extends Value<MatrixValue> {
 
     @Override
     public MatrixValue add(MatrixValue other) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+        assert (other != null);
 
-    @Override
-    public MatrixValue mul(MatrixValue other) {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO: pruefen ob matritzen gleich groﬂ
+        MatrixValue result = new MatrixValue(this.rows, this.cols);
+
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+
+                result.setValue(this.getValue(i, j) + other.getValue(i, j), i, j);
+            }
+        }
+
+        return result;
     }
 
     @Override
     public MatrixValue sub(MatrixValue other) {
-        // TODO Auto-generated method stub
-        return null;
+        assert (other != null);
+        // TODO: pruefen ob matritzen gleich groﬂ
+
+        MatrixValue result = new MatrixValue(this.rows, this.cols);
+
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+
+                result.setValue(this.getValue(i, j) - other.getValue(i, j), i, j);
+            }
+        }
+
+        return result;
     }
+
+    @Override
+    public MatrixValue mul(MatrixValue other) {
+        assert (other != null);
+
+        MatrixValue result = new MatrixValue(this.rows, this.cols);
+
+        // TODO: Richtige matrix multiplikation
+
+        return result;
+    }
+
 }

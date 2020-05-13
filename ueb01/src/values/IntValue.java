@@ -34,6 +34,8 @@ public class IntValue extends Value<IntValue> implements DividableValue<IntValue
 
     @Override
     public StringBuilder toString(StringBuilder builder) {
+        assert (builder != null);
+
         return builder.append(this.value);
     }
 
@@ -46,18 +48,21 @@ public class IntValue extends Value<IntValue> implements DividableValue<IntValue
 
     @Override
     public IntValue mul(IntValue other) {
-        // TODO Auto-generated method stu
+        assert (other != null);
+
         return new IntValue(this.value * other.getValue());
     }
 
     @Override
     public IntValue sub(IntValue other) {
-        // TODO Auto-generated method stub
+        assert (other != null);
+
         return new IntValue(this.value - other.getValue());
     }
 
     @Override
     public IntValue div(IntValue other) throws DivByZeroException {
+        assert (other != null);
 
         if (other.getValue() == 0) {
             // System.out.print("Div bei 0 Test");
