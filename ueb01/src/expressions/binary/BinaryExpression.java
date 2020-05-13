@@ -93,6 +93,8 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
 
         // Eigene Instanz in Wrapper packen
         ExpressionWrapper<V> myself = new ExpressionWrapper<V>(this);
+        boolean r = false;
+        boolean l = false;
 
         // Wurde ein Set uebergeben?
         if (checks == null) {
@@ -104,12 +106,18 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
             return true;
         }
 
-        if (right instanceof BinaryExpression<?> && left instanceof BinaryExpression<?>) {
-            return ((BinaryExpression<?>) right).checkCycle(checks)
-                    || ((BinaryExpression<?>) left).checkCycle(checks);
+        // Links und Rechts werden separat getrennt, falls einer von beiden bereits ein const/var
+        // ist
+        if (right instanceof BinaryExpression<?>) {
+            r = ((BinaryExpression<?>) right).checkCycle(checks);
+
         }
 
-        return false;
+        if (left instanceof BinaryExpression<?>) {
+            l = ((BinaryExpression<?>) left).checkCycle(checks);
+        }
+
+        return r || l;
     }
 
 }
