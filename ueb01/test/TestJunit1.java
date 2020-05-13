@@ -235,22 +235,26 @@ public class TestJunit1 {
 
     @Test
     public void complexMulExpressionToStringWithInt() {
-        String strRes = "((10 * 10) * (5 * 5))";
+        String strRes = "((10.0 * 10.0) * (5.0 * 5.0))";
 
-        int val1 = 10;
-        int val2 = 10;
-        int val3 = 5;
-        int val4 = 5;
+        double val1 = 10.0;
+        double val2 = 10.0;
+        double val3 = 5.0;
+        double val4 = 5.001;
 
-        ConstExpression<IntValue> const1 = new ConstExpression<IntValue>(new IntValue(val1));
-        ConstExpression<IntValue> const2 = new ConstExpression<IntValue>(new IntValue(val2));
-        ConstExpression<IntValue> const3 = new ConstExpression<IntValue>(new IntValue(val3));
-        ConstExpression<IntValue> const4 = new ConstExpression<IntValue>(new IntValue(val4));
+        ConstExpression<DoubleValue> const1 =
+                new ConstExpression<DoubleValue>(new DoubleValue(val1));
+        ConstExpression<DoubleValue> const2 =
+                new ConstExpression<DoubleValue>(new DoubleValue(val2));
+        ConstExpression<DoubleValue> const3 =
+                new ConstExpression<DoubleValue>(new DoubleValue(val3));
+        ConstExpression<DoubleValue> const4 =
+                new ConstExpression<DoubleValue>(new DoubleValue(val4));
 
-        MulExpression<IntValue> myExp1 = new MulExpression<IntValue>(const1, const2);
-        MulExpression<IntValue> myExp2 = new MulExpression<IntValue>(const3, const4);
+        MulExpression<DoubleValue> myExp1 = new MulExpression<DoubleValue>(const1, const2);
+        MulExpression<DoubleValue> myExp2 = new MulExpression<DoubleValue>(const3, const4);
 
-        MulExpression<IntValue> myExp3 = new MulExpression<IntValue>(myExp1, myExp2);
+        MulExpression<DoubleValue> myExp3 = new MulExpression<DoubleValue>(myExp1, myExp2);
 
         assertEquals(strRes, myExp3.toString());
 
