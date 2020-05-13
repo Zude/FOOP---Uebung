@@ -85,25 +85,15 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
 
     protected boolean checkCycle(Set<ExpressionWrapper<?>> checks) {
 
-        /*
-         * 1. Gibt es ein Set?
-         * 
-         * 2. Bin ich im Set?
-         * 
-         * 3. Packe mich als Wrapper ins Set
-         * 
-         * 4. Übergib das Set an Left und Right
-         */
-
         // Eigene Instanz in Wrapper packen
         ExpressionWrapper<V> myself = new ExpressionWrapper<V>(this);
 
-        // Wurde ein Set übergeben?
+        // Wurde ein Set uebergeben?
         if (checks == null) {
             checks = new HashSet<ExpressionWrapper<?>>();
         }
 
-        // Sich selbst ins Set einfügen, wenn false war die Instanz bereits vorhanden
+        // Sich selbst ins Set einfuegen, wenn false war die Instanz bereits vorhanden
         if (!checks.add(myself)) {
             return true;
         }
