@@ -35,7 +35,7 @@ public class DoubleValue extends Value<DoubleValue> implements DividableValue<Do
     public StringBuilder toString(StringBuilder builder) {
         assert (builder != null);
 
-        return builder.append(String.format("%.1f", this.value));
+        return builder.append(this.value);
     }
 
     @Override
