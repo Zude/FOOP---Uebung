@@ -65,7 +65,6 @@ public class IntValue extends Value<IntValue> implements DividableValue<IntValue
         assert (other != null);
 
         if (other.getValue() == 0) {
-            // System.out.print("Div bei 0 Test");
             throw new DivByZeroException();
         }
 

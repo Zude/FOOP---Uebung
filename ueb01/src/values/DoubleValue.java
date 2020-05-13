@@ -35,7 +35,7 @@ public class DoubleValue extends Value<DoubleValue> implements DividableValue<Do
     public StringBuilder toString(StringBuilder builder) {
         assert (builder != null);
 
-        return builder.append(this.value);
+        return builder.append(String.format("%.1f", this.value));
     }
 
     @Override
@@ -63,13 +63,13 @@ public class DoubleValue extends Value<DoubleValue> implements DividableValue<Do
     public DoubleValue div(DoubleValue other) throws DivByZeroException {
         assert (other != null);
 
-        // TODO: Geteilt durch 0 bei double
-        if (other.getValue() == 0) {
-            // System.out.print("Div bei 0 Test");
+        double res = this.value / other.getValue();
+
+        if (Double.isNaN(res) || Double.isInfinite(res)) {
             throw new DivByZeroException();
         }
 
-        return new DoubleValue(this.value / other.getValue());
+        return new DoubleValue(res);
     }
 
 }
