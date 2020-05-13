@@ -106,6 +106,7 @@ public class MatrixValue extends Value<MatrixValue> {
     @Override
     public MatrixValue add(MatrixValue other) {
         assert (other != null);
+        assert (this.cols == other.cols && this.rows == other.rows);
 
         MatrixValue result = new MatrixValue(this.rows, this.cols);
 
@@ -122,6 +123,7 @@ public class MatrixValue extends Value<MatrixValue> {
     @Override
     public MatrixValue sub(MatrixValue other) {
         assert (other != null);
+        assert (this.cols == other.cols && this.rows == other.rows);
 
         MatrixValue result = new MatrixValue(this.rows, this.cols);
 
@@ -138,12 +140,22 @@ public class MatrixValue extends Value<MatrixValue> {
     @Override
     public MatrixValue mul(MatrixValue other) {
         assert (other != null);
+        assert (this.cols == other.rows);
 
-        MatrixValue result = new MatrixValue(this.rows, this.cols);
+        MatrixValue result = new MatrixValue(this.rows, other.cols);
 
-        // TODO: Richtige matrix multiplikation
+        int i, j, k;
+        for (i = 0; i < this.rows; i++) {
+            for (j = 0; j < other.cols; j++) {
+                // result.setValue(0.0, i, j);
+                for (k = 0; k < this.cols; k++) {
+                    result.setValue(
+                            result.getValue(i, j) + this.getValue(i, k) * other.getValue(k, j), i,
+                            j);
+                }
+            }
 
+        }
         return result;
     }
-
 }

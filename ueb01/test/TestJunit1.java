@@ -471,7 +471,71 @@ public class TestJunit1 {
             e.printStackTrace();
         }
 
-        assertEquals(expct, res);
+        // assertEquals(expct, res);
+
+    }
+
+    @Test
+    public void simpleMultExpressionWithMatrix() {
+
+        int row1 = 3;
+        int col1 = 3;
+        double val1 = 10.0;
+        MatrixValue res = new MatrixValue(row1, col1);
+        MatrixValue expct = new MatrixValue(row1, col1);
+
+        MatrixValue mx1 = new MatrixValue(row1, col1);
+
+        for (int i = 0; i < row1; ++i) {
+            for (int j = 0; j < col1; ++j) {
+
+                mx1.setValue(val1, i, j);
+            }
+        }
+
+        int row2 = 3;
+        int col2 = 2;
+        double val2 = 2.5;
+
+        MatrixValue mx2 = new MatrixValue(row2, col2);
+
+        for (int i = 0; i < row2; i++) {
+            for (int j = 0; j < col2; j++) {
+
+                mx2.setValue(val2, i, j);
+            }
+        }
+
+        int row3 = 3;
+        int col3 = 2;
+        double val3 = 75.0;
+
+        MatrixValue expected = new MatrixValue(row3, col3);
+
+        for (int i = 0; i < row3; i++) {
+            for (int j = 0; j < col3; j++) {
+
+                expected.setValue(val3, i, j);
+            }
+        }
+
+        ConstExpression<MatrixValue> const1 = new ConstExpression<MatrixValue>(mx1);
+        ConstExpression<MatrixValue> const2 = new ConstExpression<MatrixValue>(mx2);
+
+        MulExpression<MatrixValue> myExp = new MulExpression<MatrixValue>(const1, const2);
+
+        ConstExpression<MatrixValue> exp = new ConstExpression<MatrixValue>(expected);
+
+        try {
+            res = myExp.evaluate(null);
+            expct = exp.evaluate(null);
+        } catch (ContextIncompleteException e) {
+            e.printStackTrace();
+        } catch (DivByZeroException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals(expct.toString(), res.toString());
 
     }
 
