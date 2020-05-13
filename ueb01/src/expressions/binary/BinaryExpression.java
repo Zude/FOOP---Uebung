@@ -1,7 +1,11 @@
 package expressions.binary;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import expressions.AbstractExpression;
 import expressions.Expression;
+import expressions.ExpressionWrapper;
 import values.Value;
 
 /**
@@ -72,6 +76,44 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
     @Override
     public boolean isConst() {
         return left.isConst() && right.isConst();
+    }
+
+    @Override
+    public boolean hasCycles() {
+        return checkCycle(null);
+    }
+
+    protected boolean checkCycle(Set<ExpressionWrapper<?>> checks) {
+
+        /*
+         * 1. Gibt es ein Set?
+         * 
+         * 2. Bin ich im Set?
+         * 
+         * 3. Packe mich als Wrapper ins Set
+         * 
+         * 4. Übergib das Set an Left und Right
+         */
+
+        // Eigene Instanz in Wrapper packen
+        ExpressionWrapper<V> myself = new ExpressionWrapper<V>(this);
+
+        // Wurde ein Set übergeben?
+        if (checks == null) {
+            checks = new HashSet<ExpressionWrapper<?>>();
+        }
+
+        // Sich selbst ins Set einfügen, wenn false war die Instanz bereits vorhanden
+        if (!checks.add(myself)) {
+            return true;
+        }
+
+        if (right instanceof BinaryExpression<?> && left instanceof BinaryExpression<?>) {
+            return ((BinaryExpression<?>) right).checkCycle(checks)
+                    && ((BinaryExpression<?>) left).checkCycle(checks);
+        }
+
+        return false;
     }
 
 }

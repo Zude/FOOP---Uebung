@@ -26,14 +26,7 @@ public class MulExpression<V extends Value<V>> extends BinaryExpression<V> {
 
     @Override
     public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
-        // TODO Auto-generated method stub
         return left.evaluate(c).mul(right.evaluate(c));
-    }
-
-    @Override
-    public boolean hasCycles() {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Override

@@ -31,12 +31,6 @@ public class AddExpression<V extends Value<V>> extends BinaryExpression<V> {
     }
 
     @Override
-    public boolean hasCycles() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
     public StringBuilder toString(StringBuilder builder) {
         assert (builder != null);
         builder.append("(");

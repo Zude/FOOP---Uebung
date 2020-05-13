@@ -31,12 +31,6 @@ public class DivExpression<V extends Value<V> & DividableValue<V>> extends Binar
     }
 
     @Override
-    public boolean hasCycles() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
     public StringBuilder toString(StringBuilder builder) {
         assert (builder != null);
         builder.append("(");
