@@ -32,8 +32,8 @@ public class DivExpression<V extends Value<V> & DividableValue<V>> extends Binar
         // TODO Wann auf Null testen und exception werfen?
 
         // throw new DivByZeroException();
-
-        return null;
+    	
+    	return left.evaluate(c).div(right.evaluate(c));
     }
 
     @Override

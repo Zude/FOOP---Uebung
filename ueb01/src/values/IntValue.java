@@ -47,19 +47,24 @@ public class IntValue extends Value<IntValue> implements DividableValue<IntValue
     @Override
     public IntValue mul(IntValue other) {
         // TODO Auto-generated method stub
-        return null;
+    	return new IntValue(this.value * other.getValue());
     }
 
     @Override
     public IntValue sub(IntValue other) {
         // TODO Auto-generated method stub
-        return null;
+    	 return new IntValue(this.value - other.getValue());
     }
 
     @Override
     public IntValue div(IntValue other) throws DivByZeroException {
-        // TODO Auto-generated method stub
-        return null;
+        
+    	if(other.getValue() == 0) {
+    	//	System.out.print("Div bei 0 Test");
+    		throw new DivByZeroException();
+    	}
+    	
+    	return new IntValue(this.value / other.getValue());
     }
 
 }

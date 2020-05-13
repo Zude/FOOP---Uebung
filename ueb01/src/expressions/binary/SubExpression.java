@@ -27,7 +27,7 @@ public class SubExpression<V extends Value<V>> extends BinaryExpression<V> {
     @Override
     public V evaluate(Context<V> c) throws ContextIncompleteException, DivByZeroException {
         // TODO Auto-generated method stub
-        return null;
+    	return left.evaluate(c).sub(right.evaluate(c));
     }
 
     @Override
