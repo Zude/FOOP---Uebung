@@ -12,7 +12,8 @@ import values.Value;
  * Abstrakte Klasse für mathematische Ausdrücke mit zwei Teilausdrücken.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpression<V> {
 
@@ -83,41 +84,22 @@ public abstract class BinaryExpression<V extends Value<V>> extends AbstractExpre
         return checkCycle(null);
     }
 
-    /**
-     * Ueberprueft ob wir im Baum Circles haben
-     * 
-     * @param checks Das Set wo wir die Werte zwischenspeichern
-     * @return Die Antwort ob wir cycles im Baum haben
-     */
-    protected boolean checkCycle(Set<ExpressionWrapper<?>> checks) {
+    public boolean checkCycle(Set<ExpressionWrapper<?>> checked) {
 
         // Eigene Instanz in Wrapper packen
         ExpressionWrapper<V> myself = new ExpressionWrapper<V>(this);
-        boolean r = false;
-        boolean l = false;
 
         // Wurde ein Set uebergeben?
-        if (checks == null) {
-            checks = new HashSet<ExpressionWrapper<?>>();
+        if (checked == null) {
+            checked = new HashSet<ExpressionWrapper<?>>();
         }
 
-        // Sich selbst ins Set einfuegen, wenn false war die Instanz bereits vorhanden
-        if (!checks.add(myself)) {
+        // Sich selbst in die Sets einfuegen, wenn false war die Instanz bereits vorhanden
+        if (!checked.add(myself)) {
             return true;
         }
 
-        // Links und Rechts werden separat getrennt, falls einer von beiden bereits ein const/var
-        // ist
-        if (right instanceof BinaryExpression<?>) {
-            r = ((BinaryExpression<?>) right).checkCycle(checks);
-
-        }
-
-        if (left instanceof BinaryExpression<?>) {
-            l = ((BinaryExpression<?>) left).checkCycle(checks);
-        }
-
-        return r || l;
+        return right.checkCycle(checked) || left.checkCycle(checked);
     }
 
 }

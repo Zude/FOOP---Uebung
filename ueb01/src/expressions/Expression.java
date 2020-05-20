@@ -1,5 +1,7 @@
 package expressions;
 
+import java.util.Set;
+
 import context.Context;
 import expressions.exceptions.ContextIncompleteException;
 import expressions.exceptions.DivByZeroException;
@@ -9,7 +11,8 @@ import values.Value;
  * Ein mathematischer Ausdruck.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public interface Expression<V extends Value<V>> {
 
@@ -79,5 +82,13 @@ public interface Expression<V extends Value<V>> {
      */
     @Override
     String toString();
+
+    /**
+     * Ueberprueft rekursiv ob wir im Baum Circles haben
+     * 
+     * @param checked Das Set wo wir die Werte zwischenspeichern
+     * @return Die Antwort ob wir cycles im Baum haben
+     */
+    boolean checkCycle(Set<ExpressionWrapper<?>> checked);
 
 }

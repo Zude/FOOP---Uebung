@@ -1,5 +1,7 @@
 package expressions;
 
+import java.util.Set;
+
 import context.Context;
 import expressions.exceptions.ContextIncompleteException;
 import expressions.exceptions.DivByZeroException;
@@ -9,7 +11,8 @@ import values.Value;
  * Ein konstanter Ausdruck (ein Literal).
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public class ConstExpression<V extends Value<V>> extends AbstractExpression<V> {
 
@@ -44,6 +47,11 @@ public class ConstExpression<V extends Value<V>> extends AbstractExpression<V> {
 
     @Override
     public boolean hasCycles() {
+        return false;
+    }
+
+    @Override
+    public boolean checkCycle(Set<ExpressionWrapper<?>> checked) {
         return false;
     }
 

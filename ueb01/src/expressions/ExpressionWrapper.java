@@ -1,5 +1,7 @@
 package expressions;
 
+import java.util.Set;
+
 import context.Context;
 import expressions.exceptions.ContextIncompleteException;
 import expressions.exceptions.DivByZeroException;
@@ -10,7 +12,8 @@ import values.Value;
  * Ausdrucksbaum auf Zyklenfreiheit zu überprüfen.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public class ExpressionWrapper<V extends Value<V>> extends AbstractExpression<V> {
 
@@ -59,6 +62,11 @@ public class ExpressionWrapper<V extends Value<V>> extends AbstractExpression<V>
     @Override
     public boolean hasCycles() {
         return subExpression.hasCycles();
+    }
+
+    @Override
+    public boolean checkCycle(Set<ExpressionWrapper<?>> checked) {
+        return subExpression.checkCycle(checked);
     }
 
 }

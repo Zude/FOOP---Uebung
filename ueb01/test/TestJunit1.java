@@ -536,7 +536,7 @@ public class TestJunit1 {
 
         SubExpression<IntValue> myExp1 = new SubExpression<IntValue>(const1, const1);
 
-        SubExpression<IntValue> myExp3 = new SubExpression<IntValue>(myExp1, null);
+        SubExpression<IntValue> myExp3 = new SubExpression<IntValue>(myExp1, myExp1);
         SubExpression<IntValue> myExp4 = new SubExpression<IntValue>(myExp1, myExp3);
         // SubExpression<IntValue> myExp5 = new SubExpression<IntValue>(myExp3, myExp1);
 

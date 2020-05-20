@@ -1,12 +1,6 @@
-import org.junit.Test;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-
-import context.Context;
-import expressions.AbstractExpression;
-import expressions.Expression;
-import expressions.exceptions.ContextIncompleteException;
-import expressions.exceptions.DivByZeroException;
 
 /**
  * Klasse für JUnit 4.x, mit der alle grundlegenden Tests durchgeführt werden.
@@ -14,12 +8,7 @@ import expressions.exceptions.DivByZeroException;
  * @author kar, mhe
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-  TestJunit1.class
-})
-
-
-
+@Suite.SuiteClasses({ TestJunit1.class })
 
 public class TestSuite {
     /**
@@ -31,5 +20,3 @@ public class TestSuite {
         org.junit.runner.JUnitCore.main(TestSuite.class.getName());
     }
 }
-
-

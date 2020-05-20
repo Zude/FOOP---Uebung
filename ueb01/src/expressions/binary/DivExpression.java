@@ -11,7 +11,8 @@ import values.Value;
  * Ein Ausdruck für Division.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public class DivExpression<V extends Value<V> & DividableValue<V>> extends BinaryExpression<V> {
 

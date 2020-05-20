@@ -10,7 +10,8 @@ import values.Value;
  * Ein Ausdruck für Subtraktion.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public class SubExpression<V extends Value<V>> extends BinaryExpression<V> {
 

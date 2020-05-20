@@ -6,7 +6,8 @@ import expressions.exceptions.DivByZeroException;
  * Schnittstelle für teilbare Werte.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public interface DividableValue<V extends DividableValue<V>> {
     /**

@@ -1,5 +1,7 @@
 package expressions;
 
+import java.util.Set;
+
 import context.Context;
 import context.ElementNotFoundException;
 import expressions.exceptions.ContextIncompleteException;
@@ -10,7 +12,8 @@ import values.Value;
  * Ein variabler Ausdruck.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public class VarExpression<V extends Value<V>> extends AbstractExpression<V> {
     /**
@@ -55,4 +58,8 @@ public class VarExpression<V extends Value<V>> extends AbstractExpression<V> {
         return false;
     }
 
+    @Override
+    public boolean checkCycle(Set<ExpressionWrapper<?>> checked) {
+        return false;
+    }
 }

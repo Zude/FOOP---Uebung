@@ -7,7 +7,8 @@ import java.util.List;
  * Multiplikation zur Verfügung.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 
 public abstract class Value<V extends Value<V>> {
@@ -46,7 +47,7 @@ public abstract class Value<V extends Value<V>> {
      * 
      * @param l Die zu nutzende Liste
      */
-    public void appendToList(List<Value<V>> l) {
+    public void appendToList(List<? super Value<V>> l) {
         l.add(this);
     }
 

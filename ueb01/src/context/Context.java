@@ -1,6 +1,7 @@
 package context;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import values.Value;
 
@@ -10,15 +11,12 @@ import values.Value;
  * Eine Variablenbelegung setzt sich zusammen aus einem Namen und einem mathematischen Wert.
  * 
  * @author kar, mhe, Lars Sander, Alexander Loeffler
- * @param <V> Value
+ * @param <V> extends Value Der Ausdrucksbaum arbeitet mit eigens definierten Typen, daher werden
+ *            nur Unterarten von Value erlaubt
  */
 public class Context<V extends Value<V>> {
 
-    private HashMap<String, V> contextMap;
-
-    public Context() {
-        contextMap = new HashMap<String, V>();
-    }
+    private final Map<String, V> contextMap = new HashMap<String, V>();
 
     /**
      * Setzt ein neues Name-Wert-Paar im Kontext. Ein Name-Wert Paar, dessen Name bereits vorhanden
