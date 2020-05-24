@@ -6,8 +6,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Implementiert einige nützliche Operationen mit Hilfe von Streams.
@@ -32,6 +34,8 @@ public class StreamOperations {
      * @return Die Collatz-Folge
      */
     public static IntStream collatz(int n) {
+        assert (n > 0);
+
     }
 
     /**
@@ -181,7 +185,6 @@ public class StreamOperations {
             Long max) {
     }
 
-
     /**
      * Liefert zu einem Strom von Worten einen Strom der in den Worten enthaltenen Zeichen. Die
      * Reihenfolge der Zeichen bleibt hierbei enthalten.
@@ -194,7 +197,6 @@ public class StreamOperations {
      */
     public static Stream<Character> stringsToChars(Stream<String> stream) {
     }
-
 
     /**
      * Wertet Ausdrücke in schriftlicher Notation, z.B. "3 + 5 - 1", von links nach rechts zu einem
@@ -257,7 +259,6 @@ public class StreamOperations {
     public static Map<Person.Gender, Set<Person>> groupPersonsByGender(Stream<Person> persons,
             Set<Integer> zipcodes, Integer minIncome, Integer maxIncome) {
     }
-
 
     /**
      * Methode, welche die Funktionalität bereitstellt um zwei Streams miteinander sequentiell
