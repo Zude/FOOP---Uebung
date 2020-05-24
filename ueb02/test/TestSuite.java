@@ -7,17 +7,14 @@ import org.junit.runners.Suite;
  * @author kar / mhe / ...
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-    // Testklassen hier ergänzen
-})
+@Suite.SuiteClasses({ TestTest1.class })
 
 public class TestSuite {
 
     /**
      * Methode zum einfachen Starten des Tests von der Kommandozeile.
      * 
-     * @param args
-     *            Kommandozeilenargumente.
+     * @param args Kommandozeilenargumente.
      */
     public static void main(final String[] args) {
         org.junit.runner.JUnitCore.main(TestSuite.class.getName());
