@@ -7,7 +7,7 @@ import org.junit.runners.Suite;
  * @author kar / mhe / ...
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ TestTest1.class })
+@Suite.SuiteClasses({ CaesarTestClass.class })
 
 public class TestSuite {
 

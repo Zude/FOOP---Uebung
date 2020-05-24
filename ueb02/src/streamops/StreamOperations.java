@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -57,6 +58,27 @@ public class StreamOperations {
      * @return Ver- bzw. entschlüsselter Text.
      */
     public static String caesar(String plaintext, int rotation, boolean encode) {
+        assert plaintext != null;
+        // TODO: zweites Assert
+
+        String result = "";
+
+        Stream<PrintableChar> characterStream =
+                plaintext.chars().mapToObj(c -> new PrintableChar((char) c));
+
+        Stream<PrintableChar> resultStream = caesar(characterStream, rotation, encode);
+
+        result = resultStream.map(Object::toString).collect(Collectors.joining());
+
+        if (encode) {
+            // Verschlüsseln
+
+        } else {
+            // Entschlüsseln
+
+        }
+
+        return result;
     }
 
     /**
@@ -72,6 +94,13 @@ public class StreamOperations {
      */
     public static Stream<PrintableChar> caesar(Stream<PrintableChar> plaintext, int rotation,
             boolean encode) {
+        assert plaintext != null;
+
+        PrintableChar test = new PrintableChar('a');
+
+        plaintext.map(e -> new PrintableChar(e.toChar()));
+
+        return plaintext;
     }
 
     /**
