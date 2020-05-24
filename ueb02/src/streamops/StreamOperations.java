@@ -36,6 +36,7 @@ public class StreamOperations {
     public static IntStream collatz(int n) {
         assert (n > 0);
 
+        return null;
     }
 
     /**
