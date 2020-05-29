@@ -9,7 +9,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         // Testklassen hier ergänzen
-        collatz_test.class })
+        collatz_test.class, groupWordsOfSameLength_test.class })
 
 public class TestSuite {
 

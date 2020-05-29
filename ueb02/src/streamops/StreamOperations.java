@@ -1,5 +1,7 @@
 package streamops;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -34,12 +36,13 @@ public class StreamOperations {
      * @return Die Collatz-Folge
      */
     public static IntStream collatz(int n) {
-        assert (n > 0);
+        assert n > 0;
+        final int num = 3; // Gegen Magic Number in Checkstyle
         return IntStream.iterate(n, e -> {
             if (e % 2 == 0) {
                 return e / 2;
             } else {
-                return 3 * e + 1;
+                return num * e + 1;
             }
         });
 
@@ -177,7 +180,21 @@ public class StreamOperations {
      * @return Die Map von Wortlängen auf die Menge der Worte dieser Länge
      */
     public static Map<Integer, Set<String>> groupWordsOfSameLength(Stream<String> stream) {
-        return null;
+        assert stream != null;
+
+        Map<Integer, Set<String>> result = new HashMap<Integer, Set<String>>();
+
+        stream.forEach(str -> {
+            if (result.containsKey(str.length())) {
+                result.get(str.length()).add(str);
+            } else {
+                Set<String> entry = new HashSet<String>();
+                entry.add(str);
+                result.put(str.length(), entry);
+            }
+        });
+
+        return result;
     }
 
     /**

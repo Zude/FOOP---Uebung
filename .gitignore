@@ -26,3 +26,9 @@ hs_err_pid*
 # Eclipse Project Files
 *.project
 *.classpath
+
+.idea/
+
+ueb02/doc/
+
+ueb02/lib/
