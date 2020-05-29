@@ -8,16 +8,15 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    // Testklassen hier ergänzen
-})
+        // Testklassen hier ergänzen
+        collatz_test.class })
 
 public class TestSuite {
 
     /**
      * Methode zum einfachen Starten des Tests von der Kommandozeile.
      * 
-     * @param args
-     *            Kommandozeilenargumente.
+     * @param args Kommandozeilenargumente.
      */
     public static void main(final String[] args) {
         org.junit.runner.JUnitCore.main(TestSuite.class.getName());
