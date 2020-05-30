@@ -13,12 +13,15 @@ import streamops.StreamOperations;
 
 public class groupWordsOfSameLength_test {
 
+    Set<String> setLen0 = new HashSet<String>();
     Set<String> setLen1 = new HashSet<String>();
     Set<String> setLen2 = new HashSet<String>();
     Set<String> setLen3 = new HashSet<String>();
 
     @Before
     public void createSets() {
+        setLen0.add("");
+
         setLen1.add("a");
         setLen1.add("b");
         setLen1.add("c");
@@ -27,6 +30,21 @@ public class groupWordsOfSameLength_test {
 
         setLen3.add("abc");
         setLen3.add("bcd");
+    }
+
+    @Test
+    public void Empty() {
+
+        Set<String> source = new HashSet<String>();
+        source.addAll(setLen0);
+
+        Map<Integer, Set<String>> expected = new HashMap<Integer, Set<String>>();
+        expected.put(0, setLen0);
+
+        Map<Integer, Set<String>> actual = StreamOperations.groupWordsOfSameLength(source.stream());
+
+        assertTrue(expected.size() == actual.size());
+        assertTrue(expected.equals(actual));
     }
 
     @Test
