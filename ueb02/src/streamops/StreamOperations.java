@@ -107,7 +107,15 @@ public class StreamOperations {
      * @return Ver- bzw. entschlüsselter Text.
      */
     public static String vigenere(String plaintext, String pwd, boolean encode) {
-        return null;
+
+        Stream<PrintableChar> resultStream =
+                vigenere(PrintableChar.convertStringToStream(plaintext), pwd, encode);
+
+        StringBuilder builder = new StringBuilder();
+
+        resultStream.forEach(pc -> builder.append(pc));
+
+        return builder.toString();
     }
 
     /**
@@ -130,7 +138,21 @@ public class StreamOperations {
      */
     public static Stream<PrintableChar> vigenere(Stream<PrintableChar> plaintext, String pwd,
             boolean encode) {
-        return null;
+
+        // Stream<PrintableChar> pwdStream = pwd.chars().mapToObj(a -> new PrintableChar(a));
+
+        Stream<PrintableChar> res;
+
+        if (encode)
+
+        {
+            res = zip(plaintext, PrintableChar.convertStringToStream(pwd), (a, b) -> a.encrypt(b));
+        } else {
+            res = zip(plaintext, PrintableChar.convertStringToStream(pwd), (a, b) -> a.decrypt(b));
+        }
+
+        return res;
+
     }
 
     /**
