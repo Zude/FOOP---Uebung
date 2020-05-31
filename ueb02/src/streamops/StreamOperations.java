@@ -36,7 +36,7 @@ public class StreamOperations {
      */
     public static IntStream collatz(int n) {
         assert (n > 0);
-
+        return null;
     }
 
     /**
@@ -61,24 +61,8 @@ public class StreamOperations {
         assert plaintext != null;
         // TODO: zweites Assert
 
-        String result = "";
-
-        Stream<PrintableChar> characterStream =
-                plaintext.chars().mapToObj(c -> new PrintableChar((char) c));
-
-        Stream<PrintableChar> resultStream = caesar(characterStream, rotation, encode);
-
-        result = resultStream.map(Object::toString).collect(Collectors.joining());
-
-        if (encode) {
-            // Verschlüsseln
-
-        } else {
-            // Entschlüsseln
-
-        }
-
-        return result;
+        return caesar(plaintext.chars().mapToObj(c -> new PrintableChar((char) c)), rotation,
+                encode).map(Object::toString).collect(Collectors.joining());
     }
 
     /**
@@ -96,9 +80,11 @@ public class StreamOperations {
             boolean encode) {
         assert plaintext != null;
 
-        PrintableChar test = new PrintableChar('a');
-
-        plaintext.map(e -> new PrintableChar(e.toChar()));
+        if (encode) {
+            plaintext.map(e -> new PrintableChar(e.toChar() + rotation));
+        } else {
+            plaintext.map(e -> new PrintableChar(e.toChar() - rotation));
+        }
 
         return plaintext;
     }
@@ -126,6 +112,7 @@ public class StreamOperations {
      * @return Ver- bzw. entschlüsselter Text.
      */
     public static String vigenere(String plaintext, String pwd, boolean encode) {
+        return null;
     }
 
     /**
@@ -148,6 +135,7 @@ public class StreamOperations {
      */
     public static Stream<PrintableChar> vigenere(Stream<PrintableChar> plaintext, String pwd,
             boolean encode) {
+        return null;
     }
 
     /**
@@ -158,6 +146,7 @@ public class StreamOperations {
      * @return Der unendliche Schlüssel als Strom von Zahlen
      */
     public static Stream<Integer> oneTimePadPassphrase() {
+        return null;
     }
 
     /**
@@ -179,6 +168,7 @@ public class StreamOperations {
      */
     public static Stream<PrintableChar> oneTimePad(Stream<PrintableChar> plaintext,
             Stream<Integer> passphrase, boolean encode) {
+        return null;
     }
 
     /**
@@ -192,6 +182,7 @@ public class StreamOperations {
      * @return Die Map von Wortlängen auf die Menge der Worte dieser Länge
      */
     public static Map<Integer, Set<String>> groupWordsOfSameLength(Stream<String> stream) {
+        return null;
     }
 
     /**
@@ -212,6 +203,7 @@ public class StreamOperations {
      */
     public static Map<Character, Integer> countChars(Stream<Character> stream, char from, char to,
             Long max) {
+        return null;
     }
 
     /**
@@ -225,6 +217,7 @@ public class StreamOperations {
      * @return Ausgabestrom
      */
     public static Stream<Character> stringsToChars(Stream<String> stream) {
+        return null;
     }
 
     /**
@@ -260,6 +253,7 @@ public class StreamOperations {
      * @return Auswertungsergebnis
      */
     public static Integer evaluate(Stream<String> stream, Map<String, String> replace) {
+        return null;
     }
 
     /**
@@ -287,6 +281,7 @@ public class StreamOperations {
      */
     public static Map<Person.Gender, Set<Person>> groupPersonsByGender(Stream<Person> persons,
             Set<Integer> zipcodes, Integer minIncome, Integer maxIncome) {
+        return null;
     }
 
     /**
