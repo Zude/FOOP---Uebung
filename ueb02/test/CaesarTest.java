@@ -28,4 +28,16 @@ public class CaesarTest {
         assertEquals(expected, res);
     }
 
+    @Test
+    public void complexEnAndDecrypt() {
+
+        String inpuString = " bcdsadagacdwsdagfwadf% _-*#";
+        String expected = " bcdsadagacdwsdagfwadf% _-*#";
+
+        String res =
+                StreamOperations.caesar(StreamOperations.caesar(inpuString, 6, true), 6, false);
+
+        assertEquals(expected, res);
+    }
+
 }

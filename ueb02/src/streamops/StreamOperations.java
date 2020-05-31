@@ -1,5 +1,6 @@
 package streamops;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -215,7 +216,13 @@ public class StreamOperations {
      */
     public static Map<Character, Integer> countChars(Stream<Character> stream, char from, char to,
             Long max) {
-        return null;
+        assert stream != null;
+
+        Map<Character, Integer> resultMap = new HashMap<Character, Integer>();
+
+        resultMap = stream.collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
+
+        return resultMap;
     }
 
     /**
