@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -61,8 +62,13 @@ public class StreamOperations {
         assert plaintext != null;
         // TODO: zweites Assert
 
-        return caesar(plaintext.chars().mapToObj(c -> new PrintableChar((char) c)), rotation,
-                encode).map(Object::toString).collect(Collectors.joining());
+        Stream<PrintableChar> stream = plaintext.chars().mapToObj(c -> new PrintableChar((char) c));
+
+        Stream<PrintableChar> resStream = caesar(stream, rotation, encode);
+
+        Stream<String> resultStream = resStream.map(Object::toString);
+
+        return resultStream.collect(Collectors.joining());
     }
 
     /**
@@ -80,13 +86,15 @@ public class StreamOperations {
             boolean encode) {
         assert plaintext != null;
 
+        Stream<PrintableChar> result;
+
         if (encode) {
-            plaintext.map(e -> new PrintableChar(e.toChar() + rotation));
+            result = plaintext.map(e -> e.encrypt(rotation));
         } else {
-            plaintext.map(e -> new PrintableChar(e.toChar() - rotation));
+            result = plaintext.map(e -> e.decrypt(rotation));
         }
 
-        return plaintext;
+        return result;
     }
 
     /**

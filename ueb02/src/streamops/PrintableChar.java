@@ -1,4 +1,5 @@
 package streamops;
+
 /**
  * Hilfsklasse zur Repräsenation eines Teilbereiches des ASCII-Zeichensatzes (druckbare Zeichen).
  * 
@@ -48,6 +49,15 @@ public class PrintableChar {
         return c;
     }
 
+    public PrintableChar encrypt(int rot) {
+
+        return new PrintableChar((this.c + rot - LOWER) % RANGE + LOWER);
+    }
+
+    public PrintableChar decrypt(int rot) {
+
+        return encrypt(RANGE - rot);
+    }
 
     @Override
     public int hashCode() {
@@ -69,7 +79,5 @@ public class PrintableChar {
     public String toString() {
         return "" + c;
     }
-    
-    
 
 }
