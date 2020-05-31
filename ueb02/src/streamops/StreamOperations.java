@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -60,9 +59,12 @@ public class StreamOperations {
      */
     public static String caesar(String plaintext, int rotation, boolean encode) {
         assert plaintext != null;
-        // TODO: zweites Assert
+        assert rotation > 0;
+        assert rotation < PrintableChar.RANGE;
 
-        Stream<PrintableChar> stream = plaintext.chars().mapToObj(c -> new PrintableChar((char) c));
+        Stream<PrintableChar> stream =
+                plaintext.chars().filter(c -> PrintableChar.isPrintableChar(c))
+                        .mapToObj(c -> new PrintableChar((char) c));
 
         Stream<PrintableChar> resStream = caesar(stream, rotation, encode);
 
@@ -85,6 +87,8 @@ public class StreamOperations {
     public static Stream<PrintableChar> caesar(Stream<PrintableChar> plaintext, int rotation,
             boolean encode) {
         assert plaintext != null;
+        assert rotation > 0;
+        assert rotation < PrintableChar.RANGE;
 
         Stream<PrintableChar> result;
 

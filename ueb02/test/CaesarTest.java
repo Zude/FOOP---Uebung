@@ -15,19 +15,17 @@ public class CaesarTest {
         String res = StreamOperations.caesar(inpuString, 1, true);
 
         assertEquals(expected, res);
-
     }
 
     @Test
     public void simpleDecrypt() {
 
-        String inpuString = " ";
-        String expected = "~";
+        String inpuString = " bc";
+        String expected = "~ab";
 
         String res = StreamOperations.caesar(inpuString, 1, false);
 
         assertEquals(expected, res);
-
     }
 
 }
