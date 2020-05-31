@@ -220,7 +220,9 @@ public class StreamOperations {
 
         Map<Character, Integer> resultMap = new HashMap<Character, Integer>();
 
-        resultMap = stream.collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
+        resultMap = stream.limit(max)
+                .filter(c -> PrintableChar.isPrintableChar(c) && c >= from && c <= to)
+                .collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
 
         return resultMap;
     }
