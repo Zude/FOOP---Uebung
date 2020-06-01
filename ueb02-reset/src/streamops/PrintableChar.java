@@ -71,17 +71,17 @@ public class PrintableChar {
         return inputStream;
     }
 
-    public PrintableChar encrypt(PrintableChar rot) {
+    public PrintableChar encrypt(int rot) {
 
         // LOWER + (this.c + rot.c) % RANGE
         // ((((this.c - LOWER - 1) - rot.c) % RANGE) + LOWER)
-        PrintableChar temp = new PrintableChar(LOWER + (this.c + rot.c) % UPPER - 1);
+        PrintableChar temp = new PrintableChar((this.c + rot - LOWER) % RANGE + LOWER);
         return temp;
     }
 
-    public PrintableChar decrypt(PrintableChar rot) {
+    public PrintableChar decrypt(int rot) {
 
-        return new PrintableChar(LOWER + (this.c - rot.c) % UPPER - 1);
+        return encrypt(RANGE - rot);
     }
 
     @Override

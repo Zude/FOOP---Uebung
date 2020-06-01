@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -110,15 +112,13 @@ public class StreamOperations {
      * @return Ver- bzw. entschlüsselter Text.
      */
     public static String vigenere(String plaintext, String pwd, boolean encode) {
-        
+
         Stream<PrintableChar> resultStream =
                 vigenere(PrintableChar.convertStringToStream(plaintext), pwd, encode);
 
-        StringBuilder builder = new StringBuilder();
+        String res = resultStream.map(Object::toString).collect(Collectors.joining());
 
-        resultStream.forEach(pc -> builder.append(pc));
-
-        return builder.toString();
+        return res;
     }
 
     /**
@@ -145,12 +145,18 @@ public class StreamOperations {
 
         Stream<PrintableChar> res;
 
-        if (encode)
+        Stream<String> pwdst = Stream.generate(() -> pwd);
 
-        {
-            res = zip(plaintext, PrintableChar.convertStringToStream(pwd), (a, b) -> a.encrypt(b));
+        if (encode) {
+            res = zip(plaintext, pwdst.flatMapToInt(s -> s.toString().chars())
+                    .mapToObj(c -> c % PrintableChar.RANGE), (a, b) -> a.encrypt(b));
+            // res = zip(plaintext, pwd.chars().mapToObj(c -> c % PrintableChar.RANGE), (a, b) ->
+            // a.encrypt(b));
         } else {
-            res = zip(plaintext, PrintableChar.convertStringToStream(pwd), (a, b) -> a.decrypt(b));
+            // res = zip(plaintext, pwd.chars().mapToObj(c -> c % PrintableChar.RANGE),
+            // (a, b) -> a.decrypt(b));
+            res = zip(plaintext, pwdst.flatMapToInt(s -> s.toString().chars())
+                    .mapToObj(c -> c % PrintableChar.RANGE), (a, b) -> a.decrypt(b));
         }
 
         return res;
@@ -164,7 +170,7 @@ public class StreamOperations {
      * @return Der unendliche Schlüssel als Strom von Zahlen
      */
     public static Stream<Integer> oneTimePadPassphrase() {
-        return null;
+        return new Random(42).ints().filter(e -> e >= 0).mapToObj(e -> e);
     }
 
     /**
@@ -186,7 +192,16 @@ public class StreamOperations {
      */
     public static Stream<PrintableChar> oneTimePad(Stream<PrintableChar> plaintext,
             Stream<Integer> passphrase, boolean encode) {
-        return null;
+        // TODO assert
+
+        Stream<PrintableChar> res;
+        if (encode) {
+            res = zip(plaintext, passphrase, (a, b) -> a.encrypt(b));
+        } else {
+            res = zip(plaintext, passphrase, (a, b) -> a.decrypt(b));
+        }
+
+        return res;
     }
 
     /**
