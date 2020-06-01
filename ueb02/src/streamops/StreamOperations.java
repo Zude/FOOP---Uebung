@@ -311,21 +311,21 @@ public class StreamOperations {
      */
     public static Map<Person.Gender, Set<Person>> groupPersonsByGender(Stream<Person> persons,
             Set<Integer> zipcodes, Integer minIncome, Integer maxIncome) {
+        assert persons != null;
 
         Map<Person.Gender, Set<Person>> resultMap = new HashMap<Person.Gender, Set<Person>>();
 
-        Set<Person> personSet;
-
-        persons.forEach(p -> {
+        persons.filter(p -> {
+            return ((zipcodes == null || zipcodes.isEmpty()) ? true
+                    : zipcodes.contains(p.getZipcode()))
+                    && ((minIncome == null) ? true : p.getIncome() >= minIncome)
+                    && ((maxIncome == null) ? true : p.getIncome() <= maxIncome);
+        }).forEach(p -> {
             if (!resultMap.containsKey(p.getGender())) {
                 resultMap.put(p.getGender(), new HashSet<Person>());
             }
-
             resultMap.get(p.getGender()).add(p);
         });
-
-        // .collect( Collectors.toConcurrentMap(w -> w.getGender(), w -> personSet.add((Person) w) ,
-        // System.out::println));
 
         return resultMap;
     }
