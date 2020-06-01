@@ -192,7 +192,10 @@ public class StreamOperations {
      * @return Der unendliche Schlüssel als Strom von Zahlen
      */
     public static Stream<Integer> oneTimePadPassphrase() {
-        return new Random(42).ints().filter(e -> e >= 0).mapToObj(e -> e);
+
+        final int number = 42;
+
+        return new Random(number).ints().filter(e -> e >= 0).mapToObj(e -> e);
     }
 
     /**
