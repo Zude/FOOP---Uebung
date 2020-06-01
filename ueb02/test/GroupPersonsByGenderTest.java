@@ -17,10 +17,12 @@ public class GroupPersonsByGenderTest {
     @Test
     public void simpleGroupByGenderTest() {
 
-        Stream<String> inputStream = Stream.of("hallo", "a", "", "-.,");
-
         Person person1 = new Person(Gender.MALE, "Alex", "Löffler", 21337, 10);
         Person person2 = new Person(Gender.MALE, "Lars", "Sander", 21337, 10);
+        Person person3 = new Person(Gender.FEMALE, "Sara", "Löffler", 21337, 10);
+        Person person4 = new Person(Gender.FEMALE, "Lara", "Sander", 21337, 10);
+        Person person5 = new Person(Gender.DIVERSE, "Lisa", "Löffler", 21337, 10);
+        Person person6 = new Person(Gender.DIVERSE, "Hanna", "Sander", 21337, 10);
 
         Set<Integer> zipcodesSet = new HashSet<Integer>();
         zipcodesSet.add(21337);
@@ -31,13 +33,24 @@ public class GroupPersonsByGenderTest {
         Map<Person.Gender, Set<Person>> resultMap;
         Map<Person.Gender, Set<Person>> expMap = new HashMap<Person.Gender, Set<Person>>();
 
-        Set<Person> persons = new HashSet<Person>();
-        persons.add(person1);
-        persons.add(person2);
+        Set<Person> malePersons = new HashSet<Person>();
+        malePersons.add(person1);
+        malePersons.add(person2);
 
-        expMap.put(Gender.MALE, persons);
+        Set<Person> femalePersons = new HashSet<Person>();
+        femalePersons.add(person3);
+        femalePersons.add(person4);
 
-        Stream<Person> personStream = Stream.of(person1, person2);
+        Set<Person> divPersons = new HashSet<Person>();
+        divPersons.add(person5);
+        divPersons.add(person6);
+
+        expMap.put(Gender.MALE, malePersons);
+        expMap.put(Gender.FEMALE, femalePersons);
+        expMap.put(Gender.DIVERSE, divPersons);
+
+        Stream<Person> personStream =
+                Stream.of(person1, person2, person3, person4, person5, person6);
 
         resultMap = StreamOperations.groupPersonsByGender(personStream, zipcodesSet, minIncome,
                 maxIncome);

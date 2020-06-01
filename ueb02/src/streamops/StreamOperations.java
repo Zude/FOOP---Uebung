@@ -1,6 +1,7 @@
 package streamops;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -310,7 +311,23 @@ public class StreamOperations {
      */
     public static Map<Person.Gender, Set<Person>> groupPersonsByGender(Stream<Person> persons,
             Set<Integer> zipcodes, Integer minIncome, Integer maxIncome) {
-        return null;
+
+        Map<Person.Gender, Set<Person>> resultMap = new HashMap<Person.Gender, Set<Person>>();
+
+        Set<Person> personSet;
+
+        persons.forEach(p -> {
+            if (!resultMap.containsKey(p.getGender())) {
+                resultMap.put(p.getGender(), new HashSet<Person>());
+            }
+
+            resultMap.get(p.getGender()).add(p);
+        });
+
+        // .collect( Collectors.toConcurrentMap(w -> w.getGender(), w -> personSet.add((Person) w) ,
+        // System.out::println));
+
+        return resultMap;
     }
 
     /**
