@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -37,8 +38,15 @@ public class StreamOperations {
      * @return Die Collatz-Folge
      */
     public static IntStream collatz(int n) {
-        assert (n > 0);
-        return null;
+        assert n > 0;
+        final int num = 3; // Gegen Magic Number in Checkstyle
+        return IntStream.iterate(n, e -> {
+            if (e % 2 == 0) {
+                return e / 2;
+            } else {
+                return num * e + 1;
+            }
+        });
     }
 
     /**
@@ -126,7 +134,13 @@ public class StreamOperations {
      * @return Ver- bzw. entschlüsselter Text.
      */
     public static String vigenere(String plaintext, String pwd, boolean encode) {
-        return null;
+
+        Stream<PrintableChar> resultStream =
+                vigenere(PrintableChar.convertStringToStream(plaintext), pwd, encode);
+
+        String res = resultStream.map(Object::toString).collect(Collectors.joining());
+
+        return res;
     }
 
     /**
@@ -149,7 +163,25 @@ public class StreamOperations {
      */
     public static Stream<PrintableChar> vigenere(Stream<PrintableChar> plaintext, String pwd,
             boolean encode) {
-        return null;
+        // Stream<PrintableChar> pwdStream = pwd.chars().mapToObj(a -> new PrintableChar(a));
+
+        Stream<PrintableChar> res;
+
+        Stream<String> pwdst = Stream.generate(() -> pwd);
+
+        if (encode) {
+            res = zip(plaintext, pwdst.flatMapToInt(s -> s.toString().chars())
+                    .mapToObj(c -> c % PrintableChar.RANGE), (a, b) -> a.encrypt(b));
+            // res = zip(plaintext, pwd.chars().mapToObj(c -> c % PrintableChar.RANGE), (a, b) ->
+            // a.encrypt(b));
+        } else {
+            // res = zip(plaintext, pwd.chars().mapToObj(c -> c % PrintableChar.RANGE),
+            // (a, b) -> a.decrypt(b));
+            res = zip(plaintext, pwdst.flatMapToInt(s -> s.toString().chars())
+                    .mapToObj(c -> c % PrintableChar.RANGE), (a, b) -> a.decrypt(b));
+        }
+
+        return res;
     }
 
     /**
@@ -160,7 +192,7 @@ public class StreamOperations {
      * @return Der unendliche Schlüssel als Strom von Zahlen
      */
     public static Stream<Integer> oneTimePadPassphrase() {
-        return null;
+        return new Random(42).ints().filter(e -> e >= 0).mapToObj(e -> e);
     }
 
     /**
@@ -182,7 +214,16 @@ public class StreamOperations {
      */
     public static Stream<PrintableChar> oneTimePad(Stream<PrintableChar> plaintext,
             Stream<Integer> passphrase, boolean encode) {
-        return null;
+        // TODO assert
+
+        Stream<PrintableChar> res;
+        if (encode) {
+            res = zip(plaintext, passphrase, (a, b) -> a.encrypt(b));
+        } else {
+            res = zip(plaintext, passphrase, (a, b) -> a.decrypt(b));
+        }
+
+        return res;
     }
 
     /**
@@ -196,7 +237,21 @@ public class StreamOperations {
      * @return Die Map von Wortlängen auf die Menge der Worte dieser Länge
      */
     public static Map<Integer, Set<String>> groupWordsOfSameLength(Stream<String> stream) {
-        return null;
+        assert stream != null;
+
+        Map<Integer, Set<String>> result = new HashMap<Integer, Set<String>>();
+
+        stream.forEach(str -> {
+            if (result.containsKey(str.length())) {
+                result.get(str.length()).add(str);
+            } else {
+                Set<String> entry = new HashSet<String>();
+                entry.add(str);
+                result.put(str.length(), entry);
+            }
+        });
+
+        return result;
     }
 
     /**

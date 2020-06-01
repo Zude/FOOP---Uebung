@@ -1,5 +1,7 @@
 package streamops;
 
+import java.util.stream.Stream;
+
 /**
  * Hilfsklasse zur Repräsenation eines Teilbereiches des ASCII-Zeichensatzes (druckbare Zeichen).
  * 
@@ -57,6 +59,14 @@ public class PrintableChar {
     public PrintableChar decrypt(int rot) {
 
         return encrypt(RANGE - rot);
+    }
+
+    public static Stream<PrintableChar> convertStringToStream(String input) {
+
+        Stream<PrintableChar> inputStream =
+                input.chars().filter(c -> isPrintableChar(c)).mapToObj(c -> new PrintableChar(c));
+
+        return inputStream;
     }
 
     @Override
