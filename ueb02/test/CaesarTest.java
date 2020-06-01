@@ -12,7 +12,10 @@ public class CaesarTest {
         String inpuString = " abc";
         String expected = "!bcd";
 
-        String res = StreamOperations.caesar(inpuString, 1, true);
+        boolean encrypt = true;
+        int rotation = 1;
+
+        String res = StreamOperations.caesar(inpuString, rotation, encrypt);
 
         assertEquals(expected, res);
     }
@@ -23,7 +26,23 @@ public class CaesarTest {
         String inpuString = " bc";
         String expected = "~ab";
 
-        String res = StreamOperations.caesar(inpuString, 1, false);
+        boolean encrypt = false;
+        int rotation = 1;
+
+        String res = StreamOperations.caesar(inpuString, rotation, encrypt);
+
+        assertEquals(expected, res);
+    }
+
+    @Test
+    public void simpleDecryptLong() {
+
+        String inpuString = "abcdefghijklmnopqrstuvwxyz";
+        String expected = "defghijklmnopqrstuvwxyz{|}";
+        boolean encrypt = true;
+        int rotation = 3;
+
+        String res = StreamOperations.caesar(inpuString, rotation, encrypt);
 
         assertEquals(expected, res);
     }
@@ -34,8 +53,11 @@ public class CaesarTest {
         String inpuString = " bcdsadagacdwsdagfwadf% _-*#";
         String expected = " bcdsadagacdwsdagfwadf% _-*#";
 
-        String res =
-                StreamOperations.caesar(StreamOperations.caesar(inpuString, 6, true), 6, false);
+        boolean encrypt = false;
+        int rotation = 6;
+
+        String res = StreamOperations.caesar(StreamOperations.caesar(inpuString, rotation, true),
+                rotation, encrypt);
 
         assertEquals(expected, res);
     }
