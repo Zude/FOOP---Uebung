@@ -242,7 +242,11 @@ public class StreamOperations {
      * @return Ausgabestrom
      */
     public static Stream<Character> stringsToChars(Stream<String> stream) {
-        return null;
+        assert stream != null;
+
+        String reString = stream.collect(Collectors.joining());
+
+        return reString.chars().mapToObj(c -> (char) c);
     }
 
     /**

@@ -1,7 +1,6 @@
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -11,22 +10,31 @@ import streamops.StreamOperations;
 public class StringToCharsTest {
 
     @Test
-    public void simpleCountCharsWithLimit() {
+    public void simpleStringToChars() {
 
-        Map<Character, Integer> expextedMap = new HashMap<Character, Integer>();
+        Stream<String> inputStream = Stream.of("hallo", "a", "", "-.,");
 
-        char from = 'a';
-        char to = 'd';
-        Long limit = new Long(5);
+        Stream<Character> resultStream = StreamOperations.stringsToChars(inputStream);
+        ;
 
-        expextedMap.put('a', 2);
-        expextedMap.put('b', 1);
-        expextedMap.put('d', 2);
+        Stream<Character> expectedStream = Stream.of('h', 'a', 'l', 'l', 'o', 'a', '-', '.', ',');
 
-        Stream<Character> stream = Stream.of('a', 'b', 'a', 'd', 'd', 'd');
-
-        Map<Character, Integer> res = StreamOperations.countChars(stream, from, to, limit);
-
-        assertEquals(expextedMap, res);
+        assertEquals(resultStream.collect(Collectors.toList()),
+                expectedStream.collect(Collectors.toList()));
     }
+
+    @Test
+    public void emptyStringToChars() {
+
+        Stream<String> inputStream = Stream.of("", "");
+
+        Stream<Character> resultStream = StreamOperations.stringsToChars(inputStream);
+        ;
+
+        Stream<Character> expectedStream = Stream.of();
+
+        assertEquals(resultStream.collect(Collectors.toList()),
+                expectedStream.collect(Collectors.toList()));
+    }
+
 }
