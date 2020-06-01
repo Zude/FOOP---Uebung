@@ -7,7 +7,7 @@ import java.util.stream.Stream;
  * 
  * Dieser Klasse dürfen öffentliche Methoden hinzugefügt werden.
  * 
- * @author kar, mhe, TODO Namen ergänzen
+ * @author kar, mhe, Lars Sander, Alexander Löffler
  *
  */
 public class PrintableChar {
@@ -51,16 +51,35 @@ public class PrintableChar {
         return c;
     }
 
+    /**
+     * Hilfsfunktion zum verschlüsseln eines PrintableChars Basierend auf Caeser Verschiebung
+     * 
+     * @param rot rotation für Verschiebung
+     * @return Neuer PrintableChar, verschoben um rot
+     */
     public PrintableChar encrypt(int rot) {
 
         return new PrintableChar((this.c + rot - LOWER) % RANGE + LOWER);
     }
 
+    /**
+     * Hilfsfunktion zum entschlüsseln eines PrintableChars Basierend auf Caeser Verschiebung
+     * 
+     * @param rot rotation für Verschiebung
+     * @return Neuer PrintableChar, wieder zurück verschoben
+     */
     public PrintableChar decrypt(int rot) {
 
         return encrypt(RANGE - rot);
     }
 
+    /**
+     * Hilfsfunktion die aus einen String ein Stream von PrintableChars erzeugt Ungültige Zeichen
+     * werden ignoriert
+     * 
+     * @param input Belieger String
+     * @return Umgewandelter Stream
+     */
     public static Stream<PrintableChar> convertStringToStream(String input) {
 
         Stream<PrintableChar> inputStream =
