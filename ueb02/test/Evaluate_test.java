@@ -61,6 +61,28 @@ public class Evaluate_test {
 
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void divByZero() {
+        Map<String, String> replace = new HashMap<String, String>();
+        String[] inputArr = { "4", "/", "0" };
+
+        Stream<String> inputStr = Stream.of(inputArr);
+
+        StreamOperations.evaluate(inputStr, replace);
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void noNumbers() {
+        Map<String, String> replace = new HashMap<String, String>();
+        String[] inputArr = { "a", "-", "b" };
+
+        Stream<String> inputStr = Stream.of(inputArr);
+
+        StreamOperations.evaluate(inputStr, replace);
+
+    }
+
     @Test
     public void expressionWithAllOps() {
         Map<String, String> replace = new HashMap<String, String>();

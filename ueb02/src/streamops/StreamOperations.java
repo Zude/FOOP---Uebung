@@ -75,9 +75,7 @@ public class StreamOperations {
         Stream<PrintableChar> resStream =
                 caesar(PrintableChar.convertStringToStream(plaintext), rotation, encode);
 
-        Stream<String> resultStream = resStream.map(Object::toString);
-
-        return resultStream.collect(Collectors.joining());
+        return resStream.map(Object::toString).collect(Collectors.joining());
     }
 
     /**
@@ -352,11 +350,11 @@ public class StreamOperations {
     }
 
     private class Expression {
-        Integer result = 0;
-        Integer currNumber = 0;
-        boolean nextIsNumber = true;
+        private Integer result = 0;
+        private Integer currNumber = 0;
+        private boolean nextIsNumber = true;
 
-        Operator currentOperator = Operator.addition;
+        private Operator currentOperator = Operator.addition;
 
         public void addNext(String str) {
 
@@ -466,7 +464,7 @@ public class StreamOperations {
 
         Map<Person.Gender, Set<Person>> resultMap = new HashMap<Person.Gender, Set<Person>>();
 
-        persons.filter(p -> {
+        persons.distinct().filter(p -> {
             return ((zipcodes == null || zipcodes.isEmpty()) ? true
                     : zipcodes.contains(p.getZipcode()))
                     && ((minIncome == null) ? true : p.getIncome() >= minIncome)
