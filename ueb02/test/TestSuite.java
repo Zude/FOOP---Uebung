@@ -9,7 +9,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ CaesarTest.class, CountCharsTest.class, StringToCharsTest.class,
         GroupPersonsByGenderTest.class, collatz_test.class, vignere_test.class,
-        groupWordsOfSameLength_test.class })
+        groupWordsOfSameLength_test.class, Evaluate_test.class })
 
 public class TestSuite {
 

@@ -339,7 +339,102 @@ public class StreamOperations {
         assert stream != null;
         assert replace != null;
 
-        return null;
+        StreamOperations so = new StreamOperations();
+        Expression exp = so.new Expression();
+
+        stream.map(e -> replace.containsKey(e) ? replace.get(e) : e).forEach(e -> exp.addNext(e));
+
+        if (exp.nextIsNumber) {
+            throw new IllegalArgumentException("Input Stream endete nicht mit einer Number");
+        }
+
+        return exp.result;
+    }
+
+    private class Expression {
+        Integer result = 0;
+        Integer currNumber = 0;
+        boolean nextIsNumber = true;
+
+        Operator currentOperator = Operator.addition;
+
+        public void addNext(String str) {
+
+            if (nextIsNumber) {
+                try {
+                    currNumber = Integer.valueOf(str);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException(
+                            "Ungültige Number beim umwandeln. String enthielt: " + str);
+                }
+
+                evalCurr();
+            } else {
+
+                if (str.length() == 1) {
+                    switch (str.charAt(0)) {
+                        case '+':
+                            currentOperator = Operator.addition;
+                            break;
+                        case '-':
+                            currentOperator = Operator.substraction;
+                            break;
+                        case '*':
+                            currentOperator = Operator.mulitplikation;
+                            break;
+                        case '/':
+                            currentOperator = Operator.division;
+                            break;
+                        case '%':
+                            currentOperator = Operator.modulo;
+                            break;
+
+                        default:
+                            throw new IllegalArgumentException(
+                                    "Ungültiger Operator beim unwandeln. String enthielt: " + str);
+
+                    }
+                } else {
+                    throw new IllegalArgumentException(
+                            "Ungültiger länge von Operator beim unwandeln. String enthielt: "
+                                    + str);
+                }
+            }
+            // Switch für nächsten Input
+            nextIsNumber = !nextIsNumber;
+        }
+
+        private void evalCurr() {
+            switch (currentOperator) {
+                case addition:
+                    result = result + currNumber;
+                    break;
+                case substraction:
+                    result = result - currNumber;
+                    break;
+                case mulitplikation:
+                    result = result * currNumber;
+                    break;
+                case division:
+                    if (currNumber == 0) {
+                        throw new IllegalArgumentException("Division durch 0");
+                    }
+                    result = result / currNumber;
+                    break;
+                case modulo:
+                    result = result % currNumber;
+                    break;
+
+                default:
+                    throw new IllegalArgumentException(
+                            "Nicht implementierter Operator. currenOperator ist: "
+                                    + currentOperator);
+            }
+        }
+    }
+
+    private enum Operator {
+        addition, substraction, mulitplikation, division, modulo
     }
 
     /**

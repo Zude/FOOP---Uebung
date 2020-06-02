@@ -1,6 +1,7 @@
 import static org.junit.Assert.assertEquals;
 
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -81,14 +82,49 @@ public class vignere_test {
 
     @Test
     public void allSymbols() {
-        String start = "!#$%&'()*+,-./:;<=>?@[] ^  `|~{}";
         String pwd = "passwort";
 
-        String temp = StreamOperations.vigenere(start, pwd, true);
+        Stream<PrintableChar> all = IntStream.iterate(PrintableChar.LOWER, i -> i + 1)
+                .limit(PrintableChar.RANGE).mapToObj(c -> new PrintableChar(c));
+
+        String allStr = all.map(Object::toString).collect(Collectors.joining());
+
+        String temp = StreamOperations.vigenere(allStr, pwd, true);
 
         String actual = StreamOperations.vigenere(temp, pwd, false);
 
+        assertEquals(allStr, actual);
+    }
+
+    @Test
+    public void allSymbolsAsPassword() {
+        String start =
+                "Ein ganz langer Satz um moeglichst viele Symbole aus dem PrintableChar zu testen. Und noch ein weiterer Satz der einfach nur lang sein soll";
+
+        Stream<PrintableChar> all = IntStream.iterate(PrintableChar.LOWER, i -> i + 1)
+                .limit(PrintableChar.RANGE).mapToObj(c -> new PrintableChar(c));
+
+        String allStr = all.map(Object::toString).collect(Collectors.joining());
+
+        String temp = StreamOperations.vigenere(start, allStr, true);
+
+        String actual = StreamOperations.vigenere(temp, allStr, false);
+
         assertEquals(start, actual);
+    }
+
+    @Test
+    public void allSymbolsInBoth() {
+        Stream<PrintableChar> all = IntStream.iterate(PrintableChar.LOWER, i -> i + 1)
+                .limit(PrintableChar.RANGE).mapToObj(c -> new PrintableChar(c));
+
+        String allStr = all.map(Object::toString).collect(Collectors.joining());
+
+        String temp = StreamOperations.vigenere(allStr, allStr, true);
+
+        String actual = StreamOperations.vigenere(temp, allStr, false);
+
+        assertEquals(allStr, actual);
     }
 
 }
