@@ -81,7 +81,7 @@ public class CaesarTest {
 
             String temp = StreamOperations.caesar(allStr, i, true);
 
-            String res = StreamOperations.caesar(allStr, i, false);
+            String res = StreamOperations.caesar(temp, i, false);
 
             comp = res.equals(allStr);
 
