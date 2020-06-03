@@ -75,7 +75,13 @@ public class StreamOperations {
         Stream<PrintableChar> resStream =
                 caesar(PrintableChar.convertStringToStream(plaintext), rotation, encode);
 
-        return resStream.map(Object::toString).collect(Collectors.joining());
+        String result = resStream.map(Object::toString).collect(Collectors.joining());
+
+        for (char c : result.toCharArray()) {
+            assert PrintableChar.isPrintableChar(c);
+        }
+
+        return result;
     }
 
     /**
@@ -138,7 +144,7 @@ public class StreamOperations {
 
         String res = resultStream.map(Object::toString).collect(Collectors.joining());
 
-        for (char c : pwd.toCharArray()) {
+        for (char c : res.toCharArray()) {
             assert PrintableChar.isPrintableChar(c);
         }
 
