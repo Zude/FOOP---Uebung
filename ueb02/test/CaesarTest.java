@@ -1,7 +1,13 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
+import streamops.PrintableChar;
 import streamops.StreamOperations;
 
 public class CaesarTest {
@@ -60,6 +66,35 @@ public class CaesarTest {
                 rotation, encrypt);
 
         assertEquals(expected, res);
+    }
+
+    @Test
+    public void allPrintableWithFullRange() {
+        Stream<PrintableChar> all = IntStream.iterate(PrintableChar.LOWER, i -> i + 1)
+                .limit(PrintableChar.RANGE).mapToObj(c -> new PrintableChar(c));
+
+        String allStr = all.map(Object::toString).collect(Collectors.joining());
+
+        boolean comp;
+
+        for (int i = 0; i < PrintableChar.RANGE; i++) {
+
+            String temp = StreamOperations.caesar(allStr, i, true);
+
+            String res = StreamOperations.caesar(allStr, i, false);
+
+            comp = res.equals(allStr);
+
+            if (!comp) {
+                System.out.println("Error at rot: " + i);
+                System.out.println("allStr: \n" + allStr);
+                System.out.println("res: \n" + res);
+                assertTrue(false);
+            }
+
+        }
+
+        assertTrue(true);
     }
 
 }

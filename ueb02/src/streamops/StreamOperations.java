@@ -69,7 +69,7 @@ public class StreamOperations {
      */
     public static String caesar(String plaintext, int rotation, boolean encode) {
         assert plaintext != null;
-        assert rotation > 0;
+        assert rotation >= 0;
         assert rotation < PrintableChar.RANGE;
 
         Stream<PrintableChar> resStream =
@@ -92,7 +92,7 @@ public class StreamOperations {
     public static Stream<PrintableChar> caesar(Stream<PrintableChar> plaintext, int rotation,
             boolean encode) {
         assert plaintext != null;
-        assert rotation > 0;
+        assert rotation >= 0;
         assert rotation < PrintableChar.RANGE;
 
         Stream<PrintableChar> result;
