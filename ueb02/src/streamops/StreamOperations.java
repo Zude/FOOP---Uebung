@@ -355,13 +355,30 @@ public class StreamOperations {
         return exp.result;
     }
 
+    /**
+     * Ein Operator stellt die erlaubten Operationen in evaluate() dar
+     *
+     */
+    private enum Operator {
+        addition, substraction, mulitplikation, division, modulo
+    }
+
+    /**
+     * Expression dient zur Akkumulation und Interpretierung des Streams aus Strings in evaluate()
+     * 
+     */
     private class Expression {
         private Integer result = 0;
         private Integer currNumber = 0;
         private boolean nextIsNumber = true;
-
         private Operator currentOperator = Operator.addition;
 
+        /**
+         * Übernimmt einen String und überprüft ob es sich um eine gültige Number oder eine Operator
+         * handelt Ruft außerdem evalCurr() auf und verarbeitet den Input somit sofort
+         * 
+         * @param str Der zu interpretierende String
+         */
         public void addNext(String str) {
 
             if (nextIsNumber) {
@@ -408,6 +425,9 @@ public class StreamOperations {
             nextIsNumber = !nextIsNumber;
         }
 
+        /**
+         * Ändert das aktuelle Ergebniss basierend auf der zu letzt hinzugefügten Operation
+         */
         private void evalCurr() {
             switch (currentOperator) {
                 case addition:
@@ -435,10 +455,6 @@ public class StreamOperations {
                                     + currentOperator);
             }
         }
-    }
-
-    private enum Operator {
-        addition, substraction, mulitplikation, division, modulo
     }
 
     /**
