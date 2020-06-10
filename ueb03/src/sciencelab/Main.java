@@ -1,5 +1,6 @@
 package sciencelab;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +29,37 @@ public class Main {
      */
     public Thread[] startAll(int n, int maxSteps, long tinkeringTime, long tryoutTime,
             long saneTime, AlgorithmType type, List<Scientist> res) {
+        assert res == null || res.isEmpty();
 
+        if (res == null) {
+            res = new ArrayList<Scientist>();
+        }
+
+        Thread[] allThreads = new Thread[n];
+        MultiTool first = new MultiTool();
+        MultiTool l = first;
+        MultiTool r = new MultiTool();
+
+        for (int i = 0; i < n; i++) {
+            Scientist s;
+
+            s = new Scientist(l, r, tryoutTime, tinkeringTime, saneTime, String.valueOf(i),
+                    maxSteps);
+
+            // TODO Ist die Rotation so richtig?
+            if (i == n - 1) {
+                l = r;
+                r = first;
+            } else {
+                l = r;
+                r = new MultiTool();
+            }
+
+            res.add(s);
+            allThreads[i] = startInThread(s, type);
+        }
+
+        return allThreads;
     }
 
     /**
