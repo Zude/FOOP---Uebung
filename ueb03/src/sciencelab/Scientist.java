@@ -47,7 +47,7 @@ public class Scientist {
      */
     private long startTime;
 
-    private boolean isInsane = false;
+    private volatile boolean isInsane = false;
 
     /**
      * Konstruktor.
