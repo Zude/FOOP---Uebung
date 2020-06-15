@@ -231,7 +231,7 @@ public class Scientist {
         class MyTimerTask extends TimerTask {
 
             private double starvingSince = 0;
-            private final double timeToGetCrazy = 200;
+            private final double timeToGetCrazy = saneTimeMS;
             private Scientist myScientist;
 
             MyTimerTask(Scientist myScientist) {
@@ -245,7 +245,7 @@ public class Scientist {
                 starvingSince++;
                 if (starvingSince >= timeToGetCrazy) {
                     myScientist.isInsane = true;
-                    printLog("Muahahahahahahaaaaaaa!");
+                    printLog("Scientist ist verrückt");
                     starvingSince = 0;
                 }
             }
@@ -286,11 +286,10 @@ public class Scientist {
                         printLog("Basteln");
                         myTask.reset();
                         isInsane = false;
+                        left.setFree(this);
+                        right.setFree(this);
+                        printLog("Beide Multifunktionswerkzeug zurücklegen");
                     }
-
-                    left.setFree(this);
-                    right.setFree(this);
-                    printLog("Beide Multifunktionswerkzeug zurücklegen");
 
                     if (!isInsane) {
                         Thread.sleep(tryoutTimeMS);
@@ -300,9 +299,9 @@ public class Scientist {
                 } else {
                     printLog("Nein");
 
-                    left.setFree(this);
-                    printLog("Linkes Multifunktionswerkzeug zurücklegen");
                     if (!isInsane) {
+                        left.setFree(this);
+                        printLog("Linkes Multifunktionswerkzeug zurücklegen");
                         synchronized (right) {
                             while (!right.isFree() && !isInsane) {
                                 try {
@@ -319,17 +318,19 @@ public class Scientist {
                     }
 
                 }
+
+                if (isInsane) {
+                    printLog("Muahahahahahahaaaaaaa!");
+                    round = k;
+                    left.setFree(this);
+                    right.setFree(this);
+                    myTask.cancel();
+                    timer.cancel();
+                    timer.purge();
+                }
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            }
-            if (isInsane) {
-                round = k;
-                left.setFree(this);
-                right.setFree(this);
-                myTask.cancel();
-                timer.cancel();
-                timer.purge();
             }
 
         }
