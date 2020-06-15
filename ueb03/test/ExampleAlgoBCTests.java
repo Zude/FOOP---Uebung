@@ -174,7 +174,7 @@ public class ExampleAlgoBCTests extends TestToolkit {
         }
 
         c.tick();
-        assertTiming(300);
+        assertTiming(1, 10000);
 
         Thread.sleep(EPS); // warten, bis sich auch die Timer beendet haben!
         Assert.assertEquals(NUM_NON_DEAMON, getNonDaemonThreads());

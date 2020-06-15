@@ -1,5 +1,8 @@
 package sciencelab;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * Ein potentiell leicht mental instabiler Wisschenschaftler, der in einem
  * Wissenschaftler-Gemeinschaftlabor arbeitet.
@@ -44,6 +47,8 @@ public class Scientist {
      */
     private long startTime;
 
+    private boolean isInsane = false;
+
     /**
      * Konstruktor.
      * 
@@ -72,7 +77,7 @@ public class Scientist {
      */
     public boolean isInsane() {
 
-        return false;
+        return isInsane;
     }
 
     /**
@@ -210,8 +215,7 @@ public class Scientist {
 
                 }
 
-                printLog(
-                        "Warten, bis rechtes Multifunktionswerkzeug frei wird (aber nicht direkt nehmen!)");
+                printLog("Warten, bis rechtes Multifunktionswerkzeug frei wird");
             }
 
             round++;
@@ -225,65 +229,111 @@ public class Scientist {
     void startAlgoC() {
         startTime = System.currentTimeMillis();
 
-        // TODO Timer fürs Wahnsinnig werden fehlt noch
+        class MyTimerTask extends TimerTask {
+
+            public double starvingSince = 0;
+            public double timeToGetCrazy = 200;
+            private Scientist myScientist;
+
+            public MyTimerTask(Scientist myScientist) {
+                this.myScientist = myScientist;
+            }
+
+            @Override
+            public void run() {
+
+                // Werde verrückt
+                starvingSince++;
+                if (starvingSince >= timeToGetCrazy) {
+                    myScientist.isInsane = true;
+                    printLog("Muahahahahahahaaaaaaa!");
+                    starvingSince = 0;
+                }
+            }
+
+            public void reset() {
+
+                this.starvingSince = 0;
+            }
+
+        }
+
+        Timer timer = new Timer(true);
+
+        MyTimerTask myTask = new MyTimerTask(this);
+
+        timer.schedule(myTask, 0, 1);
+
         int round = 0;
         while (round < k) {
             try {
-                left.takeTool(this);
-            } catch (InterruptedException e1) {
+                if (!isInsane) {
+                    left.takeTool(this);
+                    printLog("Linkes Multifunktionswerkzeug nehmen");
+                }
+
+                boolean check = right.isFree();
+                printLog("Ist rechtes Multifunktionswerkzeug frei?");
+                if (check && !isInsane) { // TODO isFree() und dann doppelt printLog?
+                    printLog("Ja:");
+                    if (!isInsane) {
+                        right.takeTool(this);
+                        printLog("Rechtes Multifunktionswerkzeug nehmen");
+                    }
+
+                    if (!isInsane) {
+                        Thread.sleep(tinkeringTimeMS);
+                        printLog("Basteln");
+                        myTask.reset();
+                        isInsane = false;
+                    }
+
+                    left.setFree(this);
+                    right.setFree(this);
+                    printLog("Beide Multifunktionswerkzeug zurücklegen");
+
+                    if (!isInsane) {
+                        Thread.sleep(tryoutTimeMS);
+                        printLog("Ausprobieren");
+                    }
+
+                } else {
+                    printLog("Nein");
+
+                    left.setFree(this);
+                    printLog("Linkes Multifunktionswerkzeug zurücklegen");
+                    if (!isInsane) {
+                        synchronized (right) {
+                            while (!right.isFree() && !isInsane) {
+                                try {
+                                    right.wait();
+                                } catch (InterruptedException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        }
+
+                        printLog("Warten, bis rechtes Multifunktionswerkzeug frei wird");
+                    }
+
+                }
+            } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
-                e1.printStackTrace();
+                e.printStackTrace();
             }
-            printLog("Linkes Multifunktionswerkzeug nehmen");
-
-            boolean check = right.isFree();
-            printLog("Ist rechtes Multifunktionswerkzeug frei?");
-            if (check) {
-                printLog("Ja:");
-
-                try {
-                    right.takeTool(this);
-                } catch (InterruptedException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                printLog("Rechtes Multifunktionswerkzeug nehmen");
-
-                try {
-                    Thread.sleep(tinkeringTimeMS);
-                    printLog("Basteln");
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                left.setFree(this);
-                right.setFree(this);
-                printLog("Beide Multifunktionswerkzeug zurücklegen");
-
-                try {
-                    Thread.sleep(tryoutTimeMS);
-                    printLog("Ausprobieren");
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-            } else {
-                printLog("Nein");
-
-                left.setFree(this);
-                printLog("Linkes Multifunktionswerkzeug zurücklegen");
-
-                while (!right.isFree()) {
-                    // just wait...
-                }
-                printLog(
-                        "Warten, bis rechtes Multifunktionswerkzeug frei wird (aber nicht direkt nehmen!)");
+            if (isInsane) {
+                round = k;
+                myTask.cancel();
+                timer.cancel();
+                timer.purge();
             }
-
             round++;
         }
+        myTask.cancel();
+        timer.cancel();
+        timer.purge();
         printLog("Beendet");
     }
 }

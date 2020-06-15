@@ -38,7 +38,6 @@ public class MultiTool {
             if (owner.equals(s)) {
                 isFree = true;
                 this.notifyAll();
-                ;
             }
         }
 
