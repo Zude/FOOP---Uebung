@@ -196,7 +196,7 @@ public class Scientist {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-
+                round++;
             } else {
                 printLog("Nein");
 
@@ -218,7 +218,6 @@ public class Scientist {
                 printLog("Warten, bis rechtes Multifunktionswerkzeug frei wird");
             }
 
-            round++;
         }
         printLog("Beendet");
     }
@@ -231,11 +230,11 @@ public class Scientist {
 
         class MyTimerTask extends TimerTask {
 
-            public double starvingSince = 0;
-            public double timeToGetCrazy = 200;
+            private double starvingSince = 0;
+            private final double timeToGetCrazy = 200;
             private Scientist myScientist;
 
-            public MyTimerTask(Scientist myScientist) {
+            MyTimerTask(Scientist myScientist) {
                 this.myScientist = myScientist;
             }
 
@@ -258,6 +257,7 @@ public class Scientist {
 
         }
 
+        // TODO: Keine deamon threads erlaubt ?
         Timer timer = new Timer(true);
 
         MyTimerTask myTask = new MyTimerTask(this);
@@ -296,7 +296,7 @@ public class Scientist {
                         Thread.sleep(tryoutTimeMS);
                         printLog("Ausprobieren");
                     }
-
+                    round++;
                 } else {
                     printLog("Nein");
 
@@ -325,11 +325,13 @@ public class Scientist {
             }
             if (isInsane) {
                 round = k;
+                left.setFree(this);
+                right.setFree(this);
                 myTask.cancel();
                 timer.cancel();
                 timer.purge();
             }
-            round++;
+
         }
         myTask.cancel();
         timer.cancel();
