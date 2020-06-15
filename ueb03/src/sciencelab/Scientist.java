@@ -49,6 +49,8 @@ public class Scientist {
 
     private volatile boolean isInsane = false;
 
+    public boolean isAsleep = false;
+
     /**
      * Konstruktor.
      * 
@@ -232,21 +234,28 @@ public class Scientist {
 
             private double starvingSince = 0;
             private final double timeToGetCrazy = saneTimeMS;
-            private Scientist myScientist;
+            private Thread scientistThread;
+            private Scientist scientist;
 
-            MyTimerTask(Scientist myScientist) {
-                this.myScientist = myScientist;
+            MyTimerTask(Thread thread, Scientist scientist) {
+                this.scientistThread = thread;
+                this.scientist = scientist;
             }
 
             @Override
             public void run() {
 
-                // Werde verrückt
                 starvingSince++;
                 if (starvingSince >= timeToGetCrazy) {
-                    myScientist.isInsane = true;
-                    printLog("Scientist ist verrückt");
-                    starvingSince = 0;
+                    try {
+                        if (!scientist.isAsleep) {
+                            scientistThread.interrupt();
+                            printLog("Muahahahahahahaaaaaaa!");
+                            starvingSince = 0;
+                        }
+                    } catch (SecurityException ex) {
+                        printLog("INTERRUPPPPPTS");
+                    }
                 }
             }
 
@@ -258,81 +267,71 @@ public class Scientist {
         }
 
         // TODO: Keine deamon threads erlaubt ?
-        Timer timer = new Timer(true);
+        Timer timer = new Timer(false);
 
-        MyTimerTask myTask = new MyTimerTask(this);
+        MyTimerTask myTask = new MyTimerTask(Thread.currentThread(), this);
 
         timer.schedule(myTask, 0, 1);
 
         int round = 0;
         while (round < k) {
             try {
-                if (!isInsane) {
-                    left.takeTool(this);
-                    printLog("Linkes Multifunktionswerkzeug nehmen");
-                }
+
+                left.takeTool(this);
+
+                printLog("Linkes Multifunktionswerkzeug nehmen");
 
                 boolean check = right.isFree();
                 printLog("Ist rechtes Multifunktionswerkzeug frei?");
-                if (check && !isInsane) { // TODO isFree() und dann doppelt printLog?
+                if (check) { // TODO isFree() und dann doppelt printLog?
                     printLog("Ja:");
-                    if (!isInsane) {
-                        right.takeTool(this);
-                        printLog("Rechtes Multifunktionswerkzeug nehmen");
-                    }
 
-                    if (!isInsane) {
-                        Thread.sleep(tinkeringTimeMS);
-                        printLog("Basteln");
-                        myTask.reset();
-                        isInsane = false;
-                        left.setFree(this);
-                        right.setFree(this);
-                        printLog("Beide Multifunktionswerkzeug zurücklegen");
-                    }
+                    right.takeTool(this);
 
-                    if (!isInsane) {
-                        Thread.sleep(tryoutTimeMS);
-                        printLog("Ausprobieren");
-                    }
+                    printLog("Rechtes Multifunktionswerkzeug nehmen");
+
+                    isAsleep = true;
+                    Thread.sleep(tinkeringTimeMS);
+                    isAsleep = false;
+                    myTask.reset();
+                    printLog("Basteln");
+
+                    left.setFree(this);
+                    right.setFree(this);
+                    printLog("Beide Multifunktionswerkzeug zurücklegen");
+
+                    Thread.sleep(tryoutTimeMS);
+                    printLog("Ausprobieren");
+
                     round++;
                 } else {
                     printLog("Nein");
 
-                    if (!isInsane) {
-                        left.setFree(this);
-                        printLog("Linkes Multifunktionswerkzeug zurücklegen");
-                        synchronized (right) {
-                            while (!right.isFree() && !isInsane) {
-                                try {
-                                    right.wait();
-                                } catch (InterruptedException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                            }
+                    left.setFree(this);
+                    printLog("Linkes Multifunktionswerkzeug zurücklegen");
 
+                    synchronized (right) {
+                        while (!right.isFree()) {
+                            right.wait();
                         }
 
-                        printLog("Warten, bis rechtes Multifunktionswerkzeug frei wird");
                     }
 
+                    printLog("Warten, bis rechtes Multifunktionswerkzeug frei wird");
                 }
 
-                if (isInsane) {
-                    printLog("Muahahahahahahaaaaaaa!");
-                    round = k;
-                    left.setFree(this);
-                    right.setFree(this);
-                    myTask.cancel();
-                    timer.cancel();
-                    timer.purge();
-                }
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                // e.printStackTrace();
+                left.setFree(this);
+                right.setFree(this);
+                break;
+            } catch (SecurityException ex) {
+                printLog("INTERRUPPPPPTS");
+                left.setFree(this);
+                right.setFree(this);
+                break;
             }
-
         }
         myTask.cancel();
         timer.cancel();
