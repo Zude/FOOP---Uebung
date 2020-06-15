@@ -12,6 +12,8 @@ import java.util.TimerTask;
  */
 public class Scientist {
 
+    private boolean isAsleep = false;
+
     /**
      * Die Multitools.
      */
@@ -49,8 +51,6 @@ public class Scientist {
 
     private volatile boolean isInsane = false;
 
-    public boolean isAsleep = false;
-
     /**
      * Konstruktor.
      * 
@@ -80,6 +80,10 @@ public class Scientist {
     public boolean isInsane() {
 
         return isInsane;
+    }
+
+    public boolean isAsleep() {
+        return isAsleep;
     }
 
     /**
