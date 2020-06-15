@@ -101,14 +101,14 @@ public class Scientist {
         while (round < k) {
 
             try {
-                left.reserve(this);
+                left.takeTool(this);
             } catch (InterruptedException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             printLog("Linkes Multifunktionswerkzeug nehmen");
             try {
-                right.reserve(this);
+                right.takeTool(this);
             } catch (InterruptedException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
@@ -152,7 +152,7 @@ public class Scientist {
         int round = 0;
         while (round < k) {
             try {
-                left.reserve(this);
+                left.takeTool(this);
             } catch (InterruptedException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
@@ -165,7 +165,7 @@ public class Scientist {
                 printLog("Ja:");
 
                 try {
-                    right.reserve(this);
+                    right.takeTool(this);
                 } catch (InterruptedException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -198,16 +198,16 @@ public class Scientist {
                 left.setFree(this);
                 printLog("Linkes Multifunktionswerkzeug zurücklegen");
 
-                synchronized (this) {
+                synchronized (right) {
                     while (!right.isFree()) {
                         try {
-                            this.wait();
+                            right.wait();
                         } catch (InterruptedException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }
-                    this.notifyAll();
+
                 }
 
                 printLog(
@@ -217,7 +217,6 @@ public class Scientist {
             round++;
         }
         printLog("Beendet");
-
     }
 
     /**
@@ -230,7 +229,7 @@ public class Scientist {
         int round = 0;
         while (round < k) {
             try {
-                left.reserve(this);
+                left.takeTool(this);
             } catch (InterruptedException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
@@ -243,7 +242,7 @@ public class Scientist {
                 printLog("Ja:");
 
                 try {
-                    right.reserve(this);
+                    right.takeTool(this);
                 } catch (InterruptedException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();

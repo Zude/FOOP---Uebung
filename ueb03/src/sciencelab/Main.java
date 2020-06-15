@@ -47,7 +47,7 @@ public class Main {
                     maxSteps);
 
             // TODO Ist die Rotation so richtig?
-            if (i == n - 1) {
+            if (i == n - 2) {
                 l = r;
                 r = first;
             } else {

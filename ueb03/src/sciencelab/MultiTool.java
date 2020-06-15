@@ -13,20 +13,17 @@ public class MultiTool {
 
     // TODO Methode, die prüft ob das MultiTool frei ist, und falls nein,
     // so lange wartet, bis es frei ist und es dann reserviert (vergibt).
-    public void reserve(Scientist s) throws InterruptedException {
-        synchronized (s) { // TODO Was bedeutet das s in diesen Fall? Muss es das wartende Objekt
-                           // sein oder das Objekt das gecheckt wird?
-            while (!isFree) {
+    public void takeTool(Scientist s) throws InterruptedException {
 
-                s.wait();
+        synchronized (this) {
+
+            while (!isFree) {
+                this.wait();
             }
 
-            owner = s;
             isFree = false;
-            s.notifyAll();
-
+            owner = s;
         }
-
     }
 
     // TODO Methode, die prüft, ob das Multitool gerade frei ist.
@@ -37,10 +34,11 @@ public class MultiTool {
     // TODO Methode, die das Multitool freigibt (darf nur funktionieren, wenn das Multitool
     // gerade dem freigebenden Wissenschaftler gehört).
     public void setFree(Scientist s) {
-        synchronized (s) {
+        synchronized (this) {
             if (owner.equals(s)) {
                 isFree = true;
-                s.notifyAll();
+                this.notifyAll();
+                ;
             }
         }
 
