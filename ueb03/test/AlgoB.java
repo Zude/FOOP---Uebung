@@ -14,14 +14,14 @@ public class AlgoB extends TestToolkit {
     @Test
     public void Vier_Wissenschaftler_Mit_Drei_Runden() throws InterruptedException {
 
-        int numofScientist = 3;
+        final int numofScientist = 3;
 
-        int tryoutTime = 100;
-        int tinkeringTime = 100;
-        int saneTime = 1000;
-        int numSteps = 2;
-        int timinig =
-                (tinkeringTime * numSteps * numofScientist) + (tinkeringTime * numofScientist - 1);
+        final int tryoutTime = 100;
+        final int tinkeringTime = 100;
+        final int saneTime = 1000;
+        final int numSteps = 2;
+        final int timing = (tinkeringTime * numSteps * numofScientist) + (tryoutTime);
+
         c.tick();
 
         // Diesmal Liste mit Wissenschaftlern besorgen
@@ -41,7 +41,7 @@ public class AlgoB extends TestToolkit {
         }
 
         c.tick();
-        assertTiming(timinig);
+        assertTiming(timing);
 
         Thread.sleep(EPS);
         Assert.assertEquals(NUM_NON_DEAMON, getNonDaemonThreads());
@@ -50,14 +50,13 @@ public class AlgoB extends TestToolkit {
     @Test
     public void Drei_Wissenschaftler_Mit_Einer_Runde() throws InterruptedException {
 
-        int numofScientist = 3;
+        final int numofScientist = 3;
 
-        int tryoutTime = 100;
-        int tinkeringTime = 200;
-        int saneTime = 1000;
-        int numSteps = 1;
-        int timinig =
-                (tinkeringTime * numSteps * numofScientist) + (tinkeringTime * numofScientist - 1);
+        final int tryoutTime = 100;
+        final int tinkeringTime = 200;
+        final int saneTime = 1000;
+        final int numSteps = 1;
+        final int timing = (tinkeringTime * numSteps * numofScientist) + (tryoutTime);
 
         c.tick();
 
@@ -78,7 +77,7 @@ public class AlgoB extends TestToolkit {
         }
 
         c.tick();
-        assertTiming(timinig);
+        assertTiming(timing);
 
         Thread.sleep(EPS);
         Assert.assertEquals(NUM_NON_DEAMON, getNonDaemonThreads());

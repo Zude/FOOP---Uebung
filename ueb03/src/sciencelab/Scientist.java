@@ -12,7 +12,7 @@ import java.util.TimerTask;
  */
 public class Scientist {
 
-    private boolean isAsleep = false;
+    private boolean inTryoutSleep = false;
 
     /**
      * Die Multitools.
@@ -83,7 +83,7 @@ public class Scientist {
     }
 
     public boolean isAsleep() {
-        return isAsleep;
+        return inTryoutSleep;
     }
 
     /**
@@ -156,9 +156,10 @@ public class Scientist {
 
                 printLog("Linkes Multifunktionswerkzeug nehmen");
 
-                boolean check = right.isFree();
+                boolean check = right.isFree(); // Als Check speichern, weil nach der überprüfen ein
+                                                // print kommen soll
                 printLog("Ist rechtes Multifunktionswerkzeug frei?");
-                if (check) { // TODO isFree() und dann doppelt printLog?
+                if (check) {
                     printLog("Ja:");
 
                     right.takeTool(this);
@@ -219,10 +220,16 @@ public class Scientist {
             @Override
             public void run() {
 
-                starvingSince++;
+                if (!scientist.inTryoutSleep) {
+                    starvingSince++;
+                }
+
                 if (starvingSince >= timeToGetCrazy) {
                     try {
-                        if (!scientist.isAsleep) {
+                        // TODO Kann das jemals vorkommen? Wenn ja wäre das wohl auch ein Fehler
+                        // oder?
+                        if (!scientist.inTryoutSleep) {
+                            scientist.isInsane = true;
                             scientistThread.interrupt();
                             printLog("Muahahahahahahaaaaaaa!");
                             starvingSince = 0;
@@ -234,13 +241,11 @@ public class Scientist {
             }
 
             public void reset() {
-
                 this.starvingSince = 0;
             }
 
         }
 
-        // TODO: Keine deamon threads erlaubt ?
         Timer timer = new Timer(false);
 
         MyTimerTask myTask = new MyTimerTask(Thread.currentThread(), this);
@@ -248,33 +253,36 @@ public class Scientist {
         timer.schedule(myTask, 0, 1);
 
         int round = 0;
-        while (round < k) {
+        while (round < k && !isInsane) { // TODO ist die Abfrage der Variable okay, oder muss der
+                                         // Thread überprüft werden?
             try {
 
                 left.takeTool(this);
-
                 printLog("Linkes Multifunktionswerkzeug nehmen");
 
-                boolean check = right.isFree();
+                boolean check = right.isFree(); // Als Check speichern, weil nach der überprüfen ein
+                                                // print kommen soll
                 printLog("Ist rechtes Multifunktionswerkzeug frei?");
-                if (check) { // TODO isFree() und dann doppelt printLog?
+                // if (Thread.interrupted()) {
+
+                if (check) {
                     printLog("Ja:");
 
                     right.takeTool(this);
-
                     printLog("Rechtes Multifunktionswerkzeug nehmen");
 
-                    isAsleep = true;
                     Thread.sleep(tinkeringTimeMS);
-                    isAsleep = false;
-                    myTask.reset();
                     printLog("Basteln");
+
+                    myTask.reset();
 
                     left.setFree(this);
                     right.setFree(this);
                     printLog("Beide Multifunktionswerkzeug zurücklegen");
 
+                    inTryoutSleep = true;
                     Thread.sleep(tryoutTimeMS);
+                    inTryoutSleep = false;
                     printLog("Ausprobieren");
 
                     round++;
@@ -295,8 +303,6 @@ public class Scientist {
                 }
 
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                // e.printStackTrace();
                 left.setFree(this);
                 right.setFree(this);
                 break;

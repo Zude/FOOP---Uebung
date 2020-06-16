@@ -11,8 +11,13 @@ public class MultiTool {
     private boolean isFree = true;
     private Scientist owner = null;
 
-    // TODO Methode, die prüft ob das MultiTool frei ist, und falls nein,
-    // so lange wartet, bis es frei ist und es dann reserviert (vergibt).
+    /**
+     * Methode, die prüft ob das MultiTool frei ist, und falls nein, so lange wartet, bis es frei
+     * ist und es dann reserviert (vergibt).
+     * 
+     * @param s Der Scientist der das Tool nehmen will
+     * @throws InterruptedException Kann vom Wait geworfen werden
+     */
     public void takeTool(Scientist s) throws InterruptedException {
 
         synchronized (this) {
@@ -26,13 +31,20 @@ public class MultiTool {
         }
     }
 
-    // TODO Methode, die prüft, ob das Multitool gerade frei ist.
+    /**
+     * Prüft ob das Multitool frei ist
+     * 
+     * @return
+     */
     public boolean isFree() {
         return isFree;
     }
 
-    // TODO Methode, die das Multitool freigibt (darf nur funktionieren, wenn das Multitool
-    // gerade dem freigebenden Wissenschaftler gehört).
+    /**
+     * Gibt das Multitool frei, falls der Übergebe Scientist als Nutzer eingetragen ist
+     * 
+     * @param s Der Scientist der das Tool freigeben will
+     */
     public void setFree(Scientist s) {
         synchronized (this) {
             if (owner.equals(s)) {
@@ -42,9 +54,5 @@ public class MultiTool {
         }
 
     }
-
-    // TODO Wann machen die Notifys wirklich sinn? Nach jeder Änderung der Variable? Was würde
-    // passieren wenn das Tool wartet und nicht der Scientist? Könnte im Scientist dann noch ein
-    // Wait eingebaut sein oder gäbe es dann für das Notify keine option mehr?
 
 }
