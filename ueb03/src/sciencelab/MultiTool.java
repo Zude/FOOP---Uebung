@@ -34,7 +34,7 @@ public class MultiTool {
     /**
      * Prüft ob das Multitool frei ist
      * 
-     * @return
+     * @return isFree
      */
     public boolean isFree() {
         return isFree;
