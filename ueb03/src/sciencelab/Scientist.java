@@ -109,45 +109,33 @@ public class Scientist {
         startTime = System.currentTimeMillis();
 
         int round = 0;
-        while (round < k) {
+        try {
+            while (round < k) {
 
-            try {
                 left.takeTool(this);
-            } catch (InterruptedException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            printLog("Linkes Multifunktionswerkzeug nehmen");
-            try {
-                right.takeTool(this);
-            } catch (InterruptedException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            printLog("Rechtes Multifunktionswerkzeug nehmen");
 
-            try {
+                printLog("Linkes Multifunktionswerkzeug nehmen");
+
+                right.takeTool(this);
+
+                printLog("Rechtes Multifunktionswerkzeug nehmen");
+
                 Thread.sleep(tinkeringTimeMS);
                 printLog("Basteln");
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
 
-            left.setFree(this);
-            right.setFree(this);
-            printLog("Beide Multifunktionswerkzeug zurücklegen");
+                left.setFree(this);
+                right.setFree(this);
+                printLog("Beide Multifunktionswerkzeug zurücklegen");
 
-            try {
                 Thread.sleep(tryoutTimeMS);
                 printLog("Ausprobieren");
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+
+                round++;
+
             }
-
-            round++;
-
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
         printLog("Beendet");
@@ -161,69 +149,51 @@ public class Scientist {
         startTime = System.currentTimeMillis();
 
         int round = 0;
-        while (round < k) {
-            try {
+        try {
+            while (round < k) {
+
                 left.takeTool(this);
-            } catch (InterruptedException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            printLog("Linkes Multifunktionswerkzeug nehmen");
 
-            boolean check = right.isFree();
-            printLog("Ist rechtes Multifunktionswerkzeug frei?");
-            if (check) { // TODO isFree() und dann doppelt printLog?
-                printLog("Ja:");
+                printLog("Linkes Multifunktionswerkzeug nehmen");
 
-                try {
+                boolean check = right.isFree();
+                printLog("Ist rechtes Multifunktionswerkzeug frei?");
+                if (check) { // TODO isFree() und dann doppelt printLog?
+                    printLog("Ja:");
+
                     right.takeTool(this);
-                } catch (InterruptedException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-                printLog("Rechtes Multifunktionswerkzeug nehmen");
 
-                try {
+                    printLog("Rechtes Multifunktionswerkzeug nehmen");
+
                     Thread.sleep(tinkeringTimeMS);
                     printLog("Basteln");
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
 
-                left.setFree(this);
-                right.setFree(this);
-                printLog("Beide Multifunktionswerkzeug zurücklegen");
+                    left.setFree(this);
+                    right.setFree(this);
+                    printLog("Beide Multifunktionswerkzeug zurücklegen");
 
-                try {
                     Thread.sleep(tryoutTimeMS);
                     printLog("Ausprobieren");
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                round++;
-            } else {
-                printLog("Nein");
 
-                left.setFree(this);
-                printLog("Linkes Multifunktionswerkzeug zurücklegen");
+                    round++;
+                } else {
+                    printLog("Nein");
 
-                synchronized (right) {
-                    while (!right.isFree()) {
-                        try {
+                    left.setFree(this);
+                    printLog("Linkes Multifunktionswerkzeug zurücklegen");
+
+                    synchronized (right) {
+                        while (!right.isFree()) {
                             right.wait();
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
                         }
                     }
-
+                    printLog("Warten, bis rechtes Multifunktionswerkzeug frei wird");
                 }
 
-                printLog("Warten, bis rechtes Multifunktionswerkzeug frei wird");
             }
-
+        } catch (InterruptedException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
         }
         printLog("Beendet");
     }
