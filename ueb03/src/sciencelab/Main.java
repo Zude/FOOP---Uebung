@@ -1,7 +1,5 @@
 package sciencelab;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,9 +63,9 @@ public class Main {
         }
 
         if (res != null) {
-            assertEquals(createdScientist, res);
+            assert (createdScientist.equals(res));
         }
-        assertEquals(numberOfTools, n);
+        assert (numberOfTools == n);
 
         return allThreads;
     }
