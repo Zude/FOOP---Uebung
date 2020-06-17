@@ -31,14 +31,13 @@ public class Main {
             long saneTime, AlgorithmType type, List<Scientist> res) {
         assert res == null || res.isEmpty();
 
-        if (res == null) {
-            res = new ArrayList<Scientist>();
-        }
+        List<Scientist> createdScientist = new ArrayList<Scientist>();
 
         Thread[] allThreads = new Thread[n];
         MultiTool first = new MultiTool();
         MultiTool l = first;
         MultiTool r = new MultiTool();
+        int numberOfTools = 1;
 
         for (int i = 0; i < n; i++) {
             Scientist s;
@@ -46,18 +45,27 @@ public class Main {
             s = new Scientist(l, r, tryoutTime, tinkeringTime, saneTime, String.valueOf(i),
                     maxSteps);
 
-            // TODO Ist die Rotation so richtig?
-            if (i == n - 1) {
+            if (i == n - 2) {
                 l = r;
                 r = first;
             } else {
                 l = r;
                 r = new MultiTool();
+                numberOfTools++;
             }
 
-            res.add(s);
+            createdScientist.add(s);
+            if (res != null) {
+                res.add(s);
+            }
+
             allThreads[i] = startInThread(s, type);
         }
+
+        if (res != null) {
+            assert (createdScientist.equals(res));
+        }
+        assert (numberOfTools == n);
 
         return allThreads;
     }
