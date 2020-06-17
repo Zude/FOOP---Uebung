@@ -1,5 +1,7 @@
 package sciencelab;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +33,7 @@ public class Main {
             long saneTime, AlgorithmType type, List<Scientist> res) {
         assert res == null || res.isEmpty();
 
-        if (res == null) {
-            res = new ArrayList<Scientist>();
-        }
+        List<Scientist> createdScientist = new ArrayList<Scientist>();
 
         Thread[] allThreads = new Thread[n];
         MultiTool first = new MultiTool();
@@ -46,7 +46,6 @@ public class Main {
             s = new Scientist(l, r, tryoutTime, tinkeringTime, saneTime, String.valueOf(i),
                     maxSteps);
 
-            // TODO Ist die Rotation so richtig?
             if (i == n - 2) {
                 l = r;
                 r = first;
@@ -55,8 +54,16 @@ public class Main {
                 r = new MultiTool();
             }
 
-            res.add(s);
+            createdScientist.add(s);
+            if (res != null) {
+                res.add(s);
+            }
+
             allThreads[i] = startInThread(s, type);
+        }
+
+        if (res != null) {
+            assertEquals(createdScientist, res);
         }
 
         return allThreads;

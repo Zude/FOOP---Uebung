@@ -71,7 +71,6 @@ public class AlgoC extends TestToolkit {
 
         c.tick();
 
-        // Diesmal Liste mit Wissenschaftlern besorgen
         final List<Scientist> scientists = new LinkedList<>();
 
         final Thread[] startAll = m.startAll(numofScientist, numSteps, tinkeringTime, tryoutTime,
@@ -114,7 +113,6 @@ public class AlgoC extends TestToolkit {
 
         c.tick();
 
-        // Diesmal Liste mit Wissenschaftlern besorgen
         final List<Scientist> scientists = new LinkedList<>();
 
         final Thread[] startAll = m.startAll(numofScientist, numSteps, tinkeringTime, tryoutTime,
@@ -158,7 +156,6 @@ public class AlgoC extends TestToolkit {
 
         c.tick();
 
-        // Diesmal Liste mit Wissenschaftlern besorgen
         final List<Scientist> scientists = new LinkedList<>();
 
         final Thread[] startAll = m.startAll(numofScientist, numSteps, tinkeringTime, tryoutTime,
