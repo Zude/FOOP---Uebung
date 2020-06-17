@@ -39,6 +39,7 @@ public class Main {
         MultiTool first = new MultiTool();
         MultiTool l = first;
         MultiTool r = new MultiTool();
+        int numberOfTools = 1;
 
         for (int i = 0; i < n; i++) {
             Scientist s;
@@ -52,6 +53,7 @@ public class Main {
             } else {
                 l = r;
                 r = new MultiTool();
+                numberOfTools++;
             }
 
             createdScientist.add(s);
@@ -65,6 +67,7 @@ public class Main {
         if (res != null) {
             assertEquals(createdScientist, res);
         }
+        assertEquals(numberOfTools, n);
 
         return allThreads;
     }
