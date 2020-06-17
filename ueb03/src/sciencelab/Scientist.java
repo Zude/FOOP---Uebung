@@ -99,9 +99,6 @@ public class Scientist {
         System.out.flush();
     }
 
-    // TODO Dürfen die Algos selbst die Exepctions werfen oder müssen wirklich über all die
-    // Try-Catch Blöcke sein?
-
     /**
      * Implementierung Algorithmus A.
      */
@@ -134,7 +131,6 @@ public class Scientist {
 
             }
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -156,8 +152,8 @@ public class Scientist {
 
                 printLog("Linkes Multifunktionswerkzeug nehmen");
 
-                boolean check = right.isFree(); // Als Check speichern, weil nach der überprüfen ein
-                                                // print kommen soll
+                boolean check = right.isFree();
+
                 printLog("Ist rechtes Multifunktionswerkzeug frei?");
                 if (check) {
                     printLog("Ja:");
@@ -193,7 +189,6 @@ public class Scientist {
 
             }
         } catch (InterruptedException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
         printLog("Beendet");
@@ -226,8 +221,7 @@ public class Scientist {
 
                 if (starvingSince >= timeToGetCrazy) {
                     try {
-                        // TODO Kann das jemals vorkommen? Wenn ja wäre das wohl auch ein Fehler
-                        // oder?
+
                         if (!scientist.inTryoutSleep) {
                             scientist.isInsane = true;
                             scientistThread.interrupt();
@@ -235,7 +229,7 @@ public class Scientist {
                             starvingSince = 0;
                         }
                     } catch (SecurityException ex) {
-                        printLog("INTERRUPPPPPTS");
+                        printLog("Interrupted");
                     }
                 }
             }
@@ -253,17 +247,16 @@ public class Scientist {
         timer.schedule(myTask, 0, 1);
 
         int round = 0;
-        while (round < k && !isInsane) { // TODO ist die Abfrage der Variable okay, oder muss der
-                                         // Thread überprüft werden?
+        while (round < k && !isInsane) {
+
             try {
 
                 left.takeTool(this);
                 printLog("Linkes Multifunktionswerkzeug nehmen");
 
-                boolean check = right.isFree(); // Als Check speichern, weil nach der überprüfen ein
-                                                // print kommen soll
+                boolean check = right.isFree();
+
                 printLog("Ist rechtes Multifunktionswerkzeug frei?");
-                // if (Thread.interrupted()) {
 
                 if (check) {
                     printLog("Ja:");
@@ -307,7 +300,6 @@ public class Scientist {
                 right.setFree(this);
                 break;
             } catch (SecurityException ex) {
-                printLog("INTERRUPPPPPTS");
                 left.setFree(this);
                 right.setFree(this);
                 break;
