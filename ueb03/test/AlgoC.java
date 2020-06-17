@@ -182,4 +182,43 @@ public class AlgoC extends TestToolkit {
         }
     }
 
+    @Test
+    public void Ein_Wissenschaftler_Drei_Runden() throws InterruptedException {
+
+        System.out.println();
+        System.out.println("Ein_Wissenschaftler_Drei_Runden");
+        System.out.println();
+
+        final int numofScientist = 1;
+
+        final int tryoutTime = 5;
+        final int tinkeringTime = 5;
+        final int saneTime = 1000;
+        final int numSteps = 3;
+        final int timing = (tinkeringTime * numSteps * numofScientist) + (tryoutTime);
+
+        c.tick();
+
+        final List<Scientist> scientists = new LinkedList<>();
+
+        final Thread[] startAll = m.startAll(numofScientist, numSteps, tinkeringTime, tryoutTime,
+                saneTime, algo, scientists);
+
+        Assert.assertEquals("Es wurden nicht alle Threads erzeugt", numofScientist,
+                startAll.length);
+        Assert.assertEquals("Es wurden nicht alle Wissenschaftler erzeugt", numofScientist,
+                scientists.size());
+
+        for (Thread t : startAll) {
+            t.join();
+            System.out.println("joined " + t.getName());
+        }
+
+        c.tick();
+        assertTiming(timing);
+
+        Thread.sleep(EPS);
+        Assert.assertEquals(NUM_NON_DEAMON, getNonDaemonThreads());
+    }
+
 }
