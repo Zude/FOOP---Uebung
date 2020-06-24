@@ -216,14 +216,8 @@ public class StreamOperations {
         assert plaintext != null;
         assert passphrase != null;
 
-        Stream<PrintableChar> res;
-        if (encode) {
-            res = zip(plaintext, passphrase.map(c -> c % PrintableChar.RANGE),
-                    (a, b) -> a.encrypt(b));
-        } else {
-            res = zip(plaintext, passphrase.map(c -> c % PrintableChar.RANGE),
-                    (a, b) -> a.decrypt(b));
-        }
+        Stream<PrintableChar> res = zip(plaintext, passphrase.map(c -> c % PrintableChar.RANGE),
+                (a, b) -> encode ? a.encrypt(b) : a.decrypt(b));
 
         return res;
     }
@@ -276,17 +270,14 @@ public class StreamOperations {
             Long max) {
         assert stream != null;
 
-        Map<Character, Integer> resultMap = new HashMap<Character, Integer>();
+        Stream<Character> str = stream;
 
-        if (max == null) {
-            resultMap = stream.filter(c -> c >= from && c <= to)
-                    .collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
-        } else {
-            resultMap = stream.limit(max).filter(c -> c >= from && c <= to)
-                    .collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
+        if (max != null) {
+            str = stream.limit(max);
         }
 
-        return resultMap;
+        return str.filter(c -> c >= from && c <= to)
+                .collect(Collectors.toConcurrentMap(w -> w, w -> 1, Integer::sum));
     }
 
     /**
