@@ -1,17 +1,24 @@
 package client;
 
-import helper.Logger;
-
 import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
+
+import helper.Logger;
 
 /**
  * Ein Client, der Anfragen an einen {@link server.PrimeServer} stellen kann. Die Anfragen
  * blockieren hierbei so lange bis eine Antwort vom Server eingegangen ist.
  * 
- * @author kar, mhe, TODO Autoren ergänzen
+ * @author kar, mhe, Lars Sander, Alexander Löffler
  */
 public class PrimeClient implements Logger {
+
+    private List<String> MyLog = new ArrayList<String>();
+
+    private final String host;
+    private final int port;
 
     /**
      * Konstruktor.
@@ -21,8 +28,10 @@ public class PrimeClient implements Logger {
      * @throws IOException Verbindungsfehler
      */
     public PrimeClient(String host, int port) throws IOException {
-    }
+        this.host = host;
+        this.port = port;
 
+    }
 
     /**
      * Diese Methode muss vor allen anderen die mit dem Server kommunizieren einmalig aufgerufen
@@ -34,6 +43,9 @@ public class PrimeClient implements Logger {
      * @throws IOException falls es ein Problem mit der Verbindung gibt
      */
     public void connect() throws IOException {
+
+        Socket cs = new Socket();
+        cs.connect(host, port);
     }
 
     /**
@@ -73,10 +85,12 @@ public class PrimeClient implements Logger {
 
     @Override
     public List<String> getLog() {
+        return MyLog;
     }
 
     @Override
     public void addEntry(String e) {
+        MyLog.add(e);
     }
 
 }
