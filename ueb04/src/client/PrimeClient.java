@@ -1,6 +1,9 @@
 package client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,10 +18,12 @@ import helper.Logger;
  */
 public class PrimeClient implements Logger {
 
-    private List<String> MyLog = new ArrayList<String>();
+    private List<String> ClientLog = new ArrayList<String>();
 
-    private final String host;
-    private final int port;
+    Socket clientSocket;
+
+    PrintWriter out;
+    BufferedReader in;
 
     /**
      * Konstruktor.
@@ -28,9 +33,16 @@ public class PrimeClient implements Logger {
      * @throws IOException Verbindungsfehler
      */
     public PrimeClient(String host, int port) throws IOException {
-        this.host = host;
-        this.port = port;
+        System.out.println("Client erstellt");
 
+        try {
+            clientSocket = new Socket(host, port);
+        } catch (IOException e) {
+            System.err.println("Client err");
+        }
+
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
     /**
@@ -44,8 +56,12 @@ public class PrimeClient implements Logger {
      */
     public void connect() throws IOException {
 
-        Socket cs = new Socket();
-        cs.connect(host, port);
+        out.println("Test");
+        // out.flush();
+
+        // String ans = in.readLine();
+
+        // addEntry(ans);
     }
 
     /**
@@ -54,6 +70,8 @@ public class PrimeClient implements Logger {
      * @throws IOException falls beim Schließen ein Netzwerkfehler auftritt (unwahrscheinlich).
      */
     public void disconnect() throws IOException {
+
+        clientSocket.close();
     }
 
     /**
@@ -66,6 +84,7 @@ public class PrimeClient implements Logger {
      */
     public long nextPrime(long q) throws IOException {
         assert q >= 0 : "Es dürfen nur positive Zahlen (>= 0) angefragt werden.";
+        return q;
 
     }
 
@@ -80,17 +99,20 @@ public class PrimeClient implements Logger {
      */
     public List<Long> primeFactors(long q) throws IOException {
         assert q > 1 : "Es dürfen nur positive Zahlen (> 1) angefragt werden.";
+        return null;
 
     }
 
     @Override
     public List<String> getLog() {
-        return MyLog;
+        return ClientLog;
     }
 
     @Override
     public void addEntry(String e) {
-        MyLog.add(e);
+        System.out.println("ClientLog: " + e);
+
+        ClientLog.add(e);
     }
 
 }

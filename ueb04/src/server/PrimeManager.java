@@ -8,8 +8,8 @@ import helper.Logger;
 /**
  * 
  * Generiert dauerhaft Primzahlen in einem eigenen Thread und bietet auf Basis der generierten
- * Primzahlen die Ermittlung der jeweils nächstgrößeren Primzahl zu einer übergebenen Zahl und die
- * Zerlegung einer übergebenen Zahl in Primfaktoren an.
+ * Primzahlen die Ermittlung der jeweils nächstgrößeren Primzahl zu einer übergebenen Zahl und
+ * die Zerlegung einer übergebenen Zahl in Primfaktoren an.
  * 
  * Sofern die benötigte(n) Primzahl(en) zum Anfragezeitpunkt schon berechnet wurde(n), werden
  * Anfragen sofort beantwortet. Falls dies nicht der Fall ist, warten die Anfragen bis die
@@ -22,7 +22,6 @@ import helper.Logger;
  * 
  */
 public class PrimeManager implements Logger {
-
 
     /**
      * Konstruktor.
@@ -40,8 +39,8 @@ public class PrimeManager implements Logger {
     }
 
     /**
-     * Liefert zu der übergebenen Zahl die nächstgrößere Primzahl. Ist die übergebene Zahl selbst
-     * bereits prim, so wird sie als Ergebnis zurückgegeben.
+     * Liefert zu der übergebenen Zahl die nächstgrößere Primzahl. Ist die übergebene Zahl
+     * selbst bereits prim, so wird sie als Ergebnis zurückgegeben.
      * 
      * Wenn die Aussage zum Zeitpunkt der Anfrage noch nicht getroffen werden kann, wird so lange
      * gewartet bis dies möglich ist.
@@ -52,9 +51,9 @@ public class PrimeManager implements Logger {
      */
     public long nextPrime(long q) {
         assert (q >= 0) : "nextPrime muss mit einer positiven Ganzzahl aufgerufen werden.";
+        return q;
 
     }
-
 
     /**
      * Liefert eine aufsteigend sortierte Liste aller Primfakoren der übergebenen Zahl q.
@@ -69,6 +68,7 @@ public class PrimeManager implements Logger {
      */
     public List<Long> primeFactors(long q) {
         assert (q >= 2) : "PrimeFactors muss mit einer positiven Ganzzahl >=2 aufgerufen werden.";
+        return null;
 
     }
 
@@ -81,12 +81,13 @@ public class PrimeManager implements Logger {
      * @return Eine Kopie aller bis jetzt gefundenen Primzahlen.
      */
     public Collection<Long> knownPrimes() {
+        return null;
     }
 
     /**
      * Startet den PrimeWorker-Thread und somit die Berechnung der Primzahlen ab der Zahl 2. Das
-     * übergebene delay wird verwendet um die Berechnungen jeweils um den übergebenen Wert in ms zu
-     * verzögern. Dabei wird nach jeder geprüften / berechneten Zahl das delay durchgeführt.
+     * übergebene delay wird verwendet um die Berechnungen jeweils um den übergebenen Wert in ms
+     * zu verzögern. Dabei wird nach jeder geprüften / berechneten Zahl das delay durchgeführt.
      * 
      * Sollte die Berechnung unterbrochen worden sein und wieder gestartet werden, so wird sie an
      * der Stelle fortgesetzt, an der sie unterbrochen wurde.
@@ -107,6 +108,7 @@ public class PrimeManager implements Logger {
 
     @Override
     public List<String> getLog() {
+        return null;
     }
 
     @Override
