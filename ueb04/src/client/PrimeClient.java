@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import helper.Logger;
+import helper.MessageType;
 
 /**
  * Ein Client, der Anfragen an einen {@link server.PrimeServer} stellen kann. Die Anfragen
@@ -20,10 +21,17 @@ public class PrimeClient implements Logger {
 
     private List<String> ClientLog = new ArrayList<String>();
 
-    Socket clientSocket;
+    private Socket clientSocket;
 
-    PrintWriter out;
-    BufferedReader in;
+    // TODO die Reader/Writer aus der Aufgabenstellung verwenden oder herausfinden warum das hier
+    // besser sein könnte
+    private PrintWriter out;
+    private BufferedReader in;
+
+    private final String host;
+    private final int port;
+
+    private int ID;
 
     /**
      * Konstruktor.
@@ -35,14 +43,9 @@ public class PrimeClient implements Logger {
     public PrimeClient(String host, int port) throws IOException {
         System.out.println("Client erstellt");
 
-        try {
-            clientSocket = new Socket(host, port);
-        } catch (IOException e) {
-            System.err.println("Client err");
-        }
+        this.host = host;
+        this.port = port;
 
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     }
 
     /**
@@ -56,12 +59,31 @@ public class PrimeClient implements Logger {
      */
     public void connect() throws IOException {
 
-        out.println("Test");
-        // out.flush();
+        try {
+            clientSocket = new Socket(host, port);
 
-        // String ans = in.readLine();
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-        // addEntry(ans);
+        } catch (IOException e) {
+            System.err.println("Client err");
+        }
+
+        // TODO Log vorm Absenden oder danach? Spielt für den Test keine Rolle, aber kann es beim
+        // senden fehler geben?
+        out.println(MessageType.HALLO);
+        addEntry("connecting");
+
+        String ans = in.readLine();
+
+        try {
+            ID = Integer.valueOf(ans);
+        } catch (NumberFormatException e) {
+            System.err.println("Client kann ID nicht lesen");
+        }
+
+        addEntry("connected," + ID);
+
     }
 
     /**
@@ -71,6 +93,7 @@ public class PrimeClient implements Logger {
      */
     public void disconnect() throws IOException {
 
+        addEntry("disconnecting");
         clientSocket.close();
     }
 
@@ -84,6 +107,9 @@ public class PrimeClient implements Logger {
      */
     public long nextPrime(long q) throws IOException {
         assert q >= 0 : "Es dürfen nur positive Zahlen (>= 0) angefragt werden.";
+
+        out.println(ID + "," + MessageType.NEXTPRIME + "," + q);
+        addEntry("requesting: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + q);
         return q;
 
     }
@@ -99,6 +125,9 @@ public class PrimeClient implements Logger {
      */
     public List<Long> primeFactors(long q) throws IOException {
         assert q > 1 : "Es dürfen nur positive Zahlen (> 1) angefragt werden.";
+
+        out.println(ID + "," + MessageType.PRIMEFACTORS + "," + q);
+        addEntry("requesting: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q);
         return null;
 
     }

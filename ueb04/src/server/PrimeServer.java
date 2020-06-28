@@ -7,30 +7,121 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import helper.Logger;
+import helper.MessageType;
 
 /**
  * Ein Server der per TCP-Verbindung Anfragen an einen PrimeManager ermöglicht. Der Server kann
  * hierbei mit beliebige vielen Clients gleichzeitig kommunzieren. Die Kommunikation zwischen Client
- * und Server verläuft stets synchron. Clients dürfen sich allerdings nicht gegenseitig
- * blockieren.
+ * und Server verläuft stets synchron. Clients dürfen sich allerdings nicht gegenseitig blockieren.
  * 
- * @author kar, mhe, Lars Sander, Alexander L�ffler
+ * @author kar, mhe, Lars Sander, Alexander L�ffler
  * 
  */
 public class PrimeServer implements Logger {
 
-    private List<String> ServerLog = new ArrayList<String>();
+    private List<String> serverLog = new ArrayList<String>();
 
-    ServerSocket serverSocket;
+    // Map vs Array
+    // Es ist einfacher beendete Clients aus der Map zu entfernen. Allerdings kann dadurch auch eine
+    // alte ID wiederverwendet werden. Ein Array müsste jedes Mal vergrößert/verkleinert werden.
+    private Map<Integer, ClientThread> clientConnections = new HashMap<Integer, ClientThread>();
 
-    Socket clientSocket; // TODO Als Liste oder Array um mehrere Verbindungen zu verwalten. HashMap
-                         // vs Array weil die ID immer gleich bleibt?
+    protected ServerSocket serverSocket;
 
-    PrintWriter out;
-    BufferedReader in;
+    // TODO Gibt es hier einen Vorteil runnable vs thread zu implementieren?
+    // Thread kann einen etwas schöneren Aufruf mit der Map haben.
+    // Threads mit Clients vs Clients als Threads
+    private class ClientThread extends Thread {
+
+        private Socket clientSocket;
+
+        private PrintWriter out;
+        private BufferedReader in;
+
+        private int ID;
+
+        public ClientThread(int ID, Socket client) {
+            this.ID = ID;
+            this.clientSocket = client;
+        }
+
+        @Override
+        public void run() {
+
+            System.out.println("ClientThread gestartet");
+
+            try {
+
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+                String msg;
+
+                // Wenn es in in keine Zeilen mehr gibt sollte der Client sich beendet haben.
+                while ((msg = in.readLine()) != null) {
+
+                    // Nachricht kann 1 oder 3 mit , geteilte Strings enthalten
+                    // (1): Kommt nur bei HALLO vor
+                    // (3): ID, MSG, ZAHL
+                    String[] arr_msg = msg.split(",");
+
+                    if (arr_msg.length == 1) {
+                        if (MessageType.valueOf(arr_msg[0]) == MessageType.HALLO) {
+                            System.out.println("Hallo von Client");
+
+                            out.println(ID);
+
+                            addEntry("client connected," + ID);
+                        }
+
+                    } else if (arr_msg.length == 1) {
+
+                        // Sicherstellen das es die gleiche ID ist
+                        if (Integer.valueOf(arr_msg[0]) == ID) {
+
+                            switch (MessageType.valueOf(arr_msg[1])) {
+                                case PRIMEFACTORS:
+
+                                    addEntry("requested: " + ID + ",primefactors,");
+                                    break;
+                                case NEXTPRIME:
+
+                                    addEntry("requested: " + ID + ",nextprime,");
+                                    break;
+
+                                default:
+                                    System.err.println("Ungültige Nachricht");
+                                    break;
+                            }
+                        } else {
+                            System.err.println("Falsche ID");
+                        }
+
+                    } else {
+                        System.err.println("Ungültige Nachricht");
+                    }
+
+                }
+
+                addEntry("client disconnected," + ID);
+                System.out.println("Thread beendet");
+
+                // TODO Sollten die Reader/Writer hier beendet werden. Wo ist der Unterschied ob
+                // hier oder am Client der Socket geschlossen wird?
+
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+
+    }
 
     /**
      * Konstruktor.
@@ -62,17 +153,22 @@ public class PrimeServer implements Logger {
     public void startServer(long delay) throws IOException {
         assert delay >= 0 : "Delay muss > 0 sein!";
 
-        System.out.println("Server erstellt");
+        System.out.println("Server gestartet");
 
-        clientSocket = serverSocket.accept();
+        int nextID = 1;
 
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-        String msg;
-        while ((msg = in.readLine()) != null) {
-            addEntry(msg);
+        // TODO
+        // Eine dauerhafte Schleife die immer mehr Threads annehmen kann wird benötigt
+        // Und nur wenn ein neuer Client startet sollte ein weiterer Thread erzeugt werden.
+        // Ist das so überhaupt möglich?
+        while (true) {
+            ClientThread ct = new ClientThread(nextID, serverSocket.accept());
+            ct.start();
+            nextID++;
         }
+
+        // TODO
+        // Thread in Array abspeichern
 
     }
 
@@ -95,11 +191,11 @@ public class PrimeServer implements Logger {
     @Override
     public void addEntry(String e) {
         System.out.println("ServerLog: " + e);
-        ServerLog.add(e);
+        serverLog.add(e);
     }
 
     @Override
     public List<String> getLog() {
-        return ServerLog;
+        return serverLog;
     }
 }
