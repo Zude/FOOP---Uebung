@@ -29,14 +29,16 @@ public class PrimeServer implements Logger {
     // Map vs Array
     // Es ist einfacher beendete Clients aus der Map zu entfernen. Allerdings kann dadurch auch eine
     // alte ID wiederverwendet werden. Ein Array müsste jedes Mal vergrößert/verkleinert werden.
-    private Map<Integer, ClientThread> clientConnections = new HashMap<Integer, ClientThread>();
+    private Map<Integer, Thread> clientConnections = new HashMap<Integer, Thread>();
 
     protected ServerSocket serverSocket;
+
+    private PrimeManager primeManager;
 
     // TODO Gibt es hier einen Vorteil runnable vs thread zu implementieren?
     // Thread kann einen etwas schöneren Aufruf mit der Map haben.
     // Threads mit Clients vs Clients als Threads
-    private class ClientThread extends Thread {
+    private class ClientThread implements Runnable {
 
         private Socket clientSocket;
 
@@ -45,7 +47,7 @@ public class PrimeServer implements Logger {
 
         private int ID;
 
-        public ClientThread(int ID, Socket client) {
+        ClientThread(int ID, Socket client) {
             this.ID = ID;
             this.clientSocket = client;
         }
@@ -53,7 +55,7 @@ public class PrimeServer implements Logger {
         @Override
         public void run() {
 
-            System.out.println("ClientThread gestartet");
+            System.out.println("ClientThread gestartet ID:" + ID);
 
             try {
 
@@ -70,16 +72,18 @@ public class PrimeServer implements Logger {
                     // (3): ID, MSG, ZAHL
                     String[] arr_msg = msg.split(",");
 
+                    // TODO Was für Fehler können bei .valueOf auftreten und sollten wir dort was
+                    // ausgeben?
+
                     if (arr_msg.length == 1) {
                         if (MessageType.valueOf(arr_msg[0]) == MessageType.HALLO) {
-                            System.out.println("Hallo von Client");
 
                             out.println(ID);
 
                             addEntry("client connected," + ID);
                         }
 
-                    } else if (arr_msg.length == 1) {
+                    } else if (arr_msg.length == 3) {
 
                         // Sicherstellen das es die gleiche ID ist
                         if (Integer.valueOf(arr_msg[0]) == ID) {
@@ -87,15 +91,27 @@ public class PrimeServer implements Logger {
                             switch (MessageType.valueOf(arr_msg[1])) {
                                 case PRIMEFACTORS:
 
-                                    addEntry("requested: " + ID + ",primefactors,");
+                                    List<Long> prim_list =
+                                            primeManager.primeFactors(Long.valueOf(arr_msg[2]));
+
+                                    // TODO aufräumen...
+                                    addEntry("requested: " + ID + ",primefactors," + arr_msg[2]
+                                            + ",[" + prim_list.toString().replaceAll(" ", ",")
+                                            + "]");
                                     break;
                                 case NEXTPRIME:
 
-                                    addEntry("requested: " + ID + ",nextprime,");
+                                    Long prim = primeManager.nextPrime(Long.valueOf(arr_msg[2]));
+
+                                    out.println(prim);
+
+                                    addEntry("requested: " + ID + ",nextprime," + arr_msg[2] + ","
+                                            + prim);
+
                                     break;
 
                                 default:
-                                    System.err.println("Ungültige Nachricht");
+                                    System.err.println("Ungültiger MSG Type :" + arr_msg[1]);
                                     break;
                             }
                         } else {
@@ -103,13 +119,14 @@ public class PrimeServer implements Logger {
                         }
 
                     } else {
-                        System.err.println("Ungültige Nachricht");
+                        System.err.println("Ungültige Nachricht: " + msg);
                     }
 
                 }
 
                 addEntry("client disconnected," + ID);
-                System.out.println("Thread beendet");
+                clientConnections.remove(ID);
+                System.out.println("Thread beendet ID:" + ID + " CC: " + clientConnections.size());
 
                 // TODO Sollten die Reader/Writer hier beendet werden. Wo ist der Unterschied ob
                 // hier oder am Client der Socket geschlossen wird?
@@ -138,6 +155,13 @@ public class PrimeServer implements Logger {
 
         serverSocket = new ServerSocket(port);
 
+        primeManager = new PrimeManager(partitionSize);
+    }
+
+    public PrimeServer(int port, PrimeManager dummy) throws IOException {
+        serverSocket = new ServerSocket(port);
+
+        primeManager = dummy;
     }
 
     /**
@@ -155,17 +179,38 @@ public class PrimeServer implements Logger {
 
         System.out.println("Server gestartet");
 
-        int nextID = 1;
+        Thread listener = new Thread(() -> {
+
+            int nextID = 1;
+            Socket clientSocket;
+
+            while (true && !serverSocket.isClosed()) {
+
+                try {
+                    clientSocket = serverSocket.accept();
+                    ClientThread ct = new ClientThread(nextID, clientSocket);
+                    Thread thr = new Thread(ct);
+
+                    clientConnections.put(nextID, thr);
+
+                    thr.start();
+
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                nextID++;
+
+            }
+        });
+
+        listener.start();
 
         // TODO
         // Eine dauerhafte Schleife die immer mehr Threads annehmen kann wird benötigt
         // Und nur wenn ein neuer Client startet sollte ein weiterer Thread erzeugt werden.
         // Ist das so überhaupt möglich?
-        while (true) {
-            ClientThread ct = new ClientThread(nextID, serverSocket.accept());
-            ct.start();
-            nextID++;
-        }
 
         // TODO
         // Thread in Array abspeichern
@@ -185,7 +230,19 @@ public class PrimeServer implements Logger {
      */
     public void stopServer() throws IOException {
 
+        // TODO Der check mit isEmpty() schlägt fehl, weil diese Methode aufgerufen werden kann
+        // bevor der ClientThread sich selbst aus der Map entfernt hat.
+
+        if (clientConnections.isEmpty()) {
+            serverSocket.close();
+        } else {
+            System.err.println(
+                    "Server kann nicht geschlossen werden, es existieren noch offene Verbindungen. Count:"
+                            + clientConnections.size());
+        }
+
         serverSocket.close();
+
     }
 
     @Override

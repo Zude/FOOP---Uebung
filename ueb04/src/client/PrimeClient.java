@@ -110,7 +110,16 @@ public class PrimeClient implements Logger {
 
         out.println(ID + "," + MessageType.NEXTPRIME + "," + q);
         addEntry("requesting: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + q);
-        return q;
+
+        String ans;
+        long res = q;
+
+        ans = in.readLine();
+        res = Long.valueOf(ans);
+
+        addEntry("response: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + res);
+
+        return res;
 
     }
 

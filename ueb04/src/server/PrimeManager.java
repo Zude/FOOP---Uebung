@@ -1,5 +1,6 @@
 package server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -8,8 +9,8 @@ import helper.Logger;
 /**
  * 
  * Generiert dauerhaft Primzahlen in einem eigenen Thread und bietet auf Basis der generierten
- * Primzahlen die Ermittlung der jeweils nächstgrößeren Primzahl zu einer übergebenen Zahl und
- * die Zerlegung einer übergebenen Zahl in Primfaktoren an.
+ * Primzahlen die Ermittlung der jeweils nächstgrößeren Primzahl zu einer übergebenen Zahl und die
+ * Zerlegung einer übergebenen Zahl in Primfaktoren an.
  * 
  * Sofern die benötigte(n) Primzahl(en) zum Anfragezeitpunkt schon berechnet wurde(n), werden
  * Anfragen sofort beantwortet. Falls dies nicht der Fall ist, warten die Anfragen bis die
@@ -18,10 +19,12 @@ import helper.Logger;
  * Der PrimeManager muss jederzeit eine beliebige Anzahl von Anfragen gleichzeitig bearbeiten
  * können.
  * 
- * @author kar, mhe, TODO Autoren ergänzen
+ * @author kar, mhe, Lars Sander, Alexander Löffler
  * 
  */
 public class PrimeManager implements Logger {
+
+    private List<String> primeLog = new ArrayList<String>();
 
     /**
      * Konstruktor.
@@ -39,8 +42,8 @@ public class PrimeManager implements Logger {
     }
 
     /**
-     * Liefert zu der übergebenen Zahl die nächstgrößere Primzahl. Ist die übergebene Zahl
-     * selbst bereits prim, so wird sie als Ergebnis zurückgegeben.
+     * Liefert zu der übergebenen Zahl die nächstgrößere Primzahl. Ist die übergebene Zahl selbst
+     * bereits prim, so wird sie als Ergebnis zurückgegeben.
      * 
      * Wenn die Aussage zum Zeitpunkt der Anfrage noch nicht getroffen werden kann, wird so lange
      * gewartet bis dies möglich ist.
@@ -86,8 +89,8 @@ public class PrimeManager implements Logger {
 
     /**
      * Startet den PrimeWorker-Thread und somit die Berechnung der Primzahlen ab der Zahl 2. Das
-     * übergebene delay wird verwendet um die Berechnungen jeweils um den übergebenen Wert in ms
-     * zu verzögern. Dabei wird nach jeder geprüften / berechneten Zahl das delay durchgeführt.
+     * übergebene delay wird verwendet um die Berechnungen jeweils um den übergebenen Wert in ms zu
+     * verzögern. Dabei wird nach jeder geprüften / berechneten Zahl das delay durchgeführt.
      * 
      * Sollte die Berechnung unterbrochen worden sein und wieder gestartet werden, so wird sie an
      * der Stelle fortgesetzt, an der sie unterbrochen wurde.
@@ -108,11 +111,13 @@ public class PrimeManager implements Logger {
 
     @Override
     public List<String> getLog() {
-        return null;
+        return primeLog;
     }
 
     @Override
     public void addEntry(String e) {
+        System.out.println("PrimeLog: " + e);
+        primeLog.add(e);
     }
 
 }
