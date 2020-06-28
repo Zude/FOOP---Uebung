@@ -2,7 +2,11 @@ package server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveTask;
 
 import helper.Logger;
 
@@ -25,6 +29,15 @@ import helper.Logger;
 public class PrimeManager implements Logger {
 
     private List<String> primeLog = new ArrayList<String>();
+    // TODO: Korrekter Typ ?
+    private volatile List<Long> primeNumbers = new ArrayList<Long>();
+    private Thread workerThread = new Thread(this::calcPrimes);
+
+    private long calcDelay;
+    private long currentNumber = 2;
+    private long lastPrime = 2;
+    private volatile boolean isWorking = false;
+    private int partitionSize;
 
     /**
      * Konstruktor.
@@ -39,6 +52,7 @@ public class PrimeManager implements Logger {
     public PrimeManager(int partitionSize) {
         assert partitionSize >= 1 : "Es können nur Intervalle (>= 1) gebildet werden.";
 
+        this.partitionSize = partitionSize;
     }
 
     /**
@@ -51,11 +65,29 @@ public class PrimeManager implements Logger {
      * @pre Die übergebene Zahl muss eine positive Ganzzahl (inkl. 0) sein
      * @param q Die Zahl für die, die nächstgrößere Primzahl ermittelt werden soll
      * @return die nächstgrößere Primzahl oder die Zahl selbst (falls sie selbst prim ist)
+     * @throws InterruptedException
      */
-    public long nextPrime(long q) {
+    public long nextPrime(long q) throws InterruptedException {
         assert (q >= 0) : "nextPrime muss mit einer positiven Ganzzahl aufgerufen werden.";
-        return q;
 
+        addEntry("requested: nextprime," + q);
+
+        // TODO: Synchronized größe ok ?
+        synchronized (this) {
+            while (lastPrime < q) {
+                this.wait();
+            }
+        }
+
+        for (long prime : primeNumbers) {
+            if (prime >= q) {
+                addEntry("response: nextprime," + q + "," + prime);
+                return prime;
+            }
+        }
+
+        // TODO: Fehlerfall korrekt händeln
+        return 0;
     }
 
     /**
@@ -68,10 +100,87 @@ public class PrimeManager implements Logger {
      *      Definition Primzahlen)
      * @param q Die zu zerlegende Zahl
      * @return Liste mit denm aufsteigend sortierten Primfaktoren von q
+     * @throws InterruptedException
      */
-    public List<Long> primeFactors(long q) {
+    public List<Long> primeFactors(long q) throws InterruptedException {
         assert (q >= 2) : "PrimeFactors muss mit einer positiven Ganzzahl >=2 aufgerufen werden.";
-        return null;
+
+        addEntry("requested: primefactors," + q);
+
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+        synchronized (this) {
+            while (lastPrime < q / 2) {
+                this.wait();
+            }
+        }
+
+        // TODO: Liste wirklich kopieren ?
+        List<Long> listDummy = new ArrayList<Long>(primeNumbers);
+
+        PrimeFactorWorker worker =
+                new PrimeFactorWorker(partitionSize, q, 0, (int) primeNumbers.size(), listDummy);
+
+        List<Long> resultList = forkJoinPool.invoke(worker);
+        addEntry("response: primefactors," + q + "," + resultList);
+        return resultList;
+    }
+
+    private static class PrimeFactorWorker extends RecursiveTask<List<Long>> {
+
+        private final int MAXSIZE;
+        private long number;
+        private final int start;
+        private final int end;
+        private volatile List<Long> primeNumbers = new ArrayList<Long>();
+
+        public PrimeFactorWorker(int paritionSize, long number, int start, int end,
+                List<Long> primeList) {
+
+            this.MAXSIZE = paritionSize;
+            this.number = number;
+            this.start = start;
+            this.end = end;
+            this.primeNumbers = primeList;
+        }
+
+        @Override
+        protected List<Long> compute() {
+
+            List<Long> listDummy = new ArrayList<Long>();
+            // TODO: ???
+            List<Long> resultList = Collections.synchronizedList(listDummy);
+
+            if (end - start > MAXSIZE) {
+
+                int mid = (start + (end - start) / 2);
+
+                ForkJoinTask<List<Long>> lForkJoinTask =
+                        new PrimeFactorWorker(MAXSIZE, number, start, mid, primeNumbers).fork();
+                ForkJoinTask<List<Long>> rForkJoinTask =
+                        new PrimeFactorWorker(MAXSIZE, number, mid + 1, end, primeNumbers).fork();
+
+                resultList.addAll(lForkJoinTask.join());
+                resultList.addAll(rForkJoinTask.join());
+
+            } else {
+
+                long upperBorder = number / 2;
+                int i = start;
+
+                while (i < end && primeNumbers.get(i) <= upperBorder) {
+                    if (number % primeNumbers.get(i) == 0) {
+                        resultList.add(primeNumbers.get(i));
+                        number = number / primeNumbers.get(i);
+                        i = start;
+                    } else {
+                        i++;
+                    }
+                }
+            }
+
+            return resultList;
+        }
 
     }
 
@@ -84,7 +193,10 @@ public class PrimeManager implements Logger {
      * @return Eine Kopie aller bis jetzt gefundenen Primzahlen.
      */
     public Collection<Long> knownPrimes() {
-        return null;
+
+        List<Long> knownPrimes = new ArrayList<Long>(primeNumbers);
+
+        return knownPrimes;
     }
 
     /**
@@ -100,6 +212,61 @@ public class PrimeManager implements Logger {
      */
     public void startWorker(long delay) {
         assert delay >= 0 : "Delay muss >= 0 sein!";
+
+        calcDelay = delay;
+        isWorking = true;
+
+        workerThread.start();
+        System.out.println("Prime Worker hat angefangen zu arbeiten!");
+    }
+
+    private void calcPrimes() {
+
+        // Add 2 as first PrimeNumber
+        currentNumber = 2;
+        primeNumbers.add(currentNumber);
+        lastPrime = currentNumber;
+        addEntry("found prime: " + currentNumber);
+        currentNumber++;
+
+        while (isWorking && currentNumber < 1000) {
+            try {
+
+                if (isPrime(currentNumber)) {
+                    primeNumbers.add(currentNumber);
+                    lastPrime = currentNumber;
+
+                    synchronized (this) {
+                        this.notifyAll();
+                    }
+
+                    addEntry("found prime: " + currentNumber);
+                }
+
+                currentNumber++;
+
+                Thread.sleep(calcDelay);
+            } catch (InterruptedException e) {
+                System.out.println("Prime Worker hat aufgehört zu arbeiten!");
+                break;
+            }
+        }
+    }
+
+    private boolean isPrime(long num) {
+
+        long upperBorder = (long) Math.sqrt(num);
+        int i = 0;
+
+        while (primeNumbers.get(i) <= upperBorder) {
+            if (num % primeNumbers.get(i) == 0) {
+                return false;
+            }
+
+            i++;
+        }
+
+        return true;
     }
 
     /**
@@ -107,6 +274,9 @@ public class PrimeManager implements Logger {
      * verworfen.
      */
     public void stopWorker() {
+        isWorking = false;
+        // TODO: Raus oder rein?
+        workerThread.interrupt();
     }
 
     @Override
