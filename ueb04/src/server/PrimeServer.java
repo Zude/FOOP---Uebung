@@ -32,12 +32,20 @@ public class PrimeServer implements Logger {
     private Map<Integer, Thread> clientConnections = new HashMap<Integer, Thread>();
 
     protected ServerSocket serverSocket;
+    protected volatile boolean openForNewConnections = true;
 
     private PrimeManager primeManager;
 
     // TODO Gibt es hier einen Vorteil runnable vs thread zu implementieren?
     // Thread kann einen etwas schöneren Aufruf mit der Map haben.
     // Threads mit Clients vs Clients als Threads
+
+    /**
+     * Eine Hilfsklasse für jeden der Threads die jeder Client zur kommunikation verwendet.
+     * 
+     * @author Lars Sander, Alexander Löffler
+     *
+     */
     private class ClientThread implements Runnable {
 
         private Socket clientSocket;
@@ -52,6 +60,8 @@ public class PrimeServer implements Logger {
             this.clientSocket = client;
         }
 
+        // TODO überlegen ob es Sinn macht das beabeiten der Antworten in einzelne Methoden
+        // auszulagern
         @Override
         public void run() {
 
@@ -95,9 +105,10 @@ public class PrimeServer implements Logger {
                                             primeManager.primeFactors(Long.valueOf(arr_msg[2]));
 
                                     // TODO aufräumen...
-                                    addEntry("requested: " + ID + ",primefactors," + arr_msg[2]
-                                            + ",[" + prim_list.toString().replaceAll(" ", ",")
-                                            + "]");
+                                    addEntry("requested: " + ID + ","
+                                            + MessageType.PRIMEFACTORS.toString().toLowerCase()
+                                            + "," + arr_msg[2] + ",["
+                                            + prim_list.toString().replaceAll(" ", ",") + "]");
                                     break;
                                 case NEXTPRIME:
 
@@ -105,8 +116,9 @@ public class PrimeServer implements Logger {
 
                                     out.println(prim);
 
-                                    addEntry("requested: " + ID + ",nextprime," + arr_msg[2] + ","
-                                            + prim);
+                                    addEntry("requested: " + ID + ","
+                                            + MessageType.NEXTPRIME.toString().toLowerCase() + ","
+                                            + arr_msg[2] + "," + prim);
 
                                     break;
 
@@ -158,6 +170,16 @@ public class PrimeServer implements Logger {
         primeManager = new PrimeManager(partitionSize);
     }
 
+    /**
+     * Konstruktur für verwendung mit Dummy PrimeManager
+     * 
+     * @pre partitionSize größer 0
+     * 
+     * @param port Der zu nutzene TCP-Port
+     * @param partitionSize Paritionsgröße für den PrimeGenerator
+     * 
+     * @throws IOException Netzwerkfehler
+     */
     public PrimeServer(int port, PrimeManager dummy) throws IOException {
         serverSocket = new ServerSocket(port);
 
@@ -179,12 +201,20 @@ public class PrimeServer implements Logger {
 
         System.out.println("Server gestartet");
 
+        // Das annehmen neuer Verbindungen geschieht hier in einem eigenen Thread, weil ansonsten
+        // die JUnit Tests nicht weiterlaufen können und es beim .accept() zu einer Blockade kommt.
+        // Beim seperaten Testen sollte eine while(true) Schleife genügen. Aber dann würde auch
+        // stopServer() nicht mehr funktionieren und es müsste in der Schleife nach den offenen
+        // Verbindungen geschaut werden.
         Thread listener = new Thread(() -> {
 
             int nextID = 1;
             Socket clientSocket;
 
-            while (true && !serverSocket.isClosed()) {
+            // TODO Die Schleife wird nach dem aufruf von stopServer() immer noch 1 Mal betreten.
+            // Bzw. wartet der Socket auf eine neue Verbindung, aber dann wir der Socket geschlossen
+            // und es wird ein Fehler geworfen.
+            while (openForNewConnections && !serverSocket.isClosed()) {
 
                 try {
                     clientSocket = serverSocket.accept();
@@ -207,14 +237,6 @@ public class PrimeServer implements Logger {
 
         listener.start();
 
-        // TODO
-        // Eine dauerhafte Schleife die immer mehr Threads annehmen kann wird benötigt
-        // Und nur wenn ein neuer Client startet sollte ein weiterer Thread erzeugt werden.
-        // Ist das so überhaupt möglich?
-
-        // TODO
-        // Thread in Array abspeichern
-
     }
 
     /**
@@ -230,15 +252,12 @@ public class PrimeServer implements Logger {
      */
     public void stopServer() throws IOException {
 
-        // TODO Der check mit isEmpty() schlägt fehl, weil diese Methode aufgerufen werden kann
-        // bevor der ClientThread sich selbst aus der Map entfernt hat.
+        openForNewConnections = false;
 
-        if (clientConnections.isEmpty()) {
-            serverSocket.close();
-        } else {
-            System.err.println(
-                    "Server kann nicht geschlossen werden, es existieren noch offene Verbindungen. Count:"
-                            + clientConnections.size());
+        // Warten bis alle Verbindungen geschlossen wurden.
+        // TODO Neues Objekt erstellen das als Monitor genutzt wird um busy waiting zu verhindern
+        while (!clientConnections.isEmpty()) {
+
         }
 
         serverSocket.close();
