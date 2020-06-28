@@ -85,7 +85,6 @@ public class PrimeManager implements Logger {
                 return prime;
             }
         }
-        addEntry("response: nextprime," + q + "," + q);
 
         // TODO: Fehlerfall korrekt händeln
         return 0;
@@ -111,11 +110,12 @@ public class PrimeManager implements Logger {
         ForkJoinPool forkJoinPool = new ForkJoinPool();
 
         synchronized (this) {
-            while (lastPrime < q) {
+            while (lastPrime < q / 2) {
                 this.wait();
             }
         }
 
+        // TODO: Liste wirklich kopieren ?
         List<Long> listDummy = new ArrayList<Long>(primeNumbers);
 
         PrimeFactorWorker worker =
@@ -133,7 +133,6 @@ public class PrimeManager implements Logger {
         private final int start;
         private final int end;
         private volatile List<Long> primeNumbers = new ArrayList<Long>();
-        private int listLength;
 
         public PrimeFactorWorker(int paritionSize, long number, int start, int end,
                 List<Long> primeList) {
@@ -143,24 +142,24 @@ public class PrimeManager implements Logger {
             this.start = start;
             this.end = end;
             this.primeNumbers = primeList;
-            this.listLength = primeNumbers.size();
         }
 
         @Override
         protected List<Long> compute() {
 
             List<Long> listDummy = new ArrayList<Long>();
+            // TODO: ???
             List<Long> resultList = Collections.synchronizedList(listDummy);
-            long result = 0;
 
-            if (listLength > MAXSIZE) {
+            if (end - start > MAXSIZE) {
 
                 int mid = (start + (end - start) / 2);
 
                 ForkJoinTask<List<Long>> lForkJoinTask =
-                        new PrimeFactorWorker(MAXSIZE, number, 0, mid, primeNumbers);
+                        new PrimeFactorWorker(MAXSIZE, number, start, mid, primeNumbers).fork();
                 ForkJoinTask<List<Long>> rForkJoinTask =
-                        new PrimeFactorWorker(MAXSIZE, number, mid + 1, end / 2, primeNumbers);
+                        new PrimeFactorWorker(MAXSIZE, number, mid + 1, end, primeNumbers).fork();
+
                 resultList.addAll(lForkJoinTask.join());
                 resultList.addAll(rForkJoinTask.join());
 
@@ -169,7 +168,7 @@ public class PrimeManager implements Logger {
                 long upperBorder = number / 2;
                 int i = start;
 
-                while (primeNumbers.get(i) <= upperBorder && i <= end) {
+                while (i < end && primeNumbers.get(i) <= upperBorder) {
                     if (number % primeNumbers.get(i) == 0) {
                         resultList.add(primeNumbers.get(i));
                         number = number / primeNumbers.get(i);
@@ -226,10 +225,11 @@ public class PrimeManager implements Logger {
         // Add 2 as first PrimeNumber
         currentNumber = 2;
         primeNumbers.add(currentNumber);
+        lastPrime = currentNumber;
         addEntry("found prime: " + currentNumber);
         currentNumber++;
 
-        while (isWorking) {
+        while (isWorking && currentNumber < 1000) {
             try {
 
                 if (isPrime(currentNumber)) {
@@ -275,6 +275,7 @@ public class PrimeManager implements Logger {
      */
     public void stopWorker() {
         isWorking = false;
+        // TODO: Raus oder rein?
         workerThread.interrupt();
     }
 
