@@ -25,6 +25,15 @@ import helper.Logger;
 public class PrimeManager implements Logger {
 
     private List<String> primeLog = new ArrayList<String>();
+    // TODO: Korrekter Typ ?
+    private volatile List<Long> primeNumbers = new ArrayList<Long>();
+    private Thread workerThread = new Thread(this::calcPrimes);
+
+    private long calcDelay;
+    private long currentNumber = 2;
+    private long lastPrime = 2;
+    private volatile boolean isWorking = false;
+    private int partitionSize;
 
     /**
      * Konstruktor.
@@ -39,6 +48,7 @@ public class PrimeManager implements Logger {
     public PrimeManager(int partitionSize) {
         assert partitionSize >= 1 : "Es können nur Intervalle (>= 1) gebildet werden.";
 
+        this.partitionSize = partitionSize;
     }
 
     /**
@@ -51,11 +61,28 @@ public class PrimeManager implements Logger {
      * @pre Die übergebene Zahl muss eine positive Ganzzahl (inkl. 0) sein
      * @param q Die Zahl für die, die nächstgrößere Primzahl ermittelt werden soll
      * @return die nächstgrößere Primzahl oder die Zahl selbst (falls sie selbst prim ist)
+     * @throws InterruptedException
      */
-    public long nextPrime(long q) {
+    public long nextPrime(long q) throws InterruptedException {
         assert (q >= 0) : "nextPrime muss mit einer positiven Ganzzahl aufgerufen werden.";
-        return q;
 
+        addEntry("requested: nextprime," + q);
+
+        // TODO: Synchronized größe ok ?
+        synchronized (this) {
+            while (lastPrime < q) {
+                this.wait();
+            }
+        }
+
+        for (long prime : primeNumbers) {
+            if (prime >= q) {
+                addEntry("response: nextprime," + q + "," + prime);
+                return prime;
+            }
+        }
+        addEntry("response: nextprime," + q + "," + q);
+        return q;
     }
 
     /**
@@ -84,7 +111,10 @@ public class PrimeManager implements Logger {
      * @return Eine Kopie aller bis jetzt gefundenen Primzahlen.
      */
     public Collection<Long> knownPrimes() {
-        return null;
+
+        List<Long> knownPrimes = new ArrayList<Long>(primeNumbers);
+
+        return knownPrimes;
     }
 
     /**
@@ -100,6 +130,60 @@ public class PrimeManager implements Logger {
      */
     public void startWorker(long delay) {
         assert delay >= 0 : "Delay muss >= 0 sein!";
+
+        calcDelay = delay;
+        isWorking = true;
+
+        workerThread.start();
+        System.out.println("Prime Worker hat angefangen zu arbeiten!");
+    }
+
+    private void calcPrimes() {
+
+        // Add 2 as first PrimeNumber
+        currentNumber = 2;
+        primeNumbers.add(currentNumber);
+        addEntry("found prime: " + currentNumber);
+        currentNumber++;
+
+        while (isWorking) {
+            try {
+
+                if (isPrime(currentNumber)) {
+                    primeNumbers.add(currentNumber);
+                    lastPrime = currentNumber;
+
+                    synchronized (this) {
+                        this.notifyAll();
+                    }
+
+                    addEntry("found prime: " + currentNumber);
+                }
+
+                currentNumber++;
+
+                Thread.sleep(calcDelay);
+            } catch (InterruptedException e) {
+                System.out.println("Prime Worker hat aufgehört zu arbeiten!");
+                break;
+            }
+        }
+    }
+
+    private boolean isPrime(long num) {
+
+        long upperBorder = (long) Math.sqrt(num);
+        int i = 0;
+
+        while (primeNumbers.get(i) <= upperBorder) {
+            if (num % primeNumbers.get(i) == 0) {
+                return false;
+            }
+
+            i++;
+        }
+
+        return true;
     }
 
     /**
@@ -107,6 +191,8 @@ public class PrimeManager implements Logger {
      * verworfen.
      */
     public void stopWorker() {
+        isWorking = false;
+        workerThread.interrupt();
     }
 
     @Override
