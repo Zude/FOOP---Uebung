@@ -1,17 +1,37 @@
 package client;
 
-import helper.Logger;
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
+
+import helper.Logger;
+import helper.MessageType;
 
 /**
  * Ein Client, der Anfragen an einen {@link server.PrimeServer} stellen kann. Die Anfragen
  * blockieren hierbei so lange bis eine Antwort vom Server eingegangen ist.
  * 
- * @author kar, mhe, TODO Autoren ergänzen
+ * @author kar, mhe, Lars Sander, Alexander Löffler
  */
 public class PrimeClient implements Logger {
+
+    private List<String> ClientLog = new ArrayList<String>();
+
+    private Socket clientSocket;
+
+    // TODO die Reader/Writer aus der Aufgabenstellung verwenden oder herausfinden warum das hier
+    // besser sein könnte
+    private PrintWriter out;
+    private BufferedReader in;
+
+    private final String host;
+    private final int port;
+
+    private int ID;
 
     /**
      * Konstruktor.
@@ -21,8 +41,12 @@ public class PrimeClient implements Logger {
      * @throws IOException Verbindungsfehler
      */
     public PrimeClient(String host, int port) throws IOException {
-    }
+        System.out.println("Client erstellt");
 
+        this.host = host;
+        this.port = port;
+
+    }
 
     /**
      * Diese Methode muss vor allen anderen die mit dem Server kommunizieren einmalig aufgerufen
@@ -34,6 +58,32 @@ public class PrimeClient implements Logger {
      * @throws IOException falls es ein Problem mit der Verbindung gibt
      */
     public void connect() throws IOException {
+
+        try {
+            clientSocket = new Socket(host, port);
+
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+        } catch (IOException e) {
+            System.err.println("Client err");
+        }
+
+        // TODO Log vorm Absenden oder danach? Spielt für den Test keine Rolle, aber kann es beim
+        // senden fehler geben?
+        out.println(MessageType.HALLO);
+        addEntry("connecting");
+
+        String ans = in.readLine();
+
+        try {
+            ID = Integer.valueOf(ans);
+        } catch (NumberFormatException e) {
+            System.err.println("Client kann ID nicht lesen");
+        }
+
+        addEntry("connected," + ID);
+
     }
 
     /**
@@ -42,6 +92,9 @@ public class PrimeClient implements Logger {
      * @throws IOException falls beim Schließen ein Netzwerkfehler auftritt (unwahrscheinlich).
      */
     public void disconnect() throws IOException {
+
+        addEntry("disconnecting");
+        clientSocket.close();
     }
 
     /**
@@ -54,6 +107,19 @@ public class PrimeClient implements Logger {
      */
     public long nextPrime(long q) throws IOException {
         assert q >= 0 : "Es dürfen nur positive Zahlen (>= 0) angefragt werden.";
+
+        out.println(ID + "," + MessageType.NEXTPRIME + "," + q);
+        addEntry("requesting: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + q);
+
+        String ans;
+        long res = q;
+
+        ans = in.readLine();
+        res = Long.valueOf(ans);
+
+        addEntry("response: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + res);
+
+        return res;
 
     }
 
@@ -69,14 +135,22 @@ public class PrimeClient implements Logger {
     public List<Long> primeFactors(long q) throws IOException {
         assert q > 1 : "Es dürfen nur positive Zahlen (> 1) angefragt werden.";
 
+        out.println(ID + "," + MessageType.PRIMEFACTORS + "," + q);
+        addEntry("requesting: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q);
+        return null;
+
     }
 
     @Override
     public List<String> getLog() {
+        return ClientLog;
     }
 
     @Override
     public void addEntry(String e) {
+        System.out.println("ClientLog: " + e);
+
+        ClientLog.add(e);
     }
 
 }

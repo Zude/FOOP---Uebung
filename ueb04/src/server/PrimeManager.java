@@ -1,5 +1,6 @@
 package server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,11 +19,12 @@ import helper.Logger;
  * Der PrimeManager muss jederzeit eine beliebige Anzahl von Anfragen gleichzeitig bearbeiten
  * können.
  * 
- * @author kar, mhe, TODO Autoren ergänzen
+ * @author kar, mhe, Lars Sander, Alexander Löffler
  * 
  */
 public class PrimeManager implements Logger {
 
+    private List<String> primeLog = new ArrayList<String>();
 
     /**
      * Konstruktor.
@@ -52,9 +54,9 @@ public class PrimeManager implements Logger {
      */
     public long nextPrime(long q) {
         assert (q >= 0) : "nextPrime muss mit einer positiven Ganzzahl aufgerufen werden.";
+        return q;
 
     }
-
 
     /**
      * Liefert eine aufsteigend sortierte Liste aller Primfakoren der übergebenen Zahl q.
@@ -69,6 +71,7 @@ public class PrimeManager implements Logger {
      */
     public List<Long> primeFactors(long q) {
         assert (q >= 2) : "PrimeFactors muss mit einer positiven Ganzzahl >=2 aufgerufen werden.";
+        return null;
 
     }
 
@@ -81,6 +84,7 @@ public class PrimeManager implements Logger {
      * @return Eine Kopie aller bis jetzt gefundenen Primzahlen.
      */
     public Collection<Long> knownPrimes() {
+        return null;
     }
 
     /**
@@ -107,10 +111,13 @@ public class PrimeManager implements Logger {
 
     @Override
     public List<String> getLog() {
+        return primeLog;
     }
 
     @Override
     public void addEntry(String e) {
+        System.out.println("PrimeLog: " + e);
+        primeLog.add(e);
     }
 
 }
