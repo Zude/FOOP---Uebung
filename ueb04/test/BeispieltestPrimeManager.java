@@ -183,4 +183,57 @@ public class BeispieltestPrimeManager {
 
     }
 
+    @Test
+    public void primeFactorsSimple() throws InterruptedException {
+
+        final PrimeManager g = new PrimeManager(50);
+
+        // Berechnung starten
+        g.startWorker(10);
+        Thread.sleep(200); // Wir wollen nur bereits sicher schon berechnete Zahlen testen
+
+        final Thread c1 = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    g.primeFactors(100);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
+                  // getestet
+            }
+        });
+        c1.start();
+
+        // Warten bis beide Threads zurückgekehrt sind
+        c1.join();
+
+        // Berechnung kann sicher gestoppt werden
+        g.stopWorker();
+
+        List<String> glog = g.getLog();
+
+        // nur die ersten fünf interessanten Logeinträge herausfiltern
+        List<String> glog_stripped = new LinkedList<>();
+        int i = 0;
+        for (String s : glog) {
+            if (s.contains("found prime")) {
+                glog_stripped.add(s);
+                i++;
+            }
+            if (i == 5) {
+                break;
+            }
+        }
+
+        // Listen auf gleiche Einträge prüfen, mindestens die notwendigen Primzahlen gefunden?
+        List<String> primes = new LinkedList<>(Arrays.asList("found prime: 2", "found prime: 3",
+                "found prime: 5", "found prime: 7", "found prime: 11"));
+        Assert.assertEquals(glog_stripped, primes);
+
+        // Interessante Einträge stichprobenhaft überprüfen
+        Assert.assertTrue(glog.contains("response: primefactors,100,[2, 2, 5, 5]"));
+
+    }
+
 }

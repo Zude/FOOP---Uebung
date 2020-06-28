@@ -2,7 +2,11 @@ package server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveTask;
 
 import helper.Logger;
 
@@ -82,7 +86,9 @@ public class PrimeManager implements Logger {
             }
         }
         addEntry("response: nextprime," + q + "," + q);
-        return q;
+
+        // TODO: Fehlerfall korrekt händeln
+        return 0;
     }
 
     /**
@@ -95,10 +101,87 @@ public class PrimeManager implements Logger {
      *      Definition Primzahlen)
      * @param q Die zu zerlegende Zahl
      * @return Liste mit denm aufsteigend sortierten Primfaktoren von q
+     * @throws InterruptedException
      */
-    public List<Long> primeFactors(long q) {
+    public List<Long> primeFactors(long q) throws InterruptedException {
         assert (q >= 2) : "PrimeFactors muss mit einer positiven Ganzzahl >=2 aufgerufen werden.";
-        return null;
+
+        addEntry("requested: primefactors," + q);
+
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+
+        synchronized (this) {
+            while (lastPrime < q) {
+                this.wait();
+            }
+        }
+
+        List<Long> listDummy = new ArrayList<Long>(primeNumbers);
+
+        PrimeFactorWorker worker =
+                new PrimeFactorWorker(partitionSize, q, 0, (int) primeNumbers.size(), listDummy);
+
+        List<Long> resultList = forkJoinPool.invoke(worker);
+        addEntry("response: primefactors," + q + "," + resultList);
+        return resultList;
+    }
+
+    private static class PrimeFactorWorker extends RecursiveTask<List<Long>> {
+
+        private final int MAXSIZE;
+        private long number;
+        private final int start;
+        private final int end;
+        private volatile List<Long> primeNumbers = new ArrayList<Long>();
+        private int listLength;
+
+        public PrimeFactorWorker(int paritionSize, long number, int start, int end,
+                List<Long> primeList) {
+
+            this.MAXSIZE = paritionSize;
+            this.number = number;
+            this.start = start;
+            this.end = end;
+            this.primeNumbers = primeList;
+            this.listLength = primeNumbers.size();
+        }
+
+        @Override
+        protected List<Long> compute() {
+
+            List<Long> listDummy = new ArrayList<Long>();
+            List<Long> resultList = Collections.synchronizedList(listDummy);
+            long result = 0;
+
+            if (listLength > MAXSIZE) {
+
+                int mid = (start + (end - start) / 2);
+
+                ForkJoinTask<List<Long>> lForkJoinTask =
+                        new PrimeFactorWorker(MAXSIZE, number, 0, mid, primeNumbers);
+                ForkJoinTask<List<Long>> rForkJoinTask =
+                        new PrimeFactorWorker(MAXSIZE, number, mid + 1, end / 2, primeNumbers);
+                resultList.addAll(lForkJoinTask.join());
+                resultList.addAll(rForkJoinTask.join());
+
+            } else {
+
+                long upperBorder = number / 2;
+                int i = start;
+
+                while (primeNumbers.get(i) <= upperBorder && i <= end) {
+                    if (number % primeNumbers.get(i) == 0) {
+                        resultList.add(primeNumbers.get(i));
+                        number = number / primeNumbers.get(i);
+                        i = start;
+                    } else {
+                        i++;
+                    }
+                }
+            }
+
+            return resultList;
+        }
 
     }
 
