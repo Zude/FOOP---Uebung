@@ -26,7 +26,6 @@ public class PrimeClient implements Logger {
     // TODO die Reader/Writer aus der Aufgabenstellung verwenden oder herausfinden warum das hier
     // besser sein könnte
     private PrintWriter out;
-
     private BufferedReader in;
 
     private final String host;
