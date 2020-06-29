@@ -6,9 +6,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import helper.Logger;
 import helper.MessageType;
@@ -29,8 +31,7 @@ public class PrimeServer implements Logger {
     private List<String> serverLog = new ArrayList<String>();
     private final int msgLength = 3; // Normale "länge" der Socket-Nachrichten
 
-    // TODO Check ob Thread sichere Collection wichtig sein könnte.
-    private List<Thread> openConnections = new ArrayList<Thread>();
+    private List<Thread> openConnections = new CopyOnWriteArrayList<Thread>();
 
     private PrimeManager primeManager;
 
@@ -55,8 +56,6 @@ public class PrimeServer implements Logger {
             this.clientSocket = client;
         }
 
-        // TODO überlegen ob es Sinn macht das beabeiten der Antworten in einzelne Methoden
-        // auszulagern
         @Override
         public void run() {
 
@@ -72,13 +71,7 @@ public class PrimeServer implements Logger {
                 // Wenn es in in keine Zeilen mehr gibt sollte der Client sich beendet haben.
                 while ((msg = in.readLine()) != null) {
 
-                    // Nachricht kann 1 oder 3 mit , geteilte Strings enthalten
-                    // (1): Kommt nur bei HALLO vor
-                    // (3): ID, MSG, ZAHL
                     String[] arrMsg = msg.split(",");
-
-                    // TODO Was für Fehler können bei .valueOf auftreten und sollten wir dort was
-                    // ausgeben?
 
                     if (arrMsg.length == 1) {
                         if (MessageType.valueOf(arrMsg[0]) == MessageType.HALLO) {
@@ -93,42 +86,36 @@ public class PrimeServer implements Logger {
                         StringJoiner logStr = new StringJoiner(",");
                         logStr.add("requested: " + String.valueOf(id));
 
-                        // Sicherstellen das es die gleiche ID ist
-                        if (Integer.valueOf(arrMsg[0]) == id) {
+                        switch (MessageType.valueOf(arrMsg[1])) {
+                            case PRIMEFACTORS:
 
-                            switch (MessageType.valueOf(arrMsg[1])) {
-                                case PRIMEFACTORS:
+                                List<Long> primList =
+                                        primeManager.primeFactors(Long.valueOf(arrMsg[2]));
 
-                                    List<Long> primList =
-                                            primeManager.primeFactors(Long.valueOf(arrMsg[2]));
+                                out.println(primList);
 
-                                    out.println(primList);
+                                logStr.add(MessageType.PRIMEFACTORS.toString().toLowerCase());
+                                logStr.add(arrMsg[2]);
+                                logStr.add(primList.toString().replaceAll(" ", ""));
 
-                                    logStr.add(MessageType.PRIMEFACTORS.toString().toLowerCase());
-                                    logStr.add(arrMsg[2]);
-                                    logStr.add(primList.toString().replaceAll(" ", ""));
+                                addEntry(logStr.toString());
+                                break;
+                            case NEXTPRIME:
 
-                                    addEntry(logStr.toString());
-                                    break;
-                                case NEXTPRIME:
+                                Long prim = primeManager.nextPrime(Long.valueOf(arrMsg[2]));
 
-                                    Long prim = primeManager.nextPrime(Long.valueOf(arrMsg[2]));
+                                out.println(prim);
 
-                                    out.println(prim);
+                                logStr.add(MessageType.NEXTPRIME.toString().toLowerCase());
+                                logStr.add(arrMsg[2]);
+                                logStr.add(prim.toString());
 
-                                    logStr.add(MessageType.NEXTPRIME.toString().toLowerCase());
-                                    logStr.add(arrMsg[2]);
-                                    logStr.add(prim.toString());
+                                addEntry(logStr.toString());
+                                break;
 
-                                    addEntry(logStr.toString());
-                                    break;
-
-                                default:
-                                    System.err.println("Ungültiger MSG Type :" + arrMsg[1]);
-                                    break;
-                            }
-                        } else {
-                            System.err.println("Falsche ID");
+                            default:
+                                System.err.println("Ungültiger MSG Type :" + arrMsg[1]);
+                                break;
                         }
 
                     } else {
@@ -139,18 +126,13 @@ public class PrimeServer implements Logger {
 
                 addEntry("client disconnected," + id);
 
-                // TODO Unnötigen Speicher freigeben
-                /*
-                 * if (!openConnections.remove(this)) {
-                 * System.err.println("Thread war nicht in openConnections enthalten"); }
-                 */
+                if (!openConnections.remove(this)) {
+                    System.err.println("Thread war nicht in openConnections enthalten");
+                }
+
                 System.out.println("Thread beendet ID:" + id + " CC: " + openConnections.size());
 
-                // TODO Sollten die Reader/Writer hier beendet werden. Wo ist der Unterschied ob
-                // hier oder am Client der Socket geschlossen wird?
-
-            } catch (IOException | NumberFormatException | InterruptedException e) {
-                // TODO Auto-generated catch block
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
 
@@ -220,9 +202,6 @@ public class PrimeServer implements Logger {
             int nextID = 1;
             Socket clientSocket;
 
-            // TODO Die Schleife wird nach dem aufruf von stopServer() immer noch 1 Mal betreten.
-            // Bzw. wartet der Socket auf eine neue Verbindung, aber dann wir der Socket geschlossen
-            // und es wird ein Fehler geworfen.
             while (openForNewConnections && !serverSocket.isClosed()) {
 
                 try {
@@ -231,8 +210,9 @@ public class PrimeServer implements Logger {
                     openConnections.add(ct);
                     ct.start();
 
+                } catch (SocketException e) {
+                    System.out.println("ServerSocket wurde geschlossen");
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
@@ -260,16 +240,10 @@ public class PrimeServer implements Logger {
 
         openForNewConnections = false;
 
-        // TODO Was ist der beste Weg sich alle offene Threads zu merken, darüber zu iterieren und
-        // währenddessen die Liste zu verändern? Bei jedem .join() entfernt sich der Thread aktuell
-        // selbst aus der Liste. Alternativ könnte die Liste der bekannten Threads immer wachsen und
-        // wir joinen auch auf längst beendete Connections. Aber das wäre doch das gleiche wie ein
-        // Speicherleck wenn der Server einfach lange genug läuft...
         for (Thread thread : openConnections) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

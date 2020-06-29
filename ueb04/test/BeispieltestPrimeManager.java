@@ -63,7 +63,7 @@ public class BeispieltestPrimeManager {
                 try {
                     g.nextPrime(11);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
+
                     e.printStackTrace();
                 } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
                   // getestet
@@ -76,7 +76,7 @@ public class BeispieltestPrimeManager {
                 try {
                     g.nextPrime(4);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
+
                     e.printStackTrace();
                 }
             }
@@ -130,7 +130,7 @@ public class BeispieltestPrimeManager {
                 try {
                     g.nextPrime(150);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
+
                     e.printStackTrace();
                 } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
                   // getestet
@@ -143,7 +143,7 @@ public class BeispieltestPrimeManager {
                 try {
                     g.nextPrime(4);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
+
                     e.printStackTrace();
                 }
             }
@@ -197,7 +197,7 @@ public class BeispieltestPrimeManager {
                 try {
                     g.primeFactors(100);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
+
                     e.printStackTrace();
                 } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
                   // getestet
@@ -250,7 +250,7 @@ public class BeispieltestPrimeManager {
                 try {
                     g.primeFactors(28);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
+
                     e.printStackTrace();
                 } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
                   // getestet
@@ -303,7 +303,7 @@ public class BeispieltestPrimeManager {
                 try {
                     g.primeFactors(45);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
+
                     e.printStackTrace();
                 } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
                   // getestet

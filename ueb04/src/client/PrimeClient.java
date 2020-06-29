@@ -23,8 +23,6 @@ public class PrimeClient implements Logger {
 
     private Socket clientSocket;
 
-    // TODO die Reader/Writer aus der Aufgabenstellung verwenden oder herausfinden warum das hier
-    // besser sein könnte
     private PrintWriter out;
     private BufferedReader in;
 
@@ -69,18 +67,12 @@ public class PrimeClient implements Logger {
             System.err.println("Client err");
         }
 
-        // TODO Log vorm Absenden oder danach? Spielt für den Test keine Rolle, aber kann es beim
-        // senden fehler geben?
         out.println(MessageType.HALLO);
         addEntry("connecting");
 
         String ans = in.readLine();
 
-        try {
-            id = Integer.valueOf(ans);
-        } catch (NumberFormatException e) {
-            System.err.println("Client kann ID nicht lesen");
-        }
+        id = Integer.valueOf(ans);
 
         addEntry("connected," + id);
 
