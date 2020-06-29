@@ -19,7 +19,7 @@ import helper.MessageType;
  */
 public class PrimeClient implements Logger {
 
-    private List<String> ClientLog = new ArrayList<String>();
+    private List<String> clientLog = new ArrayList<String>();
 
     private Socket clientSocket;
 
@@ -31,7 +31,7 @@ public class PrimeClient implements Logger {
     private final String host;
     private final int port;
 
-    private int ID;
+    private int id;
 
     /**
      * Konstruktor.
@@ -77,12 +77,12 @@ public class PrimeClient implements Logger {
         String ans = in.readLine();
 
         try {
-            ID = Integer.valueOf(ans);
+            id = Integer.valueOf(ans);
         } catch (NumberFormatException e) {
             System.err.println("Client kann ID nicht lesen");
         }
 
-        addEntry("connected," + ID);
+        addEntry("connected," + id);
 
     }
 
@@ -108,7 +108,7 @@ public class PrimeClient implements Logger {
     public long nextPrime(long q) throws IOException {
         assert q >= 0 : "Es dürfen nur positive Zahlen (>= 0) angefragt werden.";
 
-        out.println(ID + "," + MessageType.NEXTPRIME + "," + q);
+        out.println(id + "," + MessageType.NEXTPRIME + "," + q);
         addEntry("requesting: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + q);
 
         String ans;
@@ -135,7 +135,7 @@ public class PrimeClient implements Logger {
     public List<Long> primeFactors(long q) throws IOException {
         assert q > 1 : "Es dürfen nur positive Zahlen (> 1) angefragt werden.";
 
-        out.println(ID + "," + MessageType.PRIMEFACTORS + "," + q);
+        out.println(id + "," + MessageType.PRIMEFACTORS + "," + q);
         addEntry("requesting: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q);
         return null;
 
@@ -143,14 +143,14 @@ public class PrimeClient implements Logger {
 
     @Override
     public List<String> getLog() {
-        return ClientLog;
+        return clientLog;
     }
 
     @Override
     public void addEntry(String e) {
         System.out.println("ClientLog: " + e);
 
-        ClientLog.add(e);
+        clientLog.add(e);
     }
 
 }

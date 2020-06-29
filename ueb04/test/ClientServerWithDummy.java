@@ -12,7 +12,7 @@ public class ClientServerWithDummy {
 
     private static final int SLEEP_TIME = 20;
 
-    private static final int PORT = 6024;
+    private static final int PORT = 6025;
 
     private static final int PARTITION_SIZE = 1000;
 
@@ -37,7 +37,7 @@ public class ClientServerWithDummy {
 
         long res = client.nextPrime(1);
 
-        Assert.assertEquals(1, res);
+        Assert.assertEquals(2, res);
 
         // ----
 

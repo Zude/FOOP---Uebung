@@ -12,7 +12,7 @@ public class BeispieltestClientServer {
 
     private static final int SLEEP_TIME = 20;
 
-    private static final int PORT = 6016;
+    private static final int PORT = 6032;
 
     private static final int PARTITION_SIZE = 1000;
 

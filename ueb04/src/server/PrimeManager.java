@@ -87,7 +87,7 @@ public class PrimeManager implements Logger {
         }
 
         // TODO: Fehlerfall korrekt händeln
-        return 0;
+        return -10;
     }
 
     /**
@@ -254,6 +254,10 @@ public class PrimeManager implements Logger {
     }
 
     private boolean isPrime(long num) {
+
+        if (num == 1) {
+            return false;
+        }
 
         long upperBorder = (long) Math.sqrt(num);
         int i = 0;

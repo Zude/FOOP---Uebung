@@ -301,7 +301,7 @@ public class BeispieltestPrimeManager {
         final Thread c1 = new Thread(new Runnable() {
             public void run() {
                 try {
-                    g.primeFactors(1234);
+                    g.primeFactors(45);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -338,7 +338,7 @@ public class BeispieltestPrimeManager {
         Assert.assertEquals(glog_stripped, primes);
 
         // Interessante Einträge stichprobenhaft überprüfen
-        Assert.assertTrue(glog.contains("response: primefactors,1234,[2, 617]"));
+        Assert.assertTrue(glog.contains("response: primefactors,45,[3, 3, 5]"));
 
     }
 
