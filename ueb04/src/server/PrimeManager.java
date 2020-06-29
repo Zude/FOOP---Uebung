@@ -65,7 +65,7 @@ public class PrimeManager implements Logger {
      * @pre Die übergebene Zahl muss eine positive Ganzzahl (inkl. 0) sein
      * @param q Die Zahl für die, die nächstgrößere Primzahl ermittelt werden soll
      * @return die nächstgrößere Primzahl oder die Zahl selbst (falls sie selbst prim ist)
-     * @throws InterruptedException
+     * @throws InterruptedException Unerwarteter Abbruch
      */
     public long nextPrime(long q) throws InterruptedException {
         assert (q >= 0) : "nextPrime muss mit einer positiven Ganzzahl aufgerufen werden.";
@@ -87,7 +87,8 @@ public class PrimeManager implements Logger {
         }
 
         // TODO: Fehlerfall korrekt händeln
-        return -10;
+        final int err = -10; // Magic Number fix
+        return err;
     }
 
     /**
@@ -100,7 +101,7 @@ public class PrimeManager implements Logger {
      *      Definition Primzahlen)
      * @param q Die zu zerlegende Zahl
      * @return Liste mit denm aufsteigend sortierten Primfaktoren von q
-     * @throws InterruptedException
+     * @throws InterruptedException Unerwarteter Abbruch
      */
     public List<Long> primeFactors(long q) throws InterruptedException {
         assert (q >= 2) : "PrimeFactors muss mit einer positiven Ganzzahl >=2 aufgerufen werden.";
@@ -128,16 +129,15 @@ public class PrimeManager implements Logger {
 
     private static class PrimeFactorWorker extends RecursiveTask<List<Long>> {
 
-        private final int MAXSIZE;
+        private final int maxsize;
         private long number;
         private final int start;
         private final int end;
         private volatile List<Long> primeNumbers = new ArrayList<Long>();
 
-        public PrimeFactorWorker(int paritionSize, long number, int start, int end,
-                List<Long> primeList) {
+        PrimeFactorWorker(int paritionSize, long number, int start, int end, List<Long> primeList) {
 
-            this.MAXSIZE = paritionSize;
+            this.maxsize = paritionSize;
             this.number = number;
             this.start = start;
             this.end = end;
@@ -151,14 +151,14 @@ public class PrimeManager implements Logger {
             // TODO: ???
             List<Long> resultList = Collections.synchronizedList(listDummy);
 
-            if (end - start > MAXSIZE) {
+            if (end - start > maxsize) {
 
                 int mid = (start + (end - start) / 2);
 
                 ForkJoinTask<List<Long>> lForkJoinTask =
-                        new PrimeFactorWorker(MAXSIZE, number, start, mid, primeNumbers).fork();
+                        new PrimeFactorWorker(maxsize, number, start, mid, primeNumbers).fork();
                 ForkJoinTask<List<Long>> rForkJoinTask =
-                        new PrimeFactorWorker(MAXSIZE, number, mid + 1, end, primeNumbers).fork();
+                        new PrimeFactorWorker(maxsize, number, mid + 1, end, primeNumbers).fork();
 
                 resultList.addAll(lForkJoinTask.join());
                 resultList.addAll(rForkJoinTask.join());
@@ -229,7 +229,10 @@ public class PrimeManager implements Logger {
         addEntry("found prime: " + currentNumber);
         currentNumber++;
 
-        while (isWorking && currentNumber < 1000) {
+        // TODO remove
+        // final int limitPrime = 1000;
+        // while (isWorking && currentNumber < limitPrime) {
+        while (isWorking) {
             try {
 
                 if (isPrime(currentNumber)) {

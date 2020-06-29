@@ -232,7 +232,7 @@ public class BeispieltestPrimeManager {
         Assert.assertEquals(glog_stripped, primes);
 
         // Interessante Einträge stichprobenhaft überprüfen
-        Assert.assertTrue(glog.contains("response: primefactors,100,[2, 2, 5, 5]"));
+        Assert.assertTrue(glog.contains("response: primefactors,100,[2,2,5,5]"));
 
     }
 
@@ -285,7 +285,7 @@ public class BeispieltestPrimeManager {
         Assert.assertEquals(glog_stripped, primes);
 
         // Interessante Einträge stichprobenhaft überprüfen
-        Assert.assertTrue(glog.contains("response: primefactors,28,[2, 2, 7]"));
+        Assert.assertTrue(glog.contains("response: primefactors,28,[2,2,7]"));
 
     }
 
@@ -338,7 +338,7 @@ public class BeispieltestPrimeManager {
         Assert.assertEquals(glog_stripped, primes);
 
         // Interessante Einträge stichprobenhaft überprüfen
-        Assert.assertTrue(glog.contains("response: primefactors,45,[3, 3, 5]"));
+        Assert.assertTrue(glog.contains("response: primefactors,45,[3,3,5]"));
 
     }
 
