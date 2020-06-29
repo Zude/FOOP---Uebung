@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,9 +29,12 @@ public class PrimeServer implements Logger {
     protected ServerSocket serverSocket;
     protected volatile boolean openForNewConnections = true;
 
-    private List<String> serverLog = new ArrayList<String>();
+    // Eine synchronizedList für Logs, weil mehrere ClientThreads darauf schreibend zugreifen
+    private List<String> serverLog = Collections.synchronizedList(new ArrayList<String>());
     private final int msgLength = 3; // Normale "länge" der Socket-Nachrichten
 
+    // Kann keine synchronizedList sein, weil diese nicht gleichzeitig iteriert und bearbeitet
+    // werden sollte
     private List<Thread> openConnections = new CopyOnWriteArrayList<Thread>();
 
     private PrimeManager primeManager;
@@ -132,7 +136,7 @@ public class PrimeServer implements Logger {
 
                 System.out.println("Thread beendet ID:" + id + " CC: " + openConnections.size());
 
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 

@@ -28,7 +28,9 @@ import helper.Logger;
  */
 public class PrimeManager implements Logger {
 
-    private List<String> primeLog = new ArrayList<String>();
+    // Es können mehrere Anfragen gleichzeitig laufen, also könnte auch gleichzeitig geschrieben
+    // werden
+    private List<String> primeLog = Collections.synchronizedList(new ArrayList<String>());
     // TODO: Korrekter Typ ?
     private volatile List<Long> primeNumbers = new ArrayList<Long>();
     private Thread workerThread = new Thread(this::calcPrimes);
@@ -65,9 +67,8 @@ public class PrimeManager implements Logger {
      * @pre Die übergebene Zahl muss eine positive Ganzzahl (inkl. 0) sein
      * @param q Die Zahl für die, die nächstgrößere Primzahl ermittelt werden soll
      * @return die nächstgrößere Primzahl oder die Zahl selbst (falls sie selbst prim ist)
-     * @throws InterruptedException Unerwarteter Abbruch
      */
-    public long nextPrime(long q) throws InterruptedException {
+    public long nextPrime(long q) {
         assert (q >= 0) : "nextPrime muss mit einer positiven Ganzzahl aufgerufen werden.";
 
         addEntry("requested: nextprime," + q);
@@ -75,7 +76,11 @@ public class PrimeManager implements Logger {
         // TODO: Synchronized größe ok ?
         synchronized (this) {
             while (lastPrime < q) {
-                this.wait();
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -101,9 +106,8 @@ public class PrimeManager implements Logger {
      *      Definition Primzahlen)
      * @param q Die zu zerlegende Zahl
      * @return Liste mit denm aufsteigend sortierten Primfaktoren von q
-     * @throws InterruptedException Unerwarteter Abbruch
      */
-    public List<Long> primeFactors(long q) throws InterruptedException {
+    public List<Long> primeFactors(long q) {
         assert (q >= 2) : "PrimeFactors muss mit einer positiven Ganzzahl >=2 aufgerufen werden.";
 
         addEntry("requested: primefactors," + q);
@@ -112,22 +116,28 @@ public class PrimeManager implements Logger {
 
         synchronized (this) {
             while (lastPrime < q / 2) {
-                this.wait();
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         // TODO: Liste wirklich kopieren ?
+        // Eine CopyOnWriteArrayList würde dies überflüssig machen, aber dann wird das schreiben
+        // deutlich langsamer
         List<Long> listDummy = new ArrayList<Long>(primeNumbers);
 
         PrimeFactorWorker worker =
-                new PrimeFactorWorker(partitionSize, q, 0, (int) primeNumbers.size(), listDummy);
+                new PrimeFactorWorker(partitionSize, q, 0, primeNumbers.size(), listDummy);
 
         List<Long> resultList = forkJoinPool.invoke(worker);
         addEntry("response: primefactors," + q + "," + resultList.toString().replace(" ", ""));
         return resultList;
     }
 
-    private static class PrimeFactorWorker extends RecursiveTask<List<Long>> {
+    private class PrimeFactorWorker extends RecursiveTask<List<Long>> {
 
         private final int maxsize;
         private long number;
@@ -149,6 +159,9 @@ public class PrimeManager implements Logger {
 
             List<Long> listDummy = new ArrayList<Long>();
             // TODO: ???
+            // Sollte eine gute Wahl fürs ständige schreiben sein, aber das lesen ist "gefährlich",
+            // sollte aber gehen weil nur nach der Berechnung gelesen wird und dann auch nur mit
+            // einem Thread
             List<Long> resultList = Collections.synchronizedList(listDummy);
 
             if (end - start > maxsize) {

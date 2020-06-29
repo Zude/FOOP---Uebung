@@ -60,25 +60,18 @@ public class BeispieltestPrimeManager {
 
         final Thread c1 = new Thread(new Runnable() {
             public void run() {
-                try {
-                    g.nextPrime(11);
-                } catch (InterruptedException e) {
 
-                    e.printStackTrace();
-                } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
-                  // getestet
+                g.nextPrime(11);
+
             }
         });
         c1.start();
 
         final Thread c2 = new Thread(new Runnable() {
             public void run() {
-                try {
-                    g.nextPrime(4);
-                } catch (InterruptedException e) {
 
-                    e.printStackTrace();
-                }
+                g.nextPrime(4);
+
             }
         });
         c2.start();
@@ -93,11 +86,11 @@ public class BeispieltestPrimeManager {
         List<String> glog = g.getLog();
 
         // nur die ersten fünf interessanten Logeinträge herausfiltern
-        List<String> glog_stripped = new LinkedList<>();
+        List<String> glogStripped = new LinkedList<>();
         int i = 0;
         for (String s : glog) {
             if (s.contains("found prime")) {
-                glog_stripped.add(s);
+                glogStripped.add(s);
                 i++;
             }
             if (i == 5) {
@@ -108,7 +101,7 @@ public class BeispieltestPrimeManager {
         // Listen auf gleiche Einträge prüfen, mindestens die notwendigen Primzahlen gefunden?
         List<String> primes = new LinkedList<>(Arrays.asList("found prime: 2", "found prime: 3",
                 "found prime: 5", "found prime: 7", "found prime: 11"));
-        Assert.assertEquals(glog_stripped, primes);
+        Assert.assertEquals(glogStripped, primes);
 
         // Interessante Einträge stichprobenhaft überprüfen
         Assert.assertTrue(glog.contains("response: nextprime,4,5"));
@@ -127,25 +120,18 @@ public class BeispieltestPrimeManager {
 
         final Thread c1 = new Thread(new Runnable() {
             public void run() {
-                try {
-                    g.nextPrime(150);
-                } catch (InterruptedException e) {
 
-                    e.printStackTrace();
-                } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
-                  // getestet
+                g.nextPrime(150);
+
             }
         });
         c1.start();
 
         final Thread c2 = new Thread(new Runnable() {
             public void run() {
-                try {
-                    g.nextPrime(4);
-                } catch (InterruptedException e) {
 
-                    e.printStackTrace();
-                }
+                g.nextPrime(4);
+
             }
         });
         c2.start();
@@ -194,13 +180,9 @@ public class BeispieltestPrimeManager {
 
         final Thread c1 = new Thread(new Runnable() {
             public void run() {
-                try {
-                    g.primeFactors(100);
-                } catch (InterruptedException e) {
 
-                    e.printStackTrace();
-                } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
-                  // getestet
+                g.primeFactors(100);
+
             }
         });
         c1.start();
@@ -247,13 +229,9 @@ public class BeispieltestPrimeManager {
 
         final Thread c1 = new Thread(new Runnable() {
             public void run() {
-                try {
-                    g.primeFactors(28);
-                } catch (InterruptedException e) {
 
-                    e.printStackTrace();
-                } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
-                  // getestet
+                g.primeFactors(28);
+
             }
         });
         c1.start();
@@ -300,13 +278,8 @@ public class BeispieltestPrimeManager {
 
         final Thread c1 = new Thread(new Runnable() {
             public void run() {
-                try {
-                    g.primeFactors(45);
-                } catch (InterruptedException e) {
 
-                    e.printStackTrace();
-                } // Eine Assertion käme da nie raus, Ergebnis in dem Fall wird über das Log
-                  // getestet
+                g.primeFactors(45);
             }
         });
         c1.start();
