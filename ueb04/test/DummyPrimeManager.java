@@ -38,6 +38,11 @@ public class DummyPrimeManager extends PrimeManager {
     }
 
     @Override
+    public void startWorker(long delay) {
+
+    }
+
+    @Override
     public Collection<Long> knownPrimes() {
         return null;
     }

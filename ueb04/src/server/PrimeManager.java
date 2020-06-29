@@ -122,7 +122,7 @@ public class PrimeManager implements Logger {
                 new PrimeFactorWorker(partitionSize, q, 0, (int) primeNumbers.size(), listDummy);
 
         List<Long> resultList = forkJoinPool.invoke(worker);
-        addEntry("response: primefactors," + q + "," + resultList);
+        addEntry("response: primefactors," + q + "," + resultList.toString().replace(" ", ""));
         return resultList;
     }
 

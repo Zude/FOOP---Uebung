@@ -111,11 +111,8 @@ public class PrimeClient implements Logger {
         out.println(id + "," + MessageType.NEXTPRIME + "," + q);
         addEntry("requesting: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + q);
 
-        String ans;
-        long res = q;
-
-        ans = in.readLine();
-        res = Long.valueOf(ans);
+        String ans = in.readLine();
+        long res = Long.valueOf(ans);
 
         addEntry("response: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + res);
 
@@ -137,7 +134,21 @@ public class PrimeClient implements Logger {
 
         out.println(id + "," + MessageType.PRIMEFACTORS + "," + q);
         addEntry("requesting: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q);
-        return null;
+
+        String ans = in.readLine();
+
+        ans = ans.replace(" ", "").substring(1, ans.length() - 2);
+
+        List<Long> res = new ArrayList<Long>();
+
+        for (String temp : ans.split(",")) {
+            res.add(Long.valueOf(temp));
+        }
+
+        addEntry("response: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + ","
+                + res.toString().replace(" ", ""));
+
+        return res;
 
     }
 

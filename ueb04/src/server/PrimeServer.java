@@ -102,10 +102,11 @@ public class PrimeServer implements Logger {
                                     List<Long> primList =
                                             primeManager.primeFactors(Long.valueOf(arrMsg[2]));
 
+                                    out.println(primList);
+
                                     logStr.add(MessageType.PRIMEFACTORS.toString().toLowerCase());
                                     logStr.add(arrMsg[2]);
-                                    logStr.add(
-                                            "[" + primList.toString().replaceAll(" ", ",") + "]");
+                                    logStr.add(primList.toString().replaceAll(" ", ""));
 
                                     addEntry(logStr.toString());
                                     break;
@@ -173,6 +174,7 @@ public class PrimeServer implements Logger {
         serverSocket = new ServerSocket(port);
 
         primeManager = new PrimeManager(partitionSize);
+
     }
 
     /**
@@ -205,6 +207,8 @@ public class PrimeServer implements Logger {
         assert delay >= 0 : "Delay muss > 0 sein!";
 
         System.out.println("Server gestartet");
+
+        primeManager.startWorker(delay);
 
         // Das annehmen neuer Verbindungen geschieht hier in einem eigenen Thread, weil ansonsten
         // die JUnit Tests nicht weiterlaufen können und es beim .accept() zu einer Blockade kommt.
