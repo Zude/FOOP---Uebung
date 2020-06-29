@@ -129,7 +129,8 @@ public class PrimeClient implements Logger {
 
         String ans = in.readLine();
 
-        ans = ans.replace(" ", "").substring(1, ans.length() - 2);
+        ans = ans.replace(" ", "");
+        ans = ans.substring(1, ans.length() - 1);
 
         List<Long> res = new ArrayList<Long>();
 
