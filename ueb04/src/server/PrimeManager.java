@@ -9,6 +9,7 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 
 import helper.Logger;
+import helper.MessageType;
 
 /**
  * 
@@ -71,7 +72,7 @@ public class PrimeManager implements Logger {
     public long nextPrime(long q) {
         assert (q >= 0) : "nextPrime muss mit einer positiven Ganzzahl aufgerufen werden.";
 
-        addEntry("requested: nextprime," + q);
+        addEntry("requested: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + q);
 
         // TODO: Synchronized größe ok ?
         synchronized (this) {
@@ -86,7 +87,8 @@ public class PrimeManager implements Logger {
 
         for (long prime : primeNumbers) {
             if (prime >= q) {
-                addEntry("response: nextprime," + q + "," + prime);
+                addEntry("response: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + q
+                        + "," + prime);
                 return prime;
             }
         }
@@ -110,7 +112,7 @@ public class PrimeManager implements Logger {
     public List<Long> primeFactors(long q) {
         assert (q >= 2) : "PrimeFactors muss mit einer positiven Ganzzahl >=2 aufgerufen werden.";
 
-        addEntry("requested: primefactors," + q);
+        addEntry("requested: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q);
 
         ForkJoinPool forkJoinPool = new ForkJoinPool();
 
@@ -133,7 +135,10 @@ public class PrimeManager implements Logger {
                 new PrimeFactorWorker(partitionSize, q, 0, primeNumbers.size(), listDummy);
 
         List<Long> resultList = forkJoinPool.invoke(worker);
-        addEntry("response: primefactors," + q + "," + resultList.toString().replace(" ", ""));
+
+        addEntry("requested: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q + ","
+                + resultList.toString().replace(" ", ""));
+
         return resultList;
     }
 
