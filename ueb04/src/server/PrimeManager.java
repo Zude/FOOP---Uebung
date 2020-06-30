@@ -35,7 +35,7 @@ public class PrimeManager implements Logger {
     // TODO: Korrekter Typ ?
     private volatile List<Long> primeNumbers = new ArrayList<Long>();
     private Thread workerThread = new Thread(this::calcPrimes);
-
+    private List<Long> waitingList = Collections.synchronizedList(new ArrayList<Long>());
     private long calcDelay;
     private long currentNumber = 2;
     private long lastPrime = 2;
@@ -74,11 +74,13 @@ public class PrimeManager implements Logger {
 
         addEntry("requested: " + MessageType.NEXTPRIME.toString().toLowerCase() + "," + q);
 
-        // TODO: Synchronized größe ok ?
-        synchronized (this) {
+        Long waitingLong = q;
+
+        synchronized (waitingLong) {
             while (lastPrime < q) {
                 try {
-                    this.wait();
+                    waitingList.add(waitingLong);
+                    waitingLong.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -114,12 +116,17 @@ public class PrimeManager implements Logger {
 
         addEntry("requested: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q);
 
+        List<Long> resultList = new ArrayList<Long>();
+
         ForkJoinPool forkJoinPool = new ForkJoinPool();
 
-        synchronized (this) {
-            while (lastPrime < q / 2) {
+        Long waitingLong = q;
+
+        synchronized (waitingLong) {
+            while (lastPrime <= q / 2) {
                 try {
-                    this.wait();
+                    waitingList.add(waitingLong);
+                    waitingLong.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -134,11 +141,10 @@ public class PrimeManager implements Logger {
         PrimeFactorWorker worker =
                 new PrimeFactorWorker(partitionSize, q, 0, primeNumbers.size(), listDummy);
 
-        List<Long> resultList = forkJoinPool.invoke(worker);
+        resultList = forkJoinPool.invoke(worker);
 
         addEntry("response: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q + ","
                 + resultList.toString().replace(" ", ""));
-
         return resultList;
     }
 
@@ -257,8 +263,12 @@ public class PrimeManager implements Logger {
                     primeNumbers.add(currentNumber);
                     lastPrime = currentNumber;
 
-                    synchronized (this) {
-                        this.notifyAll();
+                    for (Long numberToCheck : waitingList) {
+                        if (currentNumber >= numberToCheck) {
+                            synchronized (numberToCheck) {
+                                numberToCheck.notifyAll();
+                            }
+                        }
                     }
 
                     addEntry("found prime: " + currentNumber);
