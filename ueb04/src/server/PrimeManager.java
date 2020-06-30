@@ -122,26 +122,32 @@ public class PrimeManager implements Logger {
 
         Long waitingLong = q;
 
-        synchronized (waitingLong) {
-            while (lastPrime <= q / 2) {
-                try {
-                    waitingList.add(waitingLong);
-                    waitingLong.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        if (!isPrime(q)) {
+
+            synchronized (waitingLong) {
+                while (lastPrime <= q / 2) {
+                    try {
+                        waitingList.add(waitingLong);
+                        waitingLong.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+
+            // TODO: Liste wirklich kopieren ?
+            // Eine CopyOnWriteArrayList würde dies überflüssig machen, aber dann wird das schreiben
+            // deutlich langsamer
+            List<Long> listDummy = new ArrayList<Long>(primeNumbers);
+
+            PrimeFactorWorker worker =
+                    new PrimeFactorWorker(partitionSize, q, 0, primeNumbers.size(), listDummy);
+
+            resultList = forkJoinPool.invoke(worker);
+
+        } else {
+            resultList.add(q);
         }
-
-        // TODO: Liste wirklich kopieren ?
-        // Eine CopyOnWriteArrayList würde dies überflüssig machen, aber dann wird das schreiben
-        // deutlich langsamer
-        List<Long> listDummy = new ArrayList<Long>(primeNumbers);
-
-        PrimeFactorWorker worker =
-                new PrimeFactorWorker(partitionSize, q, 0, primeNumbers.size(), listDummy);
-
-        resultList = forkJoinPool.invoke(worker);
 
         addEntry("response: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q + ","
                 + resultList.toString().replace(" ", ""));
