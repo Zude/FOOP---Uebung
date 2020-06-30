@@ -17,9 +17,9 @@ public class LongTests {
 
     private static final int SLEEP_TIME = 50;
 
-    private static final int PORT = 6032;
+    private static final int PORT = 6034;
 
-    private static final int PARTITION_SIZE = 100;
+    private static final int PARTITION_SIZE = 1;
 
     private static final int DELAY = 10;
 

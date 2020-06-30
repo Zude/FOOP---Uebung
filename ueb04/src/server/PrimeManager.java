@@ -137,17 +137,19 @@ public class PrimeManager implements Logger {
             }
         }
 
+        waitingList.remove(waitingLong);
+
         // TODO: Liste wirklich kopieren ?
         // Eine CopyOnWriteArrayList würde dies überflüssig machen, aber dann wird das schreiben
         // deutlich langsamer
 
-        if (isPrime(q)) {
+        if (isPrimeForList(q)) {
             resultList.add(q);
         } else {
             List<Long> listDummy = new ArrayList<Long>(primeNumbers);
 
             PrimeFactorWorker worker =
-                    new PrimeFactorWorker(partitionSize, q, 0, primeNumbers.size(), listDummy);
+                    new PrimeFactorWorker(partitionSize, q, 0, listDummy.size(), listDummy);
 
             resultList = forkJoinPool.invoke(worker);
         }
@@ -163,35 +165,35 @@ public class PrimeManager implements Logger {
         private long number;
         private final int start;
         private final int end;
-        private volatile List<Long> primeNumbers = new ArrayList<Long>();
+        private volatile List<Long> copyNumbers = new ArrayList<Long>();
 
-        PrimeFactorWorker(int paritionSize, long number, int start, int end, List<Long> primeList) {
+        PrimeFactorWorker(int paritionSize, long number, int start, int end,
+                List<Long> copyNumbers) {
 
             this.maxsize = paritionSize;
             this.number = number;
             this.start = start;
             this.end = end;
-            this.primeNumbers = primeList;
+            this.copyNumbers = copyNumbers;
         }
 
         @Override
         protected List<Long> compute() {
 
-            List<Long> listDummy = new ArrayList<Long>();
             // TODO: ???
             // Sollte eine gute Wahl fürs ständige schreiben sein, aber das lesen ist "gefährlich",
             // sollte aber gehen weil nur nach der Berechnung gelesen wird und dann auch nur mit
             // einem Thread
-            List<Long> resultList = Collections.synchronizedList(listDummy);
+            List<Long> resultList = Collections.synchronizedList(new ArrayList<Long>());
 
             if (end - start > maxsize) {
 
                 int mid = (start + (end - start) / 2);
 
                 ForkJoinTask<List<Long>> lForkJoinTask =
-                        new PrimeFactorWorker(maxsize, number, start, mid, primeNumbers).fork();
+                        new PrimeFactorWorker(maxsize, number, start, mid, copyNumbers).fork();
                 ForkJoinTask<List<Long>> rForkJoinTask =
-                        new PrimeFactorWorker(maxsize, number, mid + 1, end, primeNumbers).fork();
+                        new PrimeFactorWorker(maxsize, number, mid, end, copyNumbers).fork();
 
                 resultList.addAll(lForkJoinTask.join());
                 resultList.addAll(rForkJoinTask.join());
@@ -201,10 +203,10 @@ public class PrimeManager implements Logger {
                 long upperBorder = number / 2;
                 int i = start;
 
-                while (i < end && primeNumbers.get(i) <= upperBorder) {
-                    if (number % primeNumbers.get(i) == 0) {
-                        resultList.add(primeNumbers.get(i));
-                        number = number / primeNumbers.get(i);
+                while (i < end && copyNumbers.get(i) <= upperBorder) {
+                    if (number % copyNumbers.get(i) == 0) {
+                        resultList.add(copyNumbers.get(i));
+                        number = number / copyNumbers.get(i);
                         i = start;
                     } else {
                         i++;
@@ -268,7 +270,7 @@ public class PrimeManager implements Logger {
         while (isWorking) {
             try {
 
-                if (isPrime(currentNumber)) {
+                if (isPrimeForList(currentNumber)) {
                     primeNumbers.add(currentNumber);
                     lastPrime = currentNumber;
 
@@ -293,13 +295,14 @@ public class PrimeManager implements Logger {
         }
     }
 
-    private boolean isPrime(long num) {
+    private boolean isPrimeForList(long num) {
 
         if (num == 1) {
             return false;
         }
 
         long upperBorder = (long) Math.sqrt(num);
+
         int i = 0;
 
         while (primeNumbers.get(i) <= upperBorder) {
