@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
@@ -35,7 +36,7 @@ public class PrimeManager implements Logger {
     // TODO: Korrekter Typ ?
     private volatile List<Long> primeNumbers = new ArrayList<Long>();
     private Thread workerThread = new Thread(this::calcPrimes);
-    private List<Long> waitingList = Collections.synchronizedList(new ArrayList<Long>());
+    private List<Long> waitingList = new CopyOnWriteArrayList<Long>();
     private long calcDelay;
     private long currentNumber = 2;
     private long lastPrime = 2;
@@ -76,16 +77,19 @@ public class PrimeManager implements Logger {
 
         Long waitingLong = q;
 
+        waitingList.add(waitingLong);
+
         synchronized (waitingLong) {
             while (lastPrime < q) {
                 try {
-                    waitingList.add(waitingLong);
                     waitingLong.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
+
+        waitingList.remove(waitingLong);
 
         for (long prime : primeNumbers) {
             if (prime >= q) {
@@ -120,33 +124,32 @@ public class PrimeManager implements Logger {
 
         ForkJoinPool forkJoinPool = new ForkJoinPool();
 
-        Long waitingLong = q;
+        Long waitingLong = q / 2;
 
-        if (!isPrime(q)) {
-
-            synchronized (waitingLong) {
-                while (lastPrime <= q / 2) {
-                    try {
-                        waitingList.add(waitingLong);
-                        waitingLong.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+        synchronized (waitingLong) {
+            while (lastPrime < q / 2) {
+                try {
+                    waitingList.add(waitingLong);
+                    waitingLong.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
+        }
 
-            // TODO: Liste wirklich kopieren ?
-            // Eine CopyOnWriteArrayList würde dies überflüssig machen, aber dann wird das schreiben
-            // deutlich langsamer
+        // TODO: Liste wirklich kopieren ?
+        // Eine CopyOnWriteArrayList würde dies überflüssig machen, aber dann wird das schreiben
+        // deutlich langsamer
+
+        if (isPrime(q)) {
+            resultList.add(q);
+        } else {
             List<Long> listDummy = new ArrayList<Long>(primeNumbers);
 
             PrimeFactorWorker worker =
                     new PrimeFactorWorker(partitionSize, q, 0, primeNumbers.size(), listDummy);
 
             resultList = forkJoinPool.invoke(worker);
-
-        } else {
-            resultList.add(q);
         }
 
         addEntry("response: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q + ","
