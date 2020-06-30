@@ -129,12 +129,12 @@ public class PrimeClient implements Logger {
 
         String ans = in.readLine();
 
-        ans = ans.replace(" ", "");
-        ans = ans.substring(1, ans.length() - 1);
-
+        /*
+         * ans = ans.replace(" ", ""); ans = ans.substring(1, ans.length() - 1);
+         */
         List<Long> res = new ArrayList<Long>();
 
-        for (String temp : ans.split(",")) {
+        for (String temp : ans.split(" ")) {
             res.add(Long.valueOf(temp));
         }
 

@@ -96,7 +96,11 @@ public class PrimeServer implements Logger {
                                 List<Long> primList =
                                         primeManager.primeFactors(Long.valueOf(arrMsg[2]));
 
-                                out.println(primList);
+                                String ans = primList.toString();
+                                ans = ans.substring(1, ans.length() - 1);
+                                ans = ans.replace(",", "");
+                                out.println(ans);
+                                System.err.println(ans);
 
                                 logStr.add(MessageType.PRIMEFACTORS.toString().toLowerCase());
                                 logStr.add(arrMsg[2]);
@@ -266,4 +270,5 @@ public class PrimeServer implements Logger {
     public List<String> getLog() {
         return serverLog;
     }
+
 }

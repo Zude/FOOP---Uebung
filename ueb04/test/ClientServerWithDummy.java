@@ -12,7 +12,7 @@ public class ClientServerWithDummy {
 
     private static final int SLEEP_TIME = 20;
 
-    private static final int PORT = 6025;
+    private static final int PORT = 6028;
 
     private static final int PARTITION_SIZE = 1000;
 
@@ -44,6 +44,46 @@ public class ClientServerWithDummy {
         client.disconnect();
         server.stopServer();
 
+    }
+
+    @Test
+    public void StopServer_With_Active_Clients() throws IOException, InterruptedException {
+
+        final PrimeServer server = new PrimeServer(PORT, dpm);
+        server.startServer(DELAY);
+
+        final PrimeClient client = new PrimeClient("localhost", PORT);
+        client.connect();
+
+        // warten, sodass der Server die Nachricht sicher schon erhalten hat
+        Thread.sleep(SLEEP_TIME);
+
+        // ----
+
+        long res = client.nextPrime(1);
+
+        Assert.assertEquals(2, res);
+
+        // ----
+
+        final Thread c1 = new Thread(new Runnable() {
+
+            public void run() {
+                try {
+                    Thread.sleep(SLEEP_TIME * 100);
+                    client.disconnect();
+                } catch (IOException | InterruptedException e) {
+                    System.err.println("Unerwartete Exception in c1: " + e);
+                }
+            }
+        });
+        c1.start();
+
+        server.stopServer();
+
+        /*
+         * final PrimeClient wclient = new PrimeClient("localhost", PORT); wclient.connect();
+         */
     }
 
     @Test
