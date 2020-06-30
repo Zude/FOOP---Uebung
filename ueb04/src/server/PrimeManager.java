@@ -136,7 +136,7 @@ public class PrimeManager implements Logger {
 
         List<Long> resultList = forkJoinPool.invoke(worker);
 
-        addEntry("requested: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q + ","
+        addEntry("response: " + MessageType.PRIMEFACTORS.toString().toLowerCase() + "," + q + ","
                 + resultList.toString().replace(" ", ""));
 
         return resultList;
