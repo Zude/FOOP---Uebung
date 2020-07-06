@@ -1,5 +1,7 @@
 package wson;
 
+import examples.EBooleanNull;
+
 /**
  * Enthält Hilfsmethoden für {@link Wson#fromJson} zur Konvertierung.
  * 
@@ -9,12 +11,11 @@ package wson;
 class JSONReader {
 
     public <T> T convert(Object value, Class<T> classOfT) {
-        // assert (value.getClass() == classOfT);
 
-        if (value.getClass() == boolean.class) {
-            if (value instanceof Boolean) {
-                return classOfT.cast(new Boolean((boolean) value));
-            }
+        if (Boolean.class.isInstance(value)) {
+
+            return classOfT.cast(new Boolean((boolean) value));
+        } else if (EBooleanNull.class.isInstance(value)) {
 
         }
         return null;

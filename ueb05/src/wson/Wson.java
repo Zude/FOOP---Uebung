@@ -38,9 +38,7 @@ public class Wson {
             JSONReader r = new JSONReader();
             PushbackReader pbr = new PushbackReader(new StringReader(json));
 
-            JSONParser parser = new JSONParser();
-
-            return r.convert(parser.readElement(pbr), classOfT);
+            return r.convert(JSONParser.readElement(pbr), classOfT);
 
             // TODO JSONParser.readElement mit pbr aufrufen und Ergebnis mit JSONReader konvertieren
         } catch (IOException e) {
