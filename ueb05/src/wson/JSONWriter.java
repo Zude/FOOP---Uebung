@@ -1,5 +1,7 @@
 package wson;
 
+import java.lang.reflect.Field;
+
 /**
  * Enthält Hilfsmethoden für {@link Wson#toJson}.
  * 
@@ -39,14 +41,29 @@ class JSONWriter {
         return null;
     }
 
-    public String objToJson() {
-
-        return null;
+    public String objToJson(Field field, Object src) {
+        System.out.println("...objToJson: " + field.getName());
+        return "err in objToJson";
     }
 
-    public String primToJson(Object obj) {
+    public String primToJson(Field field, Object src) {
 
-        return null;
+        try {
+            // TODO restliche Primitive Klassen
+            if (PrimitiveWrapper.wrap(field.getType()) == Boolean.class) {
+                return String.valueOf(field.getBoolean(src));
+            }
+
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return "err in primToJson";
+    }
+
+    public String wrapToJson(Object obj) {
+
+        return obj.toString();
     }
 
 }

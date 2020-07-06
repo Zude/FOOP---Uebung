@@ -60,29 +60,67 @@ public class Wson {
          * zusammenbauen
          */
         StringJoiner res = new StringJoiner(",");
-        Class<?> cl = src.getClass();
+        String result = "";
 
-        Field[] fields = cl.getDeclaredFields();
+        System.out.println();
 
-        for (Field cur : fields) {
+        // Check für den Fall das src ein Primitve Wrapper ist
+        if (src.getClass() == Double.class || src.getClass() == Float.class
+                || src.getClass() == Long.class || src.getClass() == Integer.class
+                || src.getClass() == Short.class || src.getClass() == Character.class
+                || src.getClass() == Byte.class || src.getClass() == Boolean.class) {
 
-            // Primitive in PrimitiveWrapper
-            if (cur.getClass().isPrimitive()) {
-                res.add(w.primToJson(PrimitiveWrapper.wrap(cur.getClass())));
+            System.out.println("---Wrapper---");
+            System.out.println("Value: " + w.wrapToJson(src));
+            return w.wrapToJson(src);
+
+        } else {
+            System.out.println("---Object---");
+            // Ablauf für nicht primitive Typen
+            Class<?> cl = src.getClass();
+
+            Field[] fields = cl.getFields();
+
+            // TODO Null ignorieren
+            for (Field cur : fields) {
+                System.out.println("--Field--  " + cur);
+
+                if (cur.getType() == Boolean.class) {
+
+                    System.out.println("  -Wrapper-");
+                    System.out.println("    Value: " + w.wrapToJson(cur));
+                    res.add(w.wrapToJson(cur));
+                }
+                // Primitive in PrimitiveWrapper
+                if (cur.getType().isPrimitive()) {
+                    System.out.println("  -Primitive-");
+                    System.out.println("    Value: " + w.primToJson(cur, src));
+                    res.add(w.primToJson(cur, src));
+                }
+
+                // Obj als Obj
+                if (cur.getType() == Object.class) {
+                    System.out.println("  -Object-");
+                    System.out.println("    Value: " + w.objToJson(cur, src));
+
+                }
+
+                // Collections
+
+                // Arrays
+                if (cur.getClass().isArray()) {
+
+                }
+
+                // TODO Check format
+                result = "{ " + res.toString() + " }";
             }
-
-            // Obj als Obj
-
-            // Collections
-
-            // Arrays
-            if (cur.getClass().isArray()) {
-
-            }
-
         }
 
-        return res.toString();
+        System.out.println("Result: ");
+        System.out.println(result);
+        System.out.println();
+        return result;
     }
 
 }
