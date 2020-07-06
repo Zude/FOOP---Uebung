@@ -44,6 +44,8 @@ public class Wson {
         } catch (IOException e) {
             throw new RuntimeException("not supposed to happen", e);
         }
+
+        return null;
     }
 
     /**
@@ -55,6 +57,8 @@ public class Wson {
     public String toJson(Object src) {
         JSONWriter w = new JSONWriter();
 
+        // TODO
+        // Map in Writer damit die Ausgabe in der Korrekten reihenfolge erfolgt?
         /*
          * 1. Alle Variablen lesen 2. Entsprechende Writer funktion nutzen 3. Strings des Writers
          * zusammenbauen
@@ -62,17 +66,24 @@ public class Wson {
         StringJoiner res = new StringJoiner(",");
         String result = "";
 
-        System.out.println();
+        System.out.println("|-------------|");
 
+        if (src.getClass().isArray()) {
+
+        } else if (src.getClass() == String.class) {
+            System.out.println("---String---");
+            System.out.println("Value: " + w.simpleStrToJson(src.toString()));
+            return "\"" + w.simpleStrToJson(src.toString()) + "\"";
+        }
         // Check für den Fall das src ein Primitve Wrapper ist
-        if (src.getClass() == Double.class || src.getClass() == Float.class
+        else if (src.getClass() == Double.class || src.getClass() == Float.class
                 || src.getClass() == Long.class || src.getClass() == Integer.class
                 || src.getClass() == Short.class || src.getClass() == Character.class
                 || src.getClass() == Byte.class || src.getClass() == Boolean.class) {
 
             System.out.println("---Wrapper---");
-            System.out.println("Value: " + w.wrapToJson(src));
-            return w.wrapToJson(src);
+            System.out.println("Value: " + w.simpleWrapperToJson(src));
+            result = w.simpleWrapperToJson(src);
 
         } else {
             System.out.println("---Object---");
@@ -85,11 +96,24 @@ public class Wson {
             for (Field cur : fields) {
                 System.out.println("--Field--  " + cur);
 
-                if (cur.getType() == Boolean.class) {
+                try {
+                    if (cur.get(src) == null) {
+                        // TODO bessere Lösung als ein break für null werte
+                        break;
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                if (cur.getType() == Double.class || cur.getType() == Float.class
+                        || cur.getType() == Long.class || cur.getType() == Integer.class
+                        || cur.getType() == Short.class || cur.getType() == Character.class
+                        || cur.getType() == Byte.class || cur.getType() == Boolean.class) {
 
                     System.out.println("  -Wrapper-");
-                    System.out.println("    Value: " + w.wrapToJson(cur));
-                    res.add(w.wrapToJson(cur));
+                    System.out.println("    Value: " + w.wrapperToJson(cur, src));
+                    res.add(w.wrapperToJson(cur, src));
                 }
                 // Primitive in PrimitiveWrapper
                 if (cur.getType().isPrimitive()) {
@@ -98,11 +122,18 @@ public class Wson {
                     res.add(w.primToJson(cur, src));
                 }
 
+                // Strings
+                if (cur.getType() == String.class) {
+                    System.out.println("  -String-");
+                    System.out.println("    Value: " + w.strToJson(cur, src));
+                    res.add(w.strToJson(cur, src));
+                }
+
                 // Obj als Obj
                 if (cur.getType() == Object.class) {
                     System.out.println("  -Object-");
                     System.out.println("    Value: " + w.objToJson(cur, src));
-
+                    res.add(w.objToJson(cur, src));
                 }
 
                 // Collections
@@ -113,13 +144,13 @@ public class Wson {
                 }
 
                 // TODO Check format
-                result = "{ " + res.toString() + " }";
+                result = "{" + res.toString() + "}";
             }
         }
 
         System.out.println("Result: ");
         System.out.println(result);
-        System.out.println();
+        System.out.println("|-------------|");
         return result;
     }
 

@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 /**
  * Enthält Hilfsmethoden für {@link Wson#toJson}.
  * 
- * @author kar, mhe, TODO Namen ergänzen
+ * @author kar, mhe, Lars Sander, Alexander Löffler
  *
  */
 class JSONWriter {
@@ -36,34 +36,122 @@ class JSONWriter {
     // "<name>":<value>
     // <value> kann O
 
+    public String strToJson(Field field, Object src) {
+        String result = "err in strToJson";
+
+        try {
+            String esc = escapeString(field.get(src).toString());
+            result = "\"" + field.getName() + "\"" + ": " + "\"" + esc + "\"";
+
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public String arrToJson() {
 
         return null;
     }
 
     public String objToJson(Field field, Object src) {
-        System.out.println("...objToJson: " + field.getName());
-        return "err in objToJson";
+        // TODO genau das gleiche wie wrapperToJson??
+        String result = "err in objToJson";
+
+        try {
+            result = "\"" + field.getName() + "\"" + ": ";
+
+            // TODO Sonderfälle für Character und String?
+            if (field.get(src).getClass() == String.class) {
+                result = result + "\"" + String.valueOf(field.get(src)) + "\"";
+            } else {
+                result = result + String.valueOf(field.get(src));
+            }
+            // result = "\"" + field.getName() + "\"" + ": " + field.get(src).toString();
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     public String primToJson(Field field, Object src) {
-
+        String result = "err in primToJson";
         try {
+
+            result = "\"" + field.getName() + "\"" + ": ";
+
             // TODO restliche Primitive Klassen
             if (PrimitiveWrapper.wrap(field.getType()) == Boolean.class) {
-                return String.valueOf(field.getBoolean(src));
+                result = result + String.valueOf(field.getBoolean(src));
+            }
+            if (PrimitiveWrapper.wrap(field.getType()) == Integer.class) {
+                result = result + String.valueOf(field.getInt(src));
+            }
+            if (PrimitiveWrapper.wrap(field.getType()) == Long.class) {
+                result = result + String.valueOf(field.getLong(src));
+            }
+            if (PrimitiveWrapper.wrap(field.getType()) == Float.class) {
+                result = result + String.valueOf(field.getFloat(src));
+            }
+            if (PrimitiveWrapper.wrap(field.getType()) == Double.class) {
+                result = result + String.valueOf(field.getDouble(src));
+            }
+            if (PrimitiveWrapper.wrap(field.getType()) == Byte.class) {
+                result = result + String.valueOf(field.getByte(src));
+            }
+            if (PrimitiveWrapper.wrap(field.getType()) == Character.class) {
+                result = result + "\"" + String.valueOf(field.getChar(src)) + "\"";
+            }
+            if (PrimitiveWrapper.wrap(field.getType()) == Short.class) {
+                result = result + String.valueOf(field.getShort(src));
+            }
+            // TODO macht Void hier wirklich Sinn?
+            if (PrimitiveWrapper.wrap(field.getType()) == Void.class) {
+                result = result + String.valueOf(field.get(src));
             }
 
         } catch (IllegalArgumentException | IllegalAccessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return "err in primToJson";
+        return result;
     }
 
-    public String wrapToJson(Object obj) {
+    public String wrapperToJson(Field field, Object src) {
+        String result = "err in wrapperToJson";
+        try {
+            // TODO restliche Wrapper Klassen
+            // if (field.get(src) == Boolean.class)
+            // Boolean bo = (Boolean) field.get(src);
 
+            result = "\"" + field.getName() + "\"" + ": ";
+
+            if (field.get(src).getClass() == Character.class) {
+                result = result + "\"" + String.valueOf(field.get(src)) + "\"";
+            } else {
+                result = result + String.valueOf(field.get(src));
+            }
+
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public String simpleWrapperToJson(Object obj) {
         return obj.toString();
+    }
+
+    public String simpleStrToJson(String str) {
+
+        return escapeString(str);
+
     }
 
 }
