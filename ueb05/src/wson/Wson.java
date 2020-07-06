@@ -1,8 +1,10 @@
 package wson;
 
-import java.io.StringReader;
-import java.io.PushbackReader;
 import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
+import java.lang.reflect.Field;
+import java.util.StringJoiner;
 
 /**
  * Eine Klasse zur Serialisierung und Deserialisierung von Java-Werten mittels JSON.
@@ -52,6 +54,35 @@ public class Wson {
      */
     public String toJson(Object src) {
         JSONWriter w = new JSONWriter();
+
+        /*
+         * 1. Alle Variablen lesen 2. Entsprechende Writer funktion nutzen 3. Strings des Writers
+         * zusammenbauen
+         */
+        StringJoiner res = new StringJoiner(",");
+        Class<?> cl = src.getClass();
+
+        Field[] fields = cl.getDeclaredFields();
+
+        for (Field cur : fields) {
+
+            // Primitive in PrimitiveWrapper
+            if (cur.getClass().isPrimitive()) {
+                res.add(w.primToJson(PrimitiveWrapper.wrap(cur.getClass())));
+            }
+
+            // Obj als Obj
+
+            // Collections
+
+            // Arrays
+            if (cur.getClass().isArray()) {
+
+            }
+
+        }
+
+        return res.toString();
     }
 
 }

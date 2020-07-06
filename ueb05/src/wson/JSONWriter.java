@@ -1,6 +1,5 @@
 package wson;
 
-
 /**
  * Enthält Hilfsmethoden für {@link Wson#toJson}.
  * 
@@ -27,8 +26,27 @@ class JSONWriter {
 
         return s;
     }
-    
+
     // TODO: Methoden zur Serialisierung hinzufügen
 
+    // TODO
+    // Writer sollte Strings in folgendem Format liefern:
+    // "<name>":<value>
+    // <value> kann O
+
+    public String arrToJson() {
+
+        return null;
+    }
+
+    public String objToJson() {
+
+        return null;
+    }
+
+    public String primToJson(Object obj) {
+
+        return null;
+    }
 
 }
