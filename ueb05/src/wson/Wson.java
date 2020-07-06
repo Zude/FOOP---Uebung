@@ -1,8 +1,8 @@
 package wson;
 
-import java.io.StringReader;
-import java.io.PushbackReader;
 import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
 
 /**
  * Eine Klasse zur Serialisierung und Deserialisierung von Java-Werten mittels JSON.
@@ -38,6 +38,10 @@ public class Wson {
             JSONReader r = new JSONReader();
             PushbackReader pbr = new PushbackReader(new StringReader(json));
 
+            JSONParser parser = new JSONParser();
+
+            return r.convert(parser.readElement(pbr), classOfT);
+
             // TODO JSONParser.readElement mit pbr aufrufen und Ergebnis mit JSONReader konvertieren
         } catch (IOException e) {
             throw new RuntimeException("not supposed to happen", e);
@@ -52,6 +56,7 @@ public class Wson {
      */
     public String toJson(Object src) {
         JSONWriter w = new JSONWriter();
+        return null;
     }
 
 }

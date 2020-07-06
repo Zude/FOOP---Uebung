@@ -1,6 +1,5 @@
 package wson;
 
-
 /**
  * Enthält Hilfsmethoden für {@link Wson#fromJson} zur Konvertierung.
  * 
@@ -8,8 +7,17 @@ package wson;
  *
  */
 class JSONReader {
-    
-    // TODO: Methoden hinzufügen
 
+    public <T> T convert(Object value, Class<T> classOfT) {
+        // assert (value.getClass() == classOfT);
+
+        if (value.getClass() == boolean.class) {
+            if (value instanceof Boolean) {
+                return classOfT.cast(new Boolean((boolean) value));
+            }
+
+        }
+        return null;
+    }
 
 }
