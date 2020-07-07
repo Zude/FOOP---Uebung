@@ -70,10 +70,12 @@ public class Wson {
 
         if (src.getClass().isArray()) {
 
+            result = "[" + w.simpleArrToJson(src) + "]";
+
         } else if (src.getClass() == String.class) {
             System.out.println("---String---");
             System.out.println("Value: " + w.simpleStrToJson(src.toString()));
-            return "\"" + w.simpleStrToJson(src.toString()) + "\"";
+            result = "\"" + w.simpleStrToJson(src.toString()) + "\"";
         }
         // Check für den Fall das src ein Primitve Wrapper ist
         else if (src.getClass() == Double.class || src.getClass() == Float.class
@@ -106,6 +108,14 @@ public class Wson {
                     e.printStackTrace();
                 }
 
+                // Arrays
+                if (cur.getType().isArray()) {
+                    System.out.println("  -Array-");
+                    System.out.println("    Value: " + w.arrToJson(cur, src));
+                    res.add("[]");
+                }
+
+                // TODO check für rekursiven aufruf
                 if (cur.getType() == Double.class || cur.getType() == Float.class
                         || cur.getType() == Long.class || cur.getType() == Integer.class
                         || cur.getType() == Short.class || cur.getType() == Character.class
@@ -137,11 +147,6 @@ public class Wson {
                 }
 
                 // Collections
-
-                // Arrays
-                if (cur.getClass().isArray()) {
-
-                }
 
                 // TODO Check format
                 result = "{" + res.toString() + "}";

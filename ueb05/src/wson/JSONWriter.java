@@ -1,6 +1,8 @@
 package wson;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.StringJoiner;
 
 /**
  * Enthält Hilfsmethoden für {@link Wson#toJson}.
@@ -51,9 +53,29 @@ class JSONWriter {
         return result;
     }
 
-    public String arrToJson() {
+    public String arrToJson(Field field, Object src) {
+        String result = "err in arrToJson";
 
-        return null;
+        // for (int i = 0; i < Array.getLength(obj); i++) {}
+
+        int length = Array.getLength(field);
+
+        if (length > 0) {
+            if (Array.get(field, 0).getClass().isArray()) {
+                for (int i = 0; i < Array.getLength(field); i++) {
+                    System.out.println("Rek: " + simpleArrToJson((Array.get(field, 0))));
+                }
+
+            } else {
+                for (int i = 0; i < Array.getLength(field); i++) {
+                    System.out.println(Array.get(field, i).toString());
+                }
+            }
+
+        }
+
+        return result;
+
     }
 
     public String objToJson(Field field, Object src) {
@@ -152,6 +174,20 @@ class JSONWriter {
 
         return escapeString(str);
 
+    }
+
+    public String simpleArrToJson(Object obj) {
+        System.out.println("array");
+
+        StringJoiner sj = new StringJoiner(",");
+
+        // TODO check für [][]... und rufe rekursiv auf
+        for (int i = 0; i < Array.getLength(obj); i++) {
+            System.out.println(Array.get(obj, i).toString());
+            sj.add(Array.get(obj, i).toString());
+        }
+
+        return sj.toString();
     }
 
 }
