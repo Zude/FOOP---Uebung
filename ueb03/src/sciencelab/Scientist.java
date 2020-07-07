@@ -200,54 +200,26 @@ public class Scientist {
     void startAlgoC() {
         startTime = System.currentTimeMillis();
 
-        class MyTimerTask extends TimerTask {
+        class InsaneTimerTask extends TimerTask {
 
-            private double starvingSince = 0;
-            private final double timeToGetCrazy = saneTimeMS;
             private Thread scientistThread;
-            private Scientist scientist;
 
-            MyTimerTask(Thread thread, Scientist scientist) {
+            InsaneTimerTask(Thread thread, Scientist scientist) {
                 this.scientistThread = thread;
-                this.scientist = scientist;
             }
 
             @Override
             public void run() {
-
-                if (!scientist.inTryoutSleep) {
-                    starvingSince++;
-                }
-
-                if (starvingSince >= timeToGetCrazy) {
-                    try {
-
-                        if (!scientist.inTryoutSleep) {
-                            scientist.isInsane = true;
-                            scientistThread.interrupt();
-                            printLog("Muahahahahahahaaaaaaa!");
-                            starvingSince = 0;
-                        }
-                    } catch (SecurityException ex) {
-                        printLog("Interrupted");
-                    }
-                }
-            }
-
-            public void reset() {
-                this.starvingSince = 0;
+                scientistThread.interrupt();
             }
 
         }
 
         Timer timer = new Timer(false);
-
-        MyTimerTask myTask = new MyTimerTask(Thread.currentThread(), this);
-
-        timer.schedule(myTask, 0, 1);
+        timer.schedule(new InsaneTimerTask(Thread.currentThread(), this), saneTimeMS);
 
         int round = 0;
-        while (round < k && !isInsane) {
+        while (round < k) {
 
             try {
 
@@ -267,15 +239,17 @@ public class Scientist {
                     Thread.sleep(tinkeringTimeMS);
                     printLog("Basteln");
 
-                    myTask.reset();
-
                     left.setFree(this);
                     right.setFree(this);
-                    printLog("Beide Multifunktionswerkzeug zurücklegen");
+                    printLog("Beide Multifunktionswerkzeug zurÃ¼cklegen");
 
-                    inTryoutSleep = true;
+                    timer.cancel();
+
                     Thread.sleep(tryoutTimeMS);
-                    inTryoutSleep = false;
+
+                    timer = new Timer(false);
+                    timer.schedule(new InsaneTimerTask(Thread.currentThread(), this), saneTimeMS);
+
                     printLog("Ausprobieren");
 
                     round++;
@@ -283,29 +257,25 @@ public class Scientist {
                     printLog("Nein");
 
                     left.setFree(this);
-                    printLog("Linkes Multifunktionswerkzeug zurücklegen");
+                    printLog("Linkes Multifunktionswerkzeug zurÃ¼cklegen");
 
                     synchronized (right) {
                         while (!right.isFree()) {
                             right.wait();
                         }
-
                     }
 
                     printLog("Warten, bis rechtes Multifunktionswerkzeug frei wird");
                 }
 
             } catch (InterruptedException e) {
-                left.setFree(this);
-                right.setFree(this);
-                break;
-            } catch (SecurityException ex) {
+                isInsane = true;
+                printLog("Muahahahahahahaaaaaaa!");
                 left.setFree(this);
                 right.setFree(this);
                 break;
             }
         }
-        myTask.cancel();
         timer.cancel();
         timer.purge();
         printLog("Beendet");

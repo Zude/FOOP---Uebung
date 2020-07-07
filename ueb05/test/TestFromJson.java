@@ -3,20 +3,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 
 import examples.EAccessibility;
-import examples.EAnnotation;
 import examples.EArray;
 import examples.EBooleanNull;
 import examples.ECharString;
 import examples.ECycle;
+import examples.EInheritance.EChild;
 import examples.EList;
 import examples.EMapObject;
 import examples.ENumber;
-import examples.EInheritance.EChild;
 import wson.JSONSyntaxException;
 import wson.Wson;
 
@@ -44,6 +41,7 @@ public class TestFromJson {
                 wson.fromJson("false", boolean.class));
         Assert.assertEquals("fromJson: EBooleanNull", eBooleanNull,
                 wson.fromJson(FileReader.readExampleJson("EBooleanNull"), EBooleanNull.class));
+
     }
 
     @Test
@@ -70,13 +68,13 @@ public class TestFromJson {
         Assert.assertEquals("fromJson: EArray", eArray,
                 wson.fromJson(FileReader.readExampleJson("EArray"), EArray.class));
     }
-    
+
     @Test
     public void eList() throws JSONSyntaxException, IOException {
         Assert.assertEquals("fromJson: EList", eList,
                 wson.fromJson(FileReader.readExampleJson("EList"), EList.class));
     }
-    
+
     private void testExampleMapObject(EMapObject e) {
         Assert.assertEquals("_obj (EBooleanNull) in EMapObject", eBooleanNull, e._obj);
 
@@ -106,7 +104,7 @@ public class TestFromJson {
         testExampleMapObject(
                 wson.fromJson(FileReader.readExampleJson("EMapObject"), EMapObject.class));
     }
-    
+
     @Test
     public void eMapObject_whitespace_unordered() throws JSONSyntaxException, IOException {
         // Whitespaces in JSON müssen beim Einlesen übersprungen werden
@@ -142,6 +140,5 @@ public class TestFromJson {
         Assert.assertEquals("fromJson: EInheritance", eChild,
                 wson.fromJson(FileReader.readExampleJson("EInheritance"), EChild.class));
     }
-
 
 }
