@@ -1,16 +1,16 @@
 package wson;
 
-import java.io.IOException;
-import java.io.PushbackReader;
-import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.StringJoiner;
+import java.lang.reflect.Modifier;
+import java.util.*;
+
+import wson.annotations.StoreAs;
 
 /**
  * Eine Klasse zur Serialisierung und Deserialisierung von Java-Werten mittels JSON.
- * 
- * @author kar, mhe, TODO Namen ergänzen
- * 
+ *
+ * @author kar, mhe, Lars Sander, Alexander Löffler
  */
 public class Wson {
     /**
@@ -21,142 +21,158 @@ public class Wson {
 
     /**
      * Deserialisiert einen JSON-String zu einem Java-Wert.
-     * 
+     *
      * @param json Zu deserialisierendes JSON. Muss gültig sein. Darf an erlaubten Stellen
      *            Whitespace enthalten. Werte für nicht in den Java-Klassen enthaltene Felder werden
      *            ignoriert.
      * @param classOfT Klasse des deserialisierten (Wurzel-)Wertes
      * @param <T> Typ des deserialisierten (Wurzel-)Wertes
-     * @pre json != null
-     * @pre classOfT != null
      * @return Der deserialisierte (Wurzel-)Wert
      * @throws JSONSyntaxException Syntax-Fehler bei der JSON-Verarbeitung
+     * @pre json != null
+     * @pre classOfT != null
      */
     public <T> T fromJson(String json, Class<T> classOfT) throws JSONSyntaxException {
         assert json != null;
         assert classOfT != null;
 
-        try {
-            JSONReader r = new JSONReader();
-            PushbackReader pbr = new PushbackReader(new StringReader(json));
+        return null;
+    }
 
-            // TODO JSONParser.readElement mit pbr aufrufen und Ergebnis mit JSONReader konvertieren
-        } catch (IOException e) {
-            throw new RuntimeException("not supposed to happen", e);
+    private String toJsonHelper(Object src, Set<ReferenceWrapper> above) {
+        above.add(new ReferenceWrapper(src));
+
+        // TreeMap damit die String-Keys die natürliche Ordnung behalten
+        final Map<String, String> jsonMap = new TreeMap<>();
+        final JSONWriter w = new JSONWriter();
+
+        // Listen
+        if (Iterable.class.isAssignableFrom(src.getClass())) {
+            return w.iterableToJson(src);
         }
 
-        return null;
+        if (Map.class.isAssignableFrom(src.getClass())) {
+
+            // TODO Auslagern nicht möglich, wegen dem toJsonHelper
+            for (Object key : ((Map) src).keySet()) {
+                jsonMap.put("\"" + w.strToJson(key.toString()) + "\":",
+                        toJsonHelper(((Map) src).get(key), new HashSet<>(above)));
+
+            }
+            return jsonMap.toString();
+        }
+
+        // Arrays
+        if (src.getClass().isArray()) {
+            String arrName = src.getClass().getName();
+
+            // TODO Auslagern nicht möglich, wegen dem toJsonHelper
+            // Mehrdimensionale Arrays rekursiv aufrufen
+            if (arrName.contains("[[")) {
+                String[] arrRes = new String[Array.getLength(src)];
+                for (int i = 0; i < Array.getLength(src); i++) {
+                    arrRes[i] = toJsonHelper(Array.get(src, i), new HashSet<>(above));
+                }
+                return Arrays.toString(arrRes);
+            } else {
+                return "[" + w.arrToJson(src) + "]";
+            }
+        }
+
+        if (src.getClass() == String.class) {
+            return "\"" + w.strToJson(src.toString()) + "\"";
+        }
+
+        if (src.getClass() == Character.class) {
+            return "\"" + src.toString() + "\"";
+        }
+
+        if (w.isPrimWrapper(src)) {
+            return src.toString();
+        }
+
+        Set<Field> fieldsSet = w.getAllFields(src);
+
+        // TODO irgendwie zu einem Stream machen...
+        System.out.println("++++++++++++++" + src.getClass().toString());
+        System.out.println("-------Felder: " + fieldsSet.size());
+
+        for (Field cur : fieldsSet) {
+            try {
+
+                // TODO Streams -> ForEach
+                // Gesicherte Felder verfügbar machen, check auf 0 für default package-private
+                if (Modifier.isPrivate(cur.getModifiers())
+                        || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0) {
+                    cur.setAccessible(true);
+                }
+
+                // TODO Streams -> Filter
+                // Statische Felder und Anonymeklassen ignorieren und cyclische referenzen checken
+                // TODO richtiger null check...
+                if (Modifier.isStatic(cur.getModifiers())
+                        || cur.get(src) != null && cur.get(src).getClass().isAnonymousClass()
+                        || above.contains(new ReferenceWrapper(cur.get(src)))) {
+                    System.out.println("Break for: " + cur);
+                } else {
+                    // Namen des aktuellen Feldes merken
+                    String fName = "\"" + cur.getName() + "\":";
+                    String fValues = null;
+
+                    // TODO Streams -> Filter|ForEach
+                    // Felder mit StoreAs Annotation überschreiben, wenn möglich
+                    if (cur.isAnnotationPresent(StoreAs.class)) {
+                        StoreAs rep = cur.getAnnotation(StoreAs.class);
+                        if (rep != null) {
+                            if (cur.getType().isAssignableFrom(String.class)) {
+                                fValues = "\"" + rep.value() + "\"";
+                            }
+                        }
+                    }
+
+                    // Funktion rekursiv aufrufen
+                    // Überprüfe das die Annotation den Wert nicht überschreibt und das der Wert
+                    // initialisert wurde
+                    // TODO besseres if...
+                    // TODO Streams -> Filter
+                    if (cur.get(src) != null || fValues != null) {
+                        if (fValues == null) {
+                            fValues = toJsonHelper(cur.get(src), new HashSet<>(above));
+                        }
+                        // Finale Map zusammenbauen
+                        jsonMap.put(fName, fValues);
+                    }
+
+                }
+
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                throw new RuntimeException("Fehler beim erstellen der JSON Darstellung. Object: "
+                        + src.toString() + " Feld: " + cur.toString());
+            }
+
+        }
+
+        String result = jsonMap.toString();
+        result = result.replace("=", "");
+        result = result.replace(" ", "");
+
+        System.out.println("Result: ");
+        System.out.println(result);
+
+        return result;
     }
 
     /**
      * Serialisiert einen Java-Wert zu einem JSON-String.
-     * 
+     *
      * @param src Zu serialisierender Wert
      * @return JSON-String (ohne unnötige Whitespaces)
      */
     public String toJson(Object src) {
-        JSONWriter w = new JSONWriter();
 
-        // TODO
-        // Map in Writer damit die Ausgabe in der Korrekten reihenfolge erfolgt?
-        /*
-         * 1. Alle Variablen lesen 2. Entsprechende Writer funktion nutzen 3. Strings des Writers
-         * zusammenbauen
-         */
-        StringJoiner res = new StringJoiner(",");
-        String result = "";
+        Set<ReferenceWrapper> cycle = new HashSet<>();
 
-        System.out.println("|-------------|");
+        return toJsonHelper(src, cycle);
 
-        if (src.getClass().isArray()) {
-
-            result = "[" + w.simpleArrToJson(src) + "]";
-
-        } else if (src.getClass() == String.class) {
-            System.out.println("---String---");
-            System.out.println("Value: " + w.simpleStrToJson(src.toString()));
-            result = "\"" + w.simpleStrToJson(src.toString()) + "\"";
-        }
-        // Check für den Fall das src ein Primitve Wrapper ist
-        else if (src.getClass() == Double.class || src.getClass() == Float.class
-                || src.getClass() == Long.class || src.getClass() == Integer.class
-                || src.getClass() == Short.class || src.getClass() == Character.class
-                || src.getClass() == Byte.class || src.getClass() == Boolean.class) {
-
-            System.out.println("---Wrapper---");
-            System.out.println("Value: " + w.simpleWrapperToJson(src));
-            result = w.simpleWrapperToJson(src);
-
-        } else {
-            System.out.println("---Object---");
-            // Ablauf für nicht primitive Typen
-            Class<?> cl = src.getClass();
-
-            Field[] fields = cl.getFields();
-
-            // TODO Null ignorieren
-            for (Field cur : fields) {
-                System.out.println("--Field--  " + cur);
-
-                try {
-                    if (cur.get(src) == null) {
-                        // TODO bessere Lösung als ein break für null werte
-                        break;
-                    }
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                // Arrays
-                if (cur.getType().isArray()) {
-                    System.out.println("  -Array-");
-                    System.out.println("    Value: " + w.arrToJson(cur, src));
-                    res.add("[]");
-                }
-
-                // TODO check für rekursiven aufruf
-                if (cur.getType() == Double.class || cur.getType() == Float.class
-                        || cur.getType() == Long.class || cur.getType() == Integer.class
-                        || cur.getType() == Short.class || cur.getType() == Character.class
-                        || cur.getType() == Byte.class || cur.getType() == Boolean.class) {
-
-                    System.out.println("  -Wrapper-");
-                    System.out.println("    Value: " + w.wrapperToJson(cur, src));
-                    res.add(w.wrapperToJson(cur, src));
-                }
-                // Primitive in PrimitiveWrapper
-                if (cur.getType().isPrimitive()) {
-                    System.out.println("  -Primitive-");
-                    System.out.println("    Value: " + w.primToJson(cur, src));
-                    res.add(w.primToJson(cur, src));
-                }
-
-                // Strings
-                if (cur.getType() == String.class) {
-                    System.out.println("  -String-");
-                    System.out.println("    Value: " + w.strToJson(cur, src));
-                    res.add(w.strToJson(cur, src));
-                }
-
-                // Obj als Obj
-                if (cur.getType() == Object.class) {
-                    System.out.println("  -Object-");
-                    System.out.println("    Value: " + w.objToJson(cur, src));
-                    res.add(w.objToJson(cur, src));
-                }
-
-                // Collections
-
-                // TODO Check format
-                result = "{" + res.toString() + "}";
-            }
-        }
-
-        System.out.println("Result: ");
-        System.out.println(result);
-        System.out.println("|-------------|");
-        return result;
     }
-
 }
