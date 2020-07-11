@@ -233,7 +233,7 @@ class JSONReader {
             return convertList(desiredType, entry);
         } else if (desiredType == boolean.class || desiredType == Boolean.class
                 || desiredType == Object.class || desiredType == String.class
-                || desiredType == String.class || desiredType == Map.class) {
+                || desiredType == String.class || Map.class.isAssignableFrom(desiredType)) {
             return entry;
         } else if (desiredType == char.class || desiredType == Character.class) {
             return convertStringToStringAndChars(desiredType, entry);

@@ -204,7 +204,7 @@ public class Scientist {
 
             private Thread scientistThread;
 
-            InsaneTimerTask(Thread thread, Scientist scientist) {
+            InsaneTimerTask(Thread thread) {
                 this.scientistThread = thread;
             }
 
@@ -216,7 +216,8 @@ public class Scientist {
         }
 
         Timer timer = new Timer(false);
-        timer.schedule(new InsaneTimerTask(Thread.currentThread(), this), saneTimeMS);
+        TimerTask insaneTask = new InsaneTimerTask(Thread.currentThread());
+        timer.schedule(insaneTask, saneTimeMS);
 
         int round = 0;
         while (round < k) {
@@ -243,12 +244,11 @@ public class Scientist {
                     right.setFree(this);
                     printLog("Beide Multifunktionswerkzeug zurÃ¼cklegen");
 
-                    timer.cancel();
+                    insaneTask.cancel();
 
                     Thread.sleep(tryoutTimeMS);
-
-                    timer = new Timer(false);
-                    timer.schedule(new InsaneTimerTask(Thread.currentThread(), this), saneTimeMS);
+                    insaneTask = new InsaneTimerTask(Thread.currentThread());
+                    timer.schedule(insaneTask, saneTimeMS);
 
                     printLog("Ausprobieren");
 
