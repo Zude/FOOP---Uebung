@@ -1,6 +1,9 @@
 package wson.annotations;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Typ für Annotationen, die zu nutzende Werte für Felder angeben, denen Strings zugewiesen werden

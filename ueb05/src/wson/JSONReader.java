@@ -34,24 +34,16 @@ class JSONReader {
             if (classOfT == boolean.class) {
 
                 return PrimitiveWrapper.wrap(classOfT).cast(value);
-            }
-            // Zahl
-            else if (classOfT == double.class) {
+            } else if (classOfT == double.class) {
 
                 return PrimitiveWrapper.wrap(classOfT).cast(convertDoubleToType(classOfT, value));
             }
-        }
-        // String
-        else if (classOfT == String.class) {
+        } else if (classOfT == String.class) {
             return classOfT.cast(value);
-        }
-        // Primitives Array
-        else if (value instanceof ArrayList) {
+        } else if (value instanceof ArrayList) {
 
             return classOfT.cast(convertArrayListToIntArray(value));
-        }
-        // Komplexe Typen
-        else {
+        } else {
             try {
 
                 Map<?, ?> newEntrys = (HashMap<?, ?>) value;
