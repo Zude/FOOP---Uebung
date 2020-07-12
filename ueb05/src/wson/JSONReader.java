@@ -15,16 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import examples.EAccessibility;
-import examples.EAnnotation;
-import examples.EArray;
 import examples.EBooleanNull;
-import examples.ECharString;
-import examples.ECycle;
-import examples.EInheritance;
-import examples.EList;
-import examples.EMapObject;
-import examples.ENumber;
 
 /**
  * Enthält Hilfsmethoden für {@link Wson#fromJson} zur Konvertierung.
@@ -75,18 +66,11 @@ class JSONReader {
 
                 for (Field field : fields) {
 
-                    // TODO: Funktioniert für accesibility aber nicht für rest...
-                    // TODO: überspringen wenn getname auf leerem objekt
-                    if (!Modifier.isFinal(field.getModifiers())) {
+                    Object newEntry = newEntrys.get(field.getName());
+                    Object newEntryConverted;
 
-                        Object newEntry = newEntrys.get(field.getName());
-
-                        Object newEntryConverted;
-
-                        newEntryConverted = convertEntry(field.getType(), newEntry, field);
-
-                        field.set(result, newEntryConverted);
-                    }
+                    newEntryConverted = convertEntry(field.getType(), newEntry, field);
+                    field.set(result, newEntryConverted);
                 }
 
                 System.out.println(
@@ -117,35 +101,42 @@ class JSONReader {
         return null;
     }
 
-    Object convertEntry(Class desiredType, Object entry, Field field) {
+    private Object convertEntry(Class<?> desiredType, Object entry, Field field) {
 
-        if (desiredType == int[].class) {
-            return convertArrayListToIntArray(entry);
-        } else if (desiredType == int[][].class) {
-            return convertArrayListToIntArrayArray(entry);
-        } else if (desiredType == List.class) {
+        if (desiredType.isArray()) {
+
+            // Wenn der Array mehr als eine Dimension hat
+            if ((1 + desiredType.getName().lastIndexOf('[')) > 1) {
+                return convertArrayListToIntArrayArray(entry);
+            } else {
+                return convertArrayListToIntArray(entry);
+            }
+        } else if (List.class.isAssignableFrom(desiredType)) {
+
             return convertList(desiredType, entry);
         } else if (desiredType == boolean.class || desiredType == Boolean.class
-                || desiredType == Object.class || desiredType == String.class
-                || desiredType == String.class) {
+                || desiredType == Object.class || desiredType == String.class) {
+
             return entry;
         } else if (Map.class.isAssignableFrom(desiredType)) {
+
             return convertMap(desiredType, entry, field);
         } else if (desiredType == char.class || desiredType == Character.class) {
-            return convertStringToStringAndChars(desiredType, entry);
-        } else if (desiredType == EAccessibility.class || desiredType == EAnnotation.class
-                || desiredType == EArray.class || desiredType == EBooleanNull.class
-                || desiredType == ECharString.class || desiredType == ECycle.class
-                || desiredType == EInheritance.class || desiredType == EList.class
-                || desiredType == EMapObject.class || desiredType == ENumber.class) {
-            return convert2(entry, desiredType);
-        } else {
-            return convertDoubleToType(desiredType, entry);
-        }
 
+            return convertStringToStringAndChars(desiredType, entry);
+        } else if (Number.class.isAssignableFrom(desiredType) || desiredType.isPrimitive()) {
+
+            return convertDoubleToType(desiredType, entry);
+        } else if (Object.class.isAssignableFrom(desiredType)) {
+
+            return convert2(entry, (Class<?>) desiredType);
+        } else {
+
+            return null;
+        }
     }
 
-    Object convertStringToStringAndChars(Class desiredType, Object entry) {
+    private Object convertStringToStringAndChars(Class<?> desiredType, Object entry) {
 
         if (desiredType == char.class || desiredType == Character.class) {
             return entry.toString().charAt(0);
@@ -155,7 +146,7 @@ class JSONReader {
 
     }
 
-    public Set<Field> getAllFieldsFiltered(Object src) {
+    private Set<Field> getAllFieldsFiltered(Object src) {
         Class<?> cl = src.getClass();
 
         Set<Field> fieldsSet = new HashSet<Field>();
@@ -170,15 +161,21 @@ class JSONReader {
             fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
         }
 
-        fieldsSet.stream()
-                .filter(cur -> Modifier.isPrivate(cur.getModifiers())
-                        || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0)
-                .forEach(cur -> cur.setAccessible(true));
+        for (Field field : fieldsSet) {
+            if (!Modifier.isFinal(field.getModifiers())) {
+                if (Modifier.isPrivate(field.getModifiers())
+                        || Modifier.isProtected(field.getModifiers())
+                        || field.getModifiers() == 0) {
+                    field.setAccessible(true);
+                }
+                result.add(field);
+            }
+        }
 
-        return fieldsSet;
+        return result;
     }
 
-    Object convertMap(Class desiredType, Object entry, Field field) {
+    private Object convertMap(Class<?> desiredType, Object entry, Field field) {
 
         Map<?, ?> newEntrys = (HashMap<?, ?>) entry;
         Map<String, Object> result = new HashMap<String, Object>();
@@ -210,7 +207,7 @@ class JSONReader {
 
     }
 
-    Object convertList(Class desiredType, Object entry) {
+    private Object convertList(Class desiredType, Object entry) {
 
         ArrayList<?> entryArrayList = (ArrayList<?>) entry;
 
@@ -230,7 +227,7 @@ class JSONReader {
         return result;
     }
 
-    Object convertArrayListToIntArrayArray(Object entry) {
+    private Object convertArrayListToIntArrayArray(Object entry) {
 
         ArrayList<?> entryArrayList = (ArrayList<?>) entry;
 
@@ -250,7 +247,7 @@ class JSONReader {
         return result;
     }
 
-    Object convertArrayListToIntArray(Object entry) {
+    private Object convertArrayListToIntArray(Object entry) {
 
         ArrayList<?> entryArrayList = (ArrayList<?>) entry;
 
@@ -270,7 +267,7 @@ class JSONReader {
         return result;
     }
 
-    Number convertDoubleToType(Class desiredType, Object doubleNumber) {
+    private Number convertDoubleToType(Class desiredType, Object doubleNumber) {
 
         double number = (double) doubleNumber;
 
