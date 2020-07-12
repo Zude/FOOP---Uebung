@@ -25,7 +25,7 @@ import examples.EBooleanNull;
  */
 class JSONReader {
 
-    public <T> T convert2(Object value, Class<T> classOfT) {
+    public <T> T convert(Object value, Class<T> classOfT) {
 
         System.out.println("Start convert to: " + classOfT + " from: " + value);
 
@@ -129,7 +129,7 @@ class JSONReader {
             return convertDoubleToType(desiredType, entry);
         } else if (Object.class.isAssignableFrom(desiredType)) {
 
-            return convert2(entry, (Class<?>) desiredType);
+            return convert(entry, (Class<?>) desiredType);
         } else {
 
             return null;
@@ -196,7 +196,7 @@ class JSONReader {
                 Field[] fields = EBooleanNull.class.getFields();
 
                 result.put(kvPair.getKey().toString(),
-                        convert2(kvPair.getValue(), (Class<?>) valueType));
+                        convert(kvPair.getValue(), (Class<?>) valueType));
 
                 return result;
             }
