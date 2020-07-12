@@ -24,10 +24,9 @@ public class EAccessibility {
 
         this._private = 42;
         this._friendly = 143;
-        
+
         return this;
     }
-    
 
     @Override
     public int hashCode() {
@@ -59,7 +58,7 @@ public class EAccessibility {
             return false;
         return true;
     }
-    
+
     @Override
     public String toString() {
         return "EAccessibility [_final=" + _final + ", _private=" + _private + ", _friendly="

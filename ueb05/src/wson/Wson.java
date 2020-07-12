@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
 
 import java.util.stream.Collectors;
 
@@ -43,6 +46,11 @@ public class Wson {
         return null;
     }
 
+            return r.convert2(JSONParser.readElement(pbr), classOfT);
+
+            // TODO JSONParser.readElement mit pbr aufrufen und Ergebnis mit JSONReader konvertieren
+        } catch (IOException e) {
+            throw new RuntimeException("not supposed to happen", e);
     private String toJsonHelper(Object src, Set<ReferenceWrapper> above) {
         final JSONWriter w = new JSONWriter();
         final Map<Object, String> jsonMap = new HashMap<>();

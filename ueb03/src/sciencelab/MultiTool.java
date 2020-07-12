@@ -36,7 +36,7 @@ public class MultiTool {
      * 
      * @return isFree
      */
-    public boolean isFree() {
+    public synchronized boolean isFree() {
         return isFree;
     }
 

@@ -1,5 +1,29 @@
 package wson;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import examples.EAccessibility;
+import examples.EAnnotation;
+import examples.EArray;
+import examples.EBooleanNull;
+import examples.ECharString;
+import examples.ECycle;
+import examples.EInheritance;
+import examples.EList;
+import examples.EMapObject;
+import examples.ENumber;
 
 /**
  * Enthält Hilfsmethoden für {@link Wson#fromJson} zur Konvertierung.
@@ -8,8 +32,264 @@ package wson;
  *
  */
 class JSONReader {
-    
-    // TODO: Methoden hinzufügen
 
+    public <T> T convert2(Object value, Class<T> classOfT) {
+
+        System.out.println("Start convert to: " + classOfT + " from: " + value);
+
+        // Primitiv
+        if (classOfT.isPrimitive()) {
+
+            // Boolean
+            if (classOfT == boolean.class) {
+
+                return PrimitiveWrapper.wrap(classOfT).cast(value);
+            }
+            // Zahl
+            else if (classOfT == double.class) {
+
+                return PrimitiveWrapper.wrap(classOfT).cast(convertDoubleToType(classOfT, value));
+            }
+        }
+        // String
+        else if (classOfT == String.class) {
+            return classOfT.cast(value);
+        }
+        // Primitives Array
+        else if (value instanceof ArrayList) {
+
+            return classOfT.cast(convertArrayListToIntArray(value));
+        }
+        // Komplexe Typen
+        else {
+            try {
+
+                Map<?, ?> newEntrys = (HashMap<?, ?>) value;
+
+                Constructor<T> constructor = classOfT.getConstructor();
+                Object result = constructor.newInstance();
+
+                Set<Field> fields = new HashSet<Field>();
+                fields.addAll(getAllFieldsFiltered(result));
+
+                for (Field field : fields) {
+
+                    // TODO: Funktioniert für accesibility aber nicht für rest...
+                    // TODO: überspringen wenn getname auf leerem objekt
+                    if (!Modifier.isFinal(field.getModifiers())) {
+
+                        System.out.println(
+                                "Feld: " + field.getType() + " wird adsadsadadsa! Ist anonym: "
+                                        + field.getType().isAnonymousClass());
+                        Object newEntry = newEntrys.get(field.getName());
+
+                        Object newEntryConverted = convertEntry(field.getType(), newEntry);
+
+                        field.set(result, newEntryConverted);
+                    }
+                }
+
+                System.out.println(
+                        "End convert to: " + classOfT + " Result: " + classOfT.cast(result));
+                return classOfT.cast(result);
+
+            } catch (SecurityException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalArgumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (NoSuchMethodException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (InstantiationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    Object convertEntry(Class desiredType, Object entry) {
+
+        if (desiredType == int[].class) {
+            return convertArrayListToIntArray(entry);
+        } else if (desiredType == int[][].class) {
+            return convertArrayListToIntArrayArray(entry);
+        } else if (desiredType == List.class) {
+            return convertList(desiredType, entry);
+        } else if (desiredType == boolean.class || desiredType == Boolean.class
+                || desiredType == Object.class || desiredType == String.class
+                || desiredType == String.class) {
+            return entry;
+        } else if (Map.class.isAssignableFrom(desiredType)) {
+            return convertMap(desiredType, entry);
+        } else if (desiredType == char.class || desiredType == Character.class) {
+            return convertStringToStringAndChars(desiredType, entry);
+        } else if (desiredType == EAccessibility.class || desiredType == EAnnotation.class
+                || desiredType == EArray.class || desiredType == EBooleanNull.class
+                || desiredType == ECharString.class || desiredType == ECycle.class
+                || desiredType == EInheritance.class || desiredType == EList.class
+                || desiredType == EMapObject.class || desiredType == ENumber.class) {
+            return convert2(entry, desiredType);
+        } else {
+            return convertDoubleToType(desiredType, entry);
+        }
+
+    }
+
+    Object convertStringToStringAndChars(Class desiredType, Object entry) {
+
+        if (desiredType == char.class || desiredType == Character.class) {
+            return entry.toString().charAt(0);
+        } else {
+            return entry;
+        }
+
+    }
+
+    public Set<Field> getAllFieldsFiltered(Object src) {
+        Class<?> cl = src.getClass();
+
+        Set<Field> fieldsSet = new HashSet<Field>();
+        Set<Field> result = new HashSet<Field>();
+        fieldsSet.addAll(Arrays.asList(cl.getFields()));
+        fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
+
+        // Private Felder aus Superklassen lesen
+        // TODO: Final check hier
+        while (cl.getSuperclass() != null) {
+            cl = cl.getSuperclass();
+            fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
+        }
+
+        fieldsSet.stream()
+                .filter(cur -> Modifier.isPrivate(cur.getModifiers())
+                        || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0)
+                .forEach(cur -> cur.setAccessible(true));
+
+        return fieldsSet;
+    }
+
+    Object convertMap(Class desiredType, Object entry) {
+
+        Map<?, ?> newEntrys = (HashMap<?, ?>) entry;
+        Map<String, Object> result = new HashMap<String, Object>();
+
+        Field testMap;
+        try {
+            testMap = desiredType.getDeclaredField("_map");
+            testMap.setAccessible(true);
+
+            ParameterizedType type = (ParameterizedType) testMap.getGenericType();
+            System.out.println(type);
+        } catch (NoSuchFieldException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (newEntrys.get("o") != null) {
+            for (Entry<?, ?> kvPair : newEntrys.entrySet()) {
+
+                Field[] fields = EBooleanNull.class.getFields();
+
+                result.put(kvPair.getKey().toString(),
+                        convert2(kvPair.getValue(), EBooleanNull.class));
+
+                return result;
+            }
+            return result;
+        } else {
+            return entry;
+        }
+
+    }
+
+    Object convertList(Class desiredType, Object entry) {
+
+        ArrayList<?> entryArrayList = (ArrayList<?>) entry;
+
+        ArrayList<Integer> result = new ArrayList<Integer>();
+
+        for (int i = 0; i < entryArrayList.size(); i++) {
+
+            Object convertedValue = null;
+
+            if (entryArrayList.get(i).getClass() == Double.class) {
+                convertedValue = convertDoubleToType(Integer.class, entryArrayList.get(i));
+            }
+
+            result.add(i, (Integer) convertedValue);
+        }
+
+        return result;
+    }
+
+    Object convertArrayListToIntArrayArray(Object entry) {
+
+        ArrayList<?> entryArrayList = (ArrayList<?>) entry;
+
+        int[][] result = new int[entryArrayList.size()][];
+
+        for (int i = 0; i < entryArrayList.size(); i++) {
+
+            Object convertedValue = null;
+
+            if (entryArrayList.get(i).getClass() == ArrayList.class) {
+                convertedValue = convertArrayListToIntArray(entryArrayList.get(i));
+            }
+
+            result[i] = (int[]) convertedValue;
+        }
+
+        return result;
+    }
+
+    Object convertArrayListToIntArray(Object entry) {
+
+        ArrayList<?> entryArrayList = (ArrayList<?>) entry;
+
+        int[] result = new int[entryArrayList.size()];
+
+        for (int i = 0; i < entryArrayList.size(); i++) {
+
+            Object convertedValue = null;
+
+            if (entryArrayList.get(i).getClass() == Double.class) {
+                convertedValue = convertDoubleToType(int.class, entryArrayList.get(i));
+            }
+
+            result[i] = (int) convertedValue;
+        }
+
+        return result;
+    }
+
+    Number convertDoubleToType(Class desiredType, Object doubleNumber) {
+
+        double number = (double) doubleNumber;
+
+        if (desiredType == float.class || desiredType == Float.class) {
+            return (float) number;
+        } else if (desiredType == int.class || desiredType == Integer.class) {
+            return (int) number;
+        } else if (desiredType == short.class || desiredType == Short.class) {
+            return (short) number;
+        } else if (desiredType == byte.class || desiredType == Byte.class) {
+            return (byte) number;
+        } else if (desiredType == long.class || desiredType == Long.class) {
+            return (long) number;
+        }
+        return number;
+    }
 
 }
