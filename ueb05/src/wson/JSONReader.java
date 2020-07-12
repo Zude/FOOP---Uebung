@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,12 +79,11 @@ class JSONReader {
                     // TODO: überspringen wenn getname auf leerem objekt
                     if (!Modifier.isFinal(field.getModifiers())) {
 
-                        System.out.println(
-                                "Feld: " + field.getType() + " wird adsadsadadsa! Ist anonym: "
-                                        + field.getType().isAnonymousClass());
                         Object newEntry = newEntrys.get(field.getName());
 
-                        Object newEntryConverted = convertEntry(field.getType(), newEntry);
+                        Object newEntryConverted;
+
+                        newEntryConverted = convertEntry(field.getType(), newEntry, field);
 
                         field.set(result, newEntryConverted);
                     }
@@ -93,6 +93,7 @@ class JSONReader {
                         "End convert to: " + classOfT + " Result: " + classOfT.cast(result));
                 return classOfT.cast(result);
 
+                // TODO: json exception
             } catch (SecurityException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -116,7 +117,7 @@ class JSONReader {
         return null;
     }
 
-    Object convertEntry(Class desiredType, Object entry) {
+    Object convertEntry(Class desiredType, Object entry, Field field) {
 
         if (desiredType == int[].class) {
             return convertArrayListToIntArray(entry);
@@ -129,7 +130,7 @@ class JSONReader {
                 || desiredType == String.class) {
             return entry;
         } else if (Map.class.isAssignableFrom(desiredType)) {
-            return convertMap(desiredType, entry);
+            return convertMap(desiredType, entry, field);
         } else if (desiredType == char.class || desiredType == Character.class) {
             return convertStringToStringAndChars(desiredType, entry);
         } else if (desiredType == EAccessibility.class || desiredType == EAnnotation.class
@@ -177,33 +178,28 @@ class JSONReader {
         return fieldsSet;
     }
 
-    Object convertMap(Class desiredType, Object entry) {
+    Object convertMap(Class desiredType, Object entry, Field field) {
 
         Map<?, ?> newEntrys = (HashMap<?, ?>) entry;
         Map<String, Object> result = new HashMap<String, Object>();
 
-        Field testMap;
-        try {
-            testMap = desiredType.getDeclaredField("_map");
-            testMap.setAccessible(true);
+        Type valueType = null;
 
-            ParameterizedType type = (ParameterizedType) testMap.getGenericType();
-            System.out.println(type);
-        } catch (NoSuchFieldException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if (Map.class.isAssignableFrom(field.getType())) {
+            if (ParameterizedType.class.isAssignableFrom(field.getGenericType().getClass())) {
+                ParameterizedType type = (ParameterizedType) field.getGenericType();
+                valueType = type.getActualTypeArguments()[1];
+
+            }
         }
 
-        if (newEntrys.get("o") != null) {
+        if (valueType != null) {
             for (Entry<?, ?> kvPair : newEntrys.entrySet()) {
 
                 Field[] fields = EBooleanNull.class.getFields();
 
                 result.put(kvPair.getKey().toString(),
-                        convert2(kvPair.getValue(), EBooleanNull.class));
+                        convert2(kvPair.getValue(), (Class<?>) valueType));
 
                 return result;
             }
