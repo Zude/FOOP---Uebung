@@ -4,10 +4,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import examples.EAccessibility;
 import examples.EAnnotation;
@@ -64,8 +67,9 @@ class JSONReader {
                 Constructor<T> constructor = classOfT.getConstructor();
                 Object result = constructor.newInstance();
 
-                Field[] fields1 = result.getClass().getFields();
-                Field[] fields2 = result.getClass().getDeclaredFields();
+                Set<Field> fields = new HashSet<Field>();
+                fields.addAll(getAllFields(result));
+                // fieldsSet.addAll(Arrays.asList(result.getClass().getDeclaredFields()));
 
                 for (Field field : fields) {
 
@@ -139,6 +143,22 @@ class JSONReader {
             return entry;
         }
 
+    }
+
+    public Set<Field> getAllFields(Object src) {
+        Class<?> cl = src.getClass();
+
+        Set<Field> fieldsSet = new HashSet<Field>();
+        fieldsSet.addAll(Arrays.asList(cl.getFields()));
+        // fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
+
+        // Private Felder aus Superklassen lesen
+        while (cl.getSuperclass() != null) {
+            cl = cl.getSuperclass();
+            fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
+        }
+
+        return fieldsSet;
     }
 
     Object convertMap(Class desiredType, Object entry) {
