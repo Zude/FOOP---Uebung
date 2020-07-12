@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import examples.EAccessibility;
 import examples.EAnnotation;
@@ -27,133 +28,9 @@ import examples.ENumber;
  */
 class JSONReader {
 
-    public <T> T convert(Object value, Class<T> classOfT) {
-
-        // Primitiv
-        if (classOfT.isPrimitive()) {
-
-            // Boolean
-            if (classOfT == boolean.class) {
-
-                return PrimitiveWrapper.wrap(classOfT).cast(value);
-            }
-            // Zahl
-            else if (classOfT == double.class) {
-
-                return PrimitiveWrapper.wrap(classOfT).cast(convertDoubleToType(classOfT, value));
-            }
-        }
-        // String
-        else if (classOfT == String.class) {
-            return classOfT.cast(value);
-        }
-        // Map
-        else {
-
-            try {
-
-                if (value instanceof Map<?, ?>) {
-                    Map<?, ?> jsonObject;
-                    jsonObject = (HashMap<?, ?>) value;
-
-                    Constructor<T> constructor = classOfT.getConstructor();
-                    Object result = constructor.newInstance();
-
-                    for (Map.Entry<?, ?> entry : jsonObject.entrySet()) {
-
-                        Field field = classOfT.getField(entry.getKey().toString());
-
-                        Object convertedValue = null;
-
-                        if (entry.getValue().getClass() == Double.class) {
-                            convertedValue = convertDoubleToType(field.getType(), entry.getValue());
-                        } else if (entry.getValue().getClass() == String.class) {
-
-                            if (field.getType() == char.class
-                                    || field.getType() == Character.class) {
-                                convertedValue = entry.getValue().toString().charAt(0);
-                            } else {
-                                convertedValue = entry.getValue();
-                            }
-
-                        } else if (entry.getValue().getClass() == ArrayList.class) {
-
-                            ArrayList<?> jsonObject2;
-                            jsonObject2 = (ArrayList<?>) entry.getValue();
-
-                            int[] res = new int[jsonObject2.size()];
-
-                            for (int i = 0; i < jsonObject2.size(); i++) {
-
-                                Object convertedValue2 = null;
-
-                                if (jsonObject2.get(i).getClass() == ArrayList.class) {
-                                    convertedValue2 =
-                                            convertDoubleToType(int.class, jsonObject2.get(i));
-                                }
-
-                                res[i] = (int) convertedValue;
-                            }
-                            return classOfT.cast(result);
-                        }
-
-                        if (field.getType().isPrimitive()) {
-
-                            field.set(result,
-                                    PrimitiveWrapper.wrap(field.getType()).cast(convertedValue));
-                        } else {
-                            field.set(result, convertedValue);
-                        }
-                    }
-
-                    return classOfT.cast(result);
-                }
-                // ArrayList
-                else if (value instanceof ArrayList) {
-                    ArrayList<?> list;
-                    list = (ArrayList<?>) value;
-
-                    int[] result = new int[list.size()];
-
-                    for (int i = 0; i < list.size(); i++) {
-
-                        Object convertedValue = null;
-
-                        if (list.get(i).getClass() == Double.class) {
-                            convertedValue = convertDoubleToType(int.class, list.get(i));
-                        }
-
-                        result[i] = (int) convertedValue;
-                    }
-                    return classOfT.cast(result);
-                }
-
-            } catch (NoSuchFieldException | SecurityException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (NoSuchMethodException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            } catch (InstantiationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-        }
-
-        return null;
-    }
-
     public <T> T convert2(Object value, Class<T> classOfT) {
+
+        System.out.println("Start convert to: " + classOfT + " from: " + value);
 
         // Primitiv
         if (classOfT.isPrimitive()) {
@@ -198,6 +75,8 @@ class JSONReader {
                     field.set(result, newEntryConverted);
                 }
 
+                System.out.println(
+                        "End convert to: " + classOfT + " Result: " + classOfT.cast(result));
                 return classOfT.cast(result);
 
             } catch (SecurityException e) {
@@ -233,8 +112,10 @@ class JSONReader {
             return convertList(desiredType, entry);
         } else if (desiredType == boolean.class || desiredType == Boolean.class
                 || desiredType == Object.class || desiredType == String.class
-                || desiredType == String.class || Map.class.isAssignableFrom(desiredType)) {
+                || desiredType == String.class) {
             return entry;
+        } else if (Map.class.isAssignableFrom(desiredType)) {
+            return convertMap(desiredType, entry);
         } else if (desiredType == char.class || desiredType == Character.class) {
             return convertStringToStringAndChars(desiredType, entry);
         } else if (desiredType == EAccessibility.class || desiredType == EAnnotation.class
@@ -253,6 +134,28 @@ class JSONReader {
 
         if (desiredType == char.class || desiredType == Character.class) {
             return entry.toString().charAt(0);
+        } else {
+            return entry;
+        }
+
+    }
+
+    Object convertMap(Class desiredType, Object entry) {
+
+        Map<?, ?> newEntrys = (HashMap<?, ?>) entry;
+        Map<String, Object> result = new HashMap<String, Object>();
+
+        if (newEntrys.get("o") != null) {
+            for (Entry<?, ?> kvPair : newEntrys.entrySet()) {
+
+                Field[] fields = EBooleanNull.class.getFields();
+
+                result.put(kvPair.getKey().toString(),
+                        convert2(kvPair.getValue(), EBooleanNull.class));
+
+                return result;
+            }
+            return result;
         } else {
             return entry;
         }

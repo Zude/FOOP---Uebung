@@ -80,6 +80,8 @@ public class TestFromJson {
 
         Map<String, EBooleanNull> _map = new HashMap<>();
         _map.put("o", new EBooleanNull().init());
+        System.out.println("Should be: " + _map);
+        System.out.println("Is : " + e._map);
         Assert.assertEquals("_map in EMapObject", _map, e._map);
 
         Map<Object, Object> objAsMap = new HashMap<>();
