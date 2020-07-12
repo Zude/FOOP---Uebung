@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -74,6 +75,7 @@ class JSONReader {
                 for (Field field : fields) {
 
                     // TODO: Funktioniert für accesibility aber nicht für rest...
+                    // TODO: überspringen wenn getname auf leerem objekt
                     if (!Modifier.isFinal(field.getModifiers())) {
 
                         System.out.println(
@@ -161,6 +163,7 @@ class JSONReader {
         fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
 
         // Private Felder aus Superklassen lesen
+        // TODO: Final check hier
         while (cl.getSuperclass() != null) {
             cl = cl.getSuperclass();
             fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
@@ -178,6 +181,21 @@ class JSONReader {
 
         Map<?, ?> newEntrys = (HashMap<?, ?>) entry;
         Map<String, Object> result = new HashMap<String, Object>();
+
+        Field testMap;
+        try {
+            testMap = desiredType.getDeclaredField("_map");
+            testMap.setAccessible(true);
+
+            ParameterizedType type = (ParameterizedType) testMap.getGenericType();
+            System.out.println(type);
+        } catch (NoSuchFieldException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         if (newEntrys.get("o") != null) {
             for (Entry<?, ?> kvPair : newEntrys.entrySet()) {
