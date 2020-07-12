@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import examples.EBooleanNull;
-
 /**
  * Enthält Hilfsmethoden für {@link Wson#fromJson} zur Konvertierung.
  * 
@@ -25,7 +23,7 @@ import examples.EBooleanNull;
  */
 class JSONReader {
 
-    public <T> T convert(Object value, Class<T> classOfT) {
+    public <T> T convert(Object value, Class<T> classOfT) throws JSONSyntaxException {
 
         System.out.println("Start convert to: " + classOfT + " from: " + value);
 
@@ -78,30 +76,18 @@ class JSONReader {
                 return classOfT.cast(result);
 
                 // TODO: json exception
-            } catch (SecurityException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (NoSuchMethodException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            } catch (InstantiationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                // TODO Auto-generated catch block
+            } catch (SecurityException | IllegalArgumentException | IllegalAccessException
+                    | NoSuchMethodException | InstantiationException
+                    | InvocationTargetException e) {
+
                 e.printStackTrace();
             }
         }
         return null;
     }
 
-    private Object convertEntry(Class<?> desiredType, Object entry, Field field) {
+    private Object convertEntry(Class<?> desiredType, Object entry, Field field)
+            throws JSONSyntaxException {
 
         if (desiredType.isArray()) {
 
@@ -175,31 +161,26 @@ class JSONReader {
         return result;
     }
 
-    private Object convertMap(Class<?> desiredType, Object entry, Field field) {
+    private Object convertMap(Class<?> desiredType, Object entry, Field field)
+            throws JSONSyntaxException {
 
         Map<?, ?> newEntrys = (HashMap<?, ?>) entry;
         Map<String, Object> result = new HashMap<String, Object>();
 
         Type valueType = null;
 
-        if (Map.class.isAssignableFrom(field.getType())) {
-            if (ParameterizedType.class.isAssignableFrom(field.getGenericType().getClass())) {
-                ParameterizedType type = (ParameterizedType) field.getGenericType();
-                valueType = type.getActualTypeArguments()[1];
-
-            }
+        if (ParameterizedType.class.isAssignableFrom(field.getGenericType().getClass())) {
+            ParameterizedType type = (ParameterizedType) field.getGenericType();
+            valueType = type.getActualTypeArguments()[1];
         }
 
         if (valueType != null) {
+
             for (Entry<?, ?> kvPair : newEntrys.entrySet()) {
-
-                Field[] fields = EBooleanNull.class.getFields();
-
                 result.put(kvPair.getKey().toString(),
                         convert(kvPair.getValue(), (Class<?>) valueType));
-
-                return result;
             }
+
             return result;
         } else {
             return entry;
@@ -207,7 +188,7 @@ class JSONReader {
 
     }
 
-    private Object convertList(Class desiredType, Object entry) {
+    private Object convertList(Class<?> desiredType, Object entry) {
 
         ArrayList<?> entryArrayList = (ArrayList<?>) entry;
 
@@ -267,7 +248,7 @@ class JSONReader {
         return result;
     }
 
-    private Number convertDoubleToType(Class desiredType, Object doubleNumber) {
+    private Number convertDoubleToType(Class<?> desiredType, Object doubleNumber) {
 
         double number = (double) doubleNumber;
 
