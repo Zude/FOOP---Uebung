@@ -64,18 +64,19 @@ class JSONReader {
 
                 for (Field field : fields) {
 
-                    Object newEntry = newEntrys.get(field.getName());
-                    Object newEntryConverted;
+                    if (newEntrys.containsKey(field.getName())) {
 
-                    newEntryConverted = convertEntry(field.getType(), newEntry, field);
-                    field.set(result, newEntryConverted);
+                        Object newEntry = newEntrys.get(field.getName());
+                        Object newEntryConverted;
+
+                        newEntryConverted = convertEntry(field.getType(), newEntry, field);
+                        field.set(result, newEntryConverted);
+                    }
                 }
 
                 System.out.println(
                         "End convert to: " + classOfT + " Result: " + classOfT.cast(result));
                 return classOfT.cast(result);
-
-                // TODO: json exception
             } catch (SecurityException | IllegalArgumentException | IllegalAccessException
                     | NoSuchMethodException | InstantiationException
                     | InvocationTargetException e) {
