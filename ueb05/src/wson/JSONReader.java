@@ -236,10 +236,11 @@ class JSONReader {
      * 
      * @param desiredType Der Typ des resultierenden Objektes
      * @param entry Der zu konvertierende Eintrag
+     * @param field feld für den component type
      * @pre desiredType darf nicht null sein
      * @pre entry darf nicht null sein
      * @return Das konvertierte Objekt
-     * @throws JSONSyntaxException
+     * @throws JSONSyntaxException JSON Error
      */
     private List<?> convertList(Class<?> desiredType, Object entry, Field field)
             throws JSONSyntaxException {
