@@ -64,7 +64,8 @@ class JSONReader {
                 Constructor<T> constructor = classOfT.getConstructor();
                 Object result = constructor.newInstance();
 
-                Field[] fields = result.getClass().getFields();
+                Field[] fields1 = result.getClass().getFields();
+                Field[] fields2 = result.getClass().getDeclaredFields();
 
                 for (Field field : fields) {
 
