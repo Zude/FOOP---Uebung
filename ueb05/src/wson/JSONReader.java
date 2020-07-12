@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * Enthält Hilfsmethoden für {@link Wson#fromJson} zur Konvertierung.
  * 
- * @author kar, mhe, TODO Namen ergänzen
+ * @author kar, mhe, Lars Sander, Alexander Löffler
  *
  */
 class JSONReader {
@@ -29,10 +29,14 @@ class JSONReader {
      * @param <T> Der Typ des resultierenen Elementes
      * @param value Das zu konvertierende Element
      * @param classOfT Die Klasse des resultierenden Elementes
+     * @pre callOfT darf nicht null sein
+     * @pre value darf nicht null sein
      * @return Das konvertierte Element
-     * @throws JSONSyntaxException
+     * @throws JSONSyntaxException JSON Fehler
      */
     public <T> T convert(Object value, Class<T> classOfT) throws JSONSyntaxException {
+        assert (classOfT != null);
+        assert (value != null);
 
         // Überprüft die Klasse und entscheidet über die art der konvertierung
         if (classOfT.isPrimitive()) {
@@ -88,9 +92,11 @@ class JSONReader {
      * Gibt eine Menge von Felder für das Übergebene Objekt zurück
      * 
      * @param src Das Objekt, welche Felder ausgelesen werden sollen
+     * @pre src darf nicht Null sein
      * @return Ein Set von Feldern
      */
     private Set<Field> getAllFieldsFiltered(Object src) {
+        assert (src != null);
 
         Class<?> cl = src.getClass();
 
@@ -121,19 +127,24 @@ class JSONReader {
     }
 
     /**
-     * Konvertiert einen Eintrag in das gewünschte Objekt
+     * Konvertiert einen Eintrag in das gewünschte Objekt, jeh nach Zieltyp
      * 
      * @param desiredType Ziel Typ
      * @param entry der zu konvertierende Eintrag
      * @param field das Feld in dem das Resultat geschrieben werden soll
+     * @pre desiredType darf nicht null sein
+     * @pre entry darf nicht null sein
+     * @pre field darf nicht null sein
      * @return Das Konvertierte Objekt
-     * @throws JSONSyntaxException
+     * @throws JSONSyntaxException JSON Fehler
      */
     private Object convertEntry(Class<?> desiredType, Object entry, Field field)
             throws JSONSyntaxException {
+        assert (desiredType != null);
+        assert (entry != null);
+        assert (field != null);
 
         if (desiredType.isArray()) {
-
             // Wenn der Array mehr als eine Dimension hat
             if ((1 + desiredType.getName().lastIndexOf('[')) > 1) {
                 return convertArrayListMult(entry, desiredType);
@@ -160,18 +171,23 @@ class JSONReader {
     }
 
     /**
-     * @param desiredType
-     * @param entry
-     * @return
+     * Konvertiert den übergebenen String
+     * 
+     * @param desiredType desiredType Der Typ des resultierenden Objektes
+     * @param entry Der zu konvertierende Eintrag
+     * @pre desiredType darf nicht null sein
+     * @pre entry darf nicht null sein
+     * @return Das konvertierte String
      */
     private Object convertString(Class<?> desiredType, Object entry) {
+        assert (desiredType != null);
+        assert (entry != null);
 
         if (desiredType == char.class || desiredType == Character.class) {
             return entry.toString().charAt(0);
         } else {
             return entry;
         }
-
     }
 
     /**
@@ -180,11 +196,17 @@ class JSONReader {
      * @param desiredType Der Typ des resultierenden Objektes
      * @param entry Der zu konvertierende Eintrag
      * @param field Das Feld in das das Objekt später geschrieben werden soll
+     * @pre desiredType darf nicht null sein
+     * @pre entry darf nicht null sein
+     * @pre field darf nicht null sein
      * @return Das konvertierte Objekt
-     * @throws JSONSyntaxException
+     * @throws JSONSyntaxException JSON Fehler
      */
-    private Object convertMap(Class<?> desiredType, Object entry, Field field)
+    private Map<?, ?> convertMap(Class<?> desiredType, Object entry, Field field)
             throws JSONSyntaxException {
+        assert (desiredType != null);
+        assert (entry != null);
+        assert (field != null);
 
         Map<?, ?> newEntrys = (HashMap<?, ?>) entry;
         Map<String, Object> result = new HashMap<String, Object>();
@@ -205,9 +227,8 @@ class JSONReader {
 
             return result;
         } else {
-            return entry;
+            return (Map<?, ?>) entry;
         }
-
     }
 
     /**
@@ -215,9 +236,13 @@ class JSONReader {
      * 
      * @param desiredType Der Typ des resultierenden Objektes
      * @param entry Der zu konvertierende Eintrag
+     * @pre desiredType darf nicht null sein
+     * @pre entry darf nicht null sein
      * @return Das konvertierte Objekt
      */
-    private Object convertList(Class<?> desiredType, Object entry) {
+    private List<?> convertList(Class<?> desiredType, Object entry) {
+        assert (desiredType != null);
+        assert (entry != null);
 
         ArrayList<?> entryArrayList = (ArrayList<?>) entry;
 
@@ -241,9 +266,14 @@ class JSONReader {
      * Konvertiert die übergebene Liste in ein Array mit mehr als einer Dimension
      * 
      * @param entry Der zu konvertierende Eintrag
-     * @return
+     * @param desiredType Der Typ des resultierenden Objektes
+     * @pre desiredType darf nicht null sein
+     * @pre entry darf nicht null sein
+     * @return Das Ergebniss Array
      */
     private Object convertArrayListMult(Object entry, Class<?> desiredType) {
+        assert (desiredType != null);
+        assert (entry != null);
 
         ArrayList<?> entryArrayList = (ArrayList<?>) entry;
 
@@ -264,20 +294,20 @@ class JSONReader {
 
             return convertArrayList(entryArrayList, desiredType);
         }
-
     }
 
     /**
-     * @param entry
-     * @return
-     * @throws SecurityException
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     * @throws InstantiationException
+     * Konvertiert das Ein Dimensionale Array
+     * 
+     * @param entry Der zu konvertierende Eintrag
+     * @param desiredType Der Typ des resultierenden Objektes
+     * @pre desiredType darf nicht null sein
+     * @pre entry darf nicht null sein
+     * @return Das Ergebniss Array
      */
     private Object convertArrayList(Object entry, Class<?> desiredType) {
+        assert (desiredType != null);
+        assert (entry != null);
 
         ArrayList<?> entryArrayList = (ArrayList<?>) entry;
 
@@ -357,9 +387,13 @@ class JSONReader {
      * 
      * @param desiredType Der Typ des resultierenden Objektes
      * @param doubleNumber Die übergebene Zahl
+     * @pre desiredType darf nicht null sein
+     * @pre doubleNumber darf nicht null sein
      * @return Die Konvertierte Zahl
      */
     private Number convertNumber(Class<?> desiredType, Object doubleNumber) {
+        assert (desiredType != null);
+        assert (doubleNumber != null);
 
         double number = (double) doubleNumber;
 
