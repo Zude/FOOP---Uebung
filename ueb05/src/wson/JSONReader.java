@@ -73,11 +73,18 @@ class JSONReader {
 
                 for (Field field : fields) {
 
-                    Object newEntry = newEntrys.get(field.getName());
+                    // TODO: Funktioniert für accesibility aber nicht für rest...
+                    if (!Modifier.isFinal(field.getModifiers())) {
 
-                    Object newEntryConverted = convertEntry(field.getType(), newEntry);
+                        System.out.println(
+                                "Feld: " + field.getType() + " wird adsadsadadsa! Ist anonym: "
+                                        + field.getType().isAnonymousClass());
+                        Object newEntry = newEntrys.get(field.getName());
 
-                    field.set(result, newEntryConverted);
+                        Object newEntryConverted = convertEntry(field.getType(), newEntry);
+
+                        field.set(result, newEntryConverted);
+                    }
                 }
 
                 System.out.println(
@@ -164,18 +171,7 @@ class JSONReader {
                         || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0)
                 .forEach(cur -> cur.setAccessible(true));
 
-        for (Field field : fieldsSet) {
-            if (!Modifier.isStatic(field.getModifiers()) && !field.getClass().isAnonymousClass()) {
-                result.add(field);
-            }
-        }
-
-        result.stream()
-                .filter(cur -> Modifier.isPrivate(cur.getModifiers())
-                        || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0)
-                .forEach(cur -> cur.setAccessible(true));
-
-        return result;
+        return fieldsSet;
     }
 
     Object convertMap(Class desiredType, Object entry) {
