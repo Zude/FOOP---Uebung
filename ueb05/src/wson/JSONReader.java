@@ -152,7 +152,7 @@ class JSONReader {
                 return convertArrayList(entry, desiredType);
             }
         } else if (List.class.isAssignableFrom(desiredType)) {
-            return convertList(desiredType, entry);
+            return convertList(desiredType, entry, field);
         } else if (desiredType == boolean.class || desiredType == Boolean.class
                 || desiredType == Object.class || desiredType == String.class) {
             return entry;
@@ -239,24 +239,33 @@ class JSONReader {
      * @pre desiredType darf nicht null sein
      * @pre entry darf nicht null sein
      * @return Das konvertierte Objekt
+     * @throws JSONSyntaxException
      */
-    private List<?> convertList(Class<?> desiredType, Object entry) {
+    private List<?> convertList(Class<?> desiredType, Object entry, Field field)
+            throws JSONSyntaxException {
         assert (desiredType != null);
         assert (entry != null);
 
         ArrayList<?> entryArrayList = (ArrayList<?>) entry;
 
-        ArrayList<Integer> result = new ArrayList<Integer>();
+        ArrayList<Object> result = new ArrayList<Object>();
 
-        for (int i = 0; i < entryArrayList.size(); i++) {
+        Type valueType = null;
 
-            Object convertedValue = null;
+        if (ParameterizedType.class.isAssignableFrom(field.getGenericType().getClass())) {
+            ParameterizedType type = (ParameterizedType) field.getGenericType();
+            valueType = type.getActualTypeArguments()[0];
+        }
+        if (valueType != null) {
+            for (int i = 0; i < entryArrayList.size(); i++) {
 
-            if (entryArrayList.get(i).getClass() == Double.class) {
-                convertedValue = convertNumber(Integer.class, entryArrayList.get(i));
+                Object convertedValue = null;
+
+                convertedValue = convertEntry((Class<?>) valueType, entryArrayList.get(i), field);
+
+                result.add(i, convertedValue);
+
             }
-
-            result.add(i, (Integer) convertedValue);
         }
 
         return result;
