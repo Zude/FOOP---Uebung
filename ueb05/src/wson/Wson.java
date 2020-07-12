@@ -1,9 +1,13 @@
 package wson;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import wson.annotations.StoreAs;
 
@@ -40,43 +44,15 @@ public class Wson {
     }
 
     private String toJsonHelper(Object src, Set<ReferenceWrapper> above) {
-        above.add(new ReferenceWrapper(src));
-
-        // TreeMap damit die String-Keys die natürliche Ordnung behalten
-        final Map<String, String> jsonMap = new TreeMap<>();
         final JSONWriter w = new JSONWriter();
+        final Map<Object, String> jsonMap = new HashMap<>();
 
-        // Listen
         if (Iterable.class.isAssignableFrom(src.getClass())) {
             return w.iterableToJson(src);
         }
 
-        if (Map.class.isAssignableFrom(src.getClass())) {
-
-            // TODO Auslagern nicht möglich, wegen dem toJsonHelper
-            for (Object key : ((Map) src).keySet()) {
-                jsonMap.put("\"" + w.strToJson(key.toString()) + "\":",
-                        toJsonHelper(((Map) src).get(key), new HashSet<>(above)));
-
-            }
-            return jsonMap.toString();
-        }
-
-        // Arrays
         if (src.getClass().isArray()) {
-            String arrName = src.getClass().getName();
-
-            // TODO Auslagern nicht möglich, wegen dem toJsonHelper
-            // Mehrdimensionale Arrays rekursiv aufrufen
-            if (arrName.contains("[[")) {
-                String[] arrRes = new String[Array.getLength(src)];
-                for (int i = 0; i < Array.getLength(src); i++) {
-                    arrRes[i] = toJsonHelper(Array.get(src, i), new HashSet<>(above));
-                }
-                return Arrays.toString(arrRes);
-            } else {
-                return "[" + w.arrToJson(src) + "]";
-            }
+            return w.multiArrToJson(src);
         }
 
         if (src.getClass() == String.class) {
@@ -91,75 +67,86 @@ public class Wson {
             return src.toString();
         }
 
-        Set<Field> fieldsSet = w.getAllFields(src);
-
-        // TODO irgendwie zu einem Stream machen...
-        System.out.println("++++++++++++++" + src.getClass().toString());
-        System.out.println("-------Felder: " + fieldsSet.size());
-
-        for (Field cur : fieldsSet) {
-            try {
-
-                // TODO Streams -> ForEach
-                // Gesicherte Felder verfügbar machen, check auf 0 für default package-private
-                if (Modifier.isPrivate(cur.getModifiers())
-                        || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0) {
-                    cur.setAccessible(true);
-                }
-
-                // TODO Streams -> Filter
-                // Statische Felder und Anonymeklassen ignorieren und cyclische referenzen checken
-                // TODO richtiger null check...
-                if (Modifier.isStatic(cur.getModifiers())
-                        || cur.get(src) != null && cur.get(src).getClass().isAnonymousClass()
-                        || above.contains(new ReferenceWrapper(cur.get(src)))) {
-                    System.out.println("Break for: " + cur);
-                } else {
-                    // Namen des aktuellen Feldes merken
-                    String fName = "\"" + cur.getName() + "\":";
-                    String fValues = null;
-
-                    // TODO Streams -> Filter|ForEach
-                    // Felder mit StoreAs Annotation überschreiben, wenn möglich
-                    if (cur.isAnnotationPresent(StoreAs.class)) {
-                        StoreAs rep = cur.getAnnotation(StoreAs.class);
-                        if (rep != null) {
-                            if (cur.getType().isAssignableFrom(String.class)) {
-                                fValues = "\"" + rep.value() + "\"";
-                            }
-                        }
-                    }
-
-                    // Funktion rekursiv aufrufen
-                    // Überprüfe das die Annotation den Wert nicht überschreibt und das der Wert
-                    // initialisert wurde
-                    // TODO besseres if...
-                    // TODO Streams -> Filter
-                    if (cur.get(src) != null || fValues != null) {
-                        if (fValues == null) {
-                            fValues = toJsonHelper(cur.get(src), new HashSet<>(above));
-                        }
-                        // Finale Map zusammenbauen
-                        jsonMap.put(fName, fValues);
-                    }
-
-                }
-
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                throw new RuntimeException("Fehler beim erstellen der JSON Darstellung. Object: "
-                        + src.toString() + " Feld: " + cur.toString());
+        if (Map.class.isAssignableFrom(src.getClass())) {
+            for (Object key : ((Map) src).keySet()) {
+                // String muss über toJson gebaut weren, weil alle Objekte erlaubt sind
+                jsonMap.put(key, toJson(((Map) src).get(key)));
             }
+            // Problem: In einer RawMap können Strings als Keys gespeichert werden, die beim
+            // umwandeln zu Strings die Natürlicheordnung brechen.
+            // sorted() ist an dieser Stelle nicht möglich, weil entweder die Objekte nicht
+            // verglichen werden können oder weil die String Form die Ordnung stört.
+            return jsonMap.keySet().stream()
+                    .map(k -> "\"" + w.strToJson(k.toString()) + "\":" + jsonMap.get(k))
+                    .collect(Collectors.joining(",", "{", "}"));
 
         }
 
-        String result = jsonMap.toString();
-        result = result.replace("=", "");
-        result = result.replace(" ", "");
+        above.add(new ReferenceWrapper(src));
+        Set<Field> fieldsSet = w.getAllFields(src);
 
-        System.out.println("Result: ");
-        System.out.println(result);
+        /*
+         * for (Field cur : fieldsSet) {
+         * 
+         * // Gesicherte Felder verfügbar machen, check auf 0 für default package-private if
+         * (Modifier.isPrivate(cur.getModifiers()) || Modifier.isProtected(cur.getModifiers()) ||
+         * cur.getModifiers() == 0) { cur.setAccessible(true); }
+         * 
+         * try { // Statische Felder,Anonymeklassen und cyclische referenzen ignorieren if
+         * (!Modifier.isStatic(cur.getModifiers()) && !above.contains(new
+         * ReferenceWrapper(cur.get(src)))) { if (cur.get(src) == null ||
+         * !cur.get(src).getClass().isAnonymousClass()) { String fValue;
+         * 
+         * // Felder mit StoreAs Annotation überschreiben, wenn möglich StoreAs rep =
+         * cur.getAnnotation(StoreAs.class); if (rep != null &&
+         * cur.getType().isAssignableFrom(String.class)) { fValue = "\"" + rep.value() + "\"";
+         * jsonMap.put(cur.getName(), fValue); } else if (cur.get(src) != null) { fValue =
+         * toJsonHelper(cur.get(src), new HashSet<>(above)); jsonMap.put(cur.getName(), fValue); }
+         * 
+         * } }
+         * 
+         * } catch (IllegalArgumentException | IllegalAccessException e) { throw new
+         * RuntimeException("Fehler beim erstellen der JSON Darstellung. Object: " + src.toString()
+         * + " Feld: " + cur.toString()); }
+         * 
+         * }
+         */
+        fieldsSet.stream()
+                .filter(cur -> Modifier.isPrivate(cur.getModifiers())
+                        || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0)
+                .forEach(cur -> cur.setAccessible(true));
 
-        return result;
+        // Für jedes Feld den Inhalt in einer Map speichern, damit in den Filtern und dem Stream
+        // später keine try/catch Blöcke geben muss. Die IllegalAccessException sollte eh niemals
+        // geworfen werden, weil wir vorher wenn nötig setAccessible(true) aufgerufen haben
+        Map<Object, Object> getMap = new HashMap<>();
+
+        fieldsSet.forEach(o -> {
+            try {
+                getMap.put(o, o.get(src));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        fieldsSet.stream().filter(cur -> !Modifier.isStatic(cur.getModifiers()))
+                .filter(cur -> !above.contains(new ReferenceWrapper(getMap.get(cur))))
+                .filter(cur -> getMap.get(cur) == null
+                        || !getMap.get(cur).getClass().isAnonymousClass())
+                .forEach(cur -> {
+                    String fValue;
+                    StoreAs rep = cur.getAnnotation(StoreAs.class);
+                    if (rep != null && cur.getType().isAssignableFrom(String.class)) {
+                        fValue = "\"" + rep.value() + "\"";
+                        jsonMap.put(cur.getName(), fValue);
+                    } else if (getMap.get(cur) != null) {
+                        fValue = toJsonHelper(getMap.get(cur), new HashSet<>(above));
+                        jsonMap.put(cur.getName(), fValue);
+                    }
+                });
+
+        return jsonMap.keySet().stream().map(k -> "\"" + k + "\":" + jsonMap.get(k)).sorted()
+                .collect(Collectors.joining(",", "{", "}"));
     }
 
     /**

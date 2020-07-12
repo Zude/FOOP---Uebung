@@ -34,21 +34,61 @@ class JSONWriter {
         return s;
     }
 
+    /**
+     * Sorgt für korrektes JSON bei Strings
+     * 
+     * @param str Quelle
+     * @return String in JSON
+     */
     public String strToJson(String str) {
         return escapeString(str);
     }
 
-    public String arrToJson(Object obj) {
+    /**
+     * Parst den Inhalt von mehrdimensionalen Arrays zur einem JSON String
+     * 
+     * @param src Array
+     * @return JSON-String
+     */
+    public String multiArrToJson(Object src) {
+        String arrName = src.getClass().getName();
+        // Mehrdimensionale Arrays rekursiv aufrufen
+        if (arrName.contains("[[")) {
+            String[] arrRes = new String[Array.getLength(src)];
+            String res = "";
+            for (int i = 0; i < Array.getLength(src); i++) {
+                arrRes[i] = arrToJson(Array.get(src, i));
+            }
+            // Mehrere Arrays werden mit ", " getrennt
+            return Arrays.toString(arrRes).replace(" ", "");
+        } else {
+            return arrToJson(src);
+        }
 
+    }
+
+    /**
+     * Parst den Inhalt von eindimensionalen Arrays zu JSON
+     * 
+     * @param obj Array
+     * @return JSON-String
+     */
+    public String arrToJson(Object obj) {
         StringJoiner sj = new StringJoiner(",");
 
         for (int i = 0; i < Array.getLength(obj); i++) {
             sj.add(Array.get(obj, i).toString());
         }
 
-        return sj.toString();
+        return "[" + sj.toString() + "]";
     }
 
+    /**
+     * Parst Listen und Sets als JSON String
+     * 
+     * @param obj Liste oder Set
+     * @return JSON-String
+     */
     public String iterableToJson(Object obj) {
         StringJoiner sj = new StringJoiner(",");
 
@@ -58,13 +98,25 @@ class JSONWriter {
         return "[" + sj.toString() + "]";
     }
 
+    /**
+     * Überprüft ob das Object ein Wrapper für ein primitiv ist
+     * 
+     * @param src Wrapper
+     * @return True wenn Wrapper
+     */
     public boolean isPrimWrapper(Object src) {
         return (src.getClass() == Double.class || src.getClass() == Float.class
                 || src.getClass() == Long.class || src.getClass() == Integer.class
                 || src.getClass() == Short.class || src.getClass() == Byte.class
-                || src.getClass() == Boolean.class);
+                || src.getClass() == Boolean.class || src.getClass() == Character.class);
     }
 
+    /**
+     * Findet alle Felder des übergebenen Objektes und seiner Superklassen
+     * 
+     * @param src Objekt das Felder enthält
+     * @return Alle Felder
+     */
     public Set<Field> getAllFields(Object src) {
         Class<?> cl = src.getClass();
 
