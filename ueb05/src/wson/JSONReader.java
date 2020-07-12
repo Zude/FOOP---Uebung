@@ -3,6 +3,7 @@ package wson;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -68,8 +69,7 @@ class JSONReader {
                 Object result = constructor.newInstance();
 
                 Set<Field> fields = new HashSet<Field>();
-                fields.addAll(getAllFields(result));
-                // fieldsSet.addAll(Arrays.asList(result.getClass().getDeclaredFields()));
+                fields.addAll(getAllFieldsFiltered(result));
 
                 for (Field field : fields) {
 
@@ -145,18 +145,23 @@ class JSONReader {
 
     }
 
-    public Set<Field> getAllFields(Object src) {
+    public Set<Field> getAllFieldsFiltered(Object src) {
         Class<?> cl = src.getClass();
 
         Set<Field> fieldsSet = new HashSet<Field>();
         fieldsSet.addAll(Arrays.asList(cl.getFields()));
-        // fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
+        fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
 
         // Private Felder aus Superklassen lesen
         while (cl.getSuperclass() != null) {
             cl = cl.getSuperclass();
             fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
         }
+
+        fieldsSet.stream()
+                .filter(cur -> Modifier.isPrivate(cur.getModifiers())
+                        || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0)
+                .forEach(cur -> cur.setAccessible(true));
 
         return fieldsSet;
     }
