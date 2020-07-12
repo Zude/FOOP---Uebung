@@ -149,6 +149,7 @@ class JSONReader {
         Class<?> cl = src.getClass();
 
         Set<Field> fieldsSet = new HashSet<Field>();
+        Set<Field> result = new HashSet<Field>();
         fieldsSet.addAll(Arrays.asList(cl.getFields()));
         fieldsSet.addAll(Arrays.asList(cl.getDeclaredFields()));
 
@@ -163,7 +164,18 @@ class JSONReader {
                         || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0)
                 .forEach(cur -> cur.setAccessible(true));
 
-        return fieldsSet;
+        for (Field field : fieldsSet) {
+            if (!Modifier.isStatic(field.getModifiers()) && !field.getClass().isAnonymousClass()) {
+                result.add(field);
+            }
+        }
+
+        result.stream()
+                .filter(cur -> Modifier.isPrivate(cur.getModifiers())
+                        || Modifier.isProtected(cur.getModifiers()) || cur.getModifiers() == 0)
+                .forEach(cur -> cur.setAccessible(true));
+
+        return result;
     }
 
     Object convertMap(Class desiredType, Object entry) {
