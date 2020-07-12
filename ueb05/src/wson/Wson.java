@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
+
 import java.util.stream.Collectors;
 
 import wson.annotations.StoreAs;
@@ -121,7 +121,7 @@ public class Wson {
         // geworfen werden, weil wir vorher wenn nötig setAccessible(true) aufgerufen haben
         Map<Object, Object> getMap = new HashMap<>();
 
-        fieldsSet.forEach(o -> {
+        fieldsSet.stream().filter(cur -> !Modifier.isStatic(cur.getModifiers())).forEach(o -> {
             try {
                 getMap.put(o, o.get(src));
             } catch (IllegalAccessException e) {
