@@ -1,15 +1,14 @@
 package wson;
 
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.io.IOException;
-import java.io.PushbackReader;
-import java.io.StringReader;
-
 import java.util.stream.Collectors;
 
 import wson.annotations.StoreAs;
@@ -28,29 +27,33 @@ public class Wson {
 
     /**
      * Deserialisiert einen JSON-String zu einem Java-Wert.
-     *
+     * 
      * @param json Zu deserialisierendes JSON. Muss gültig sein. Darf an erlaubten Stellen
      *            Whitespace enthalten. Werte für nicht in den Java-Klassen enthaltene Felder werden
      *            ignoriert.
      * @param classOfT Klasse des deserialisierten (Wurzel-)Wertes
      * @param <T> Typ des deserialisierten (Wurzel-)Wertes
-     * @return Der deserialisierte (Wurzel-)Wert
-     * @throws JSONSyntaxException Syntax-Fehler bei der JSON-Verarbeitung
      * @pre json != null
      * @pre classOfT != null
+     * @return Der deserialisierte (Wurzel-)Wert
+     * @throws JSONSyntaxException Syntax-Fehler bei der JSON-Verarbeitung
      */
     public <T> T fromJson(String json, Class<T> classOfT) throws JSONSyntaxException {
         assert json != null;
         assert classOfT != null;
 
-        return null;
-    }
+        try {
+            JSONReader r = new JSONReader();
+            PushbackReader pbr = new PushbackReader(new StringReader(json));
 
             return r.convert2(JSONParser.readElement(pbr), classOfT);
 
             // TODO JSONParser.readElement mit pbr aufrufen und Ergebnis mit JSONReader konvertieren
         } catch (IOException e) {
             throw new RuntimeException("not supposed to happen", e);
+        }
+    }
+
     private String toJsonHelper(Object src, Set<ReferenceWrapper> above) {
         final JSONWriter w = new JSONWriter();
         final Map<Object, String> jsonMap = new HashMap<>();
