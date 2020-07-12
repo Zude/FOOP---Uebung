@@ -3,9 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 
 import examples.EAccessibility;
 import examples.EAnnotation;
@@ -108,5 +106,5 @@ public class TestToJson {
         Assert.assertEquals("toJson: EInheritance", FileReader.readExampleJson("EInheritance"),
                 wson.toJson(eChild));
     }
-    
+
 }
