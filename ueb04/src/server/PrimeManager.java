@@ -40,7 +40,6 @@ public class PrimeManager implements Logger {
     private Set<Long> waitingList = new ConcurrentSkipListSet<Long>();
     private long calcDelay;
     private long currentNumber = 2;
-    private long lastPrime = 2;
     private volatile boolean isWorking = false;
     private int partitionSize;
 
@@ -81,7 +80,7 @@ public class PrimeManager implements Logger {
         waitingList.add(waitingLong);
 
         synchronized (waitingLong) {
-            while (lastPrime < q) {
+            while (primeNumbers.last() < q) {
                 try {
                     waitingLong.wait();
                 } catch (InterruptedException e) {
@@ -128,7 +127,7 @@ public class PrimeManager implements Logger {
         Long waitingLong = q / 2;
 
         synchronized (waitingLong) {
-            while (lastPrime < q / 2) {
+            while (primeNumbers.last() < q / 2) {
                 try {
                     waitingList.add(waitingLong);
                     waitingLong.wait();
@@ -261,7 +260,6 @@ public class PrimeManager implements Logger {
         // Add 2 as first PrimeNumber
         currentNumber = 2;
         primeNumbers.add(currentNumber);
-        lastPrime = currentNumber;
         addEntry("found prime: " + currentNumber);
         currentNumber++;
 
@@ -273,7 +271,6 @@ public class PrimeManager implements Logger {
 
                 if (isPrimeForList(currentNumber)) {
                     primeNumbers.add(currentNumber);
-                    lastPrime = currentNumber;
 
                     for (Long numberToCheck : waitingList) {
                         if (currentNumber >= numberToCheck) {
