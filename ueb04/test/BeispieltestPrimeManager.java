@@ -101,7 +101,7 @@ public class BeispieltestPrimeManager {
         // Listen auf gleiche Einträge prüfen, mindestens die notwendigen Primzahlen gefunden?
         List<String> primes = new LinkedList<>(Arrays.asList("found prime: 2", "found prime: 3",
                 "found prime: 5", "found prime: 7", "found prime: 11"));
-        Assert.assertEquals(glogStripped, primes);
+        Assert.assertEquals(primes, glogStripped);
 
         // Interessante Einträge stichprobenhaft überprüfen
         Assert.assertTrue(glog.contains("response: nextprime,4,5"));

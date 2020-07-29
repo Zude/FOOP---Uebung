@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
@@ -34,9 +35,9 @@ public class PrimeManager implements Logger {
     // werden
     private List<String> primeLog = Collections.synchronizedList(new ArrayList<String>());
     // TODO: Korrekter Typ ?
-    private volatile List<Long> primeNumbers = new ArrayList<Long>();
+    private volatile ConcurrentSkipListSet<Long> primeNumbers = new ConcurrentSkipListSet<Long>();
     private Thread workerThread = new Thread(this::calcPrimes);
-    private List<Long> waitingList = new CopyOnWriteArrayList<Long>();
+    private Set<Long> waitingList = new ConcurrentSkipListSet<Long>();
     private long calcDelay;
     private long currentNumber = 2;
     private long lastPrime = 2;
@@ -303,14 +304,14 @@ public class PrimeManager implements Logger {
 
         long upperBorder = (long) Math.sqrt(num);
 
-        int i = 0;
-
-        while (primeNumbers.get(i) <= upperBorder) {
-            if (num % primeNumbers.get(i) == 0) {
-                return false;
+        for (Long primeNumber : primeNumbers) {
+            if (primeNumber <= upperBorder) {
+                if (num % primeNumber == 0) {
+                    return false;
+                }
+            } else {
+                break;
             }
-
-            i++;
         }
 
         return true;
